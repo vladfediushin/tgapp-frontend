@@ -1,0 +1,25 @@
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Home from './pages/Home'
+import ModeSelect from './pages/ModeSelect'
+import Repeat from './pages/Repeat'
+import Results from './pages/Results'
+import Profile from './pages/Profile'
+import Topics from './pages/Topics'
+
+
+const App = () => {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/mode" element={<ModeSelect />} />
+      <Route path="/repeat" element={<Repeat />} />
+      <Route path="/results" element={<Results />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/topics" element={<Topics />} />
+      {/* другие страницы будут добавлены позже */}
+    </Routes>
+  )
+}
+
+export default App
