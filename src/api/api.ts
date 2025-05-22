@@ -2,7 +2,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000', // при деплое заменишь на свой домен
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 })
 
 // Тип для отправки ответа
