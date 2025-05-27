@@ -3,6 +3,17 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats } from '../api/api'
 
+// 🔧 Утилита для логгирования на Vercel
+function logToVercel(message: string) {
+  fetch('/api/log', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  }).catch(err => {
+    console.error('[LOG ERROR]', err)
+  })
+}
+
 const Home = () => {
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
@@ -10,45 +21,43 @@ const Home = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const tg = window.Telegram?.WebApp;
-    const user = tg?.initDataUnsafe?.user;
-  
-    console.log('[DEBUG] Telegram:', tg);
-    console.log('[DEBUG] Telegram user:', user);
-    console.log('[DEBUG] API base URL:', import.meta.env.VITE_API_BASE_URL);
-  
+    const tg = window.Telegram?.WebApp
+    const user = tg?.initDataUnsafe?.user
+
+    logToVercel('[TG INIT] Telegram object: ' + (tg ? '✅ found' : '❌ not found'))
+    logToVercel('[TG INIT] User object: ' + JSON.stringify(user))
+    logToVercel('[TG INIT] VITE_API_BASE_URL: ' + import.meta.env.VITE_API_BASE_URL)
+
     if (tg && user) {
-      tg.ready();
-      tg.expand();
-  
-      setUserName(user.first_name || 'друг');
-  
+      tg.ready()
+      tg.expand()
+      setUserName(user.first_name || 'друг')
+
       const payload = {
         telegram_id: user.id,
         username: user.username,
         first_name: user.first_name,
         last_name: user.last_name,
-      };
-  
-      console.log('[DEBUG] Отправка на бэкенд:', payload);
-  
+      }
+
+      logToVercel('[TG INIT] Sending to backend: ' + JSON.stringify(payload))
+
       fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
         .then(async res => {
-          const text = await res.text();
-          console.log('[DEBUG] Ответ от бэка:', res.status, text);
+          const text = await res.text()
+          logToVercel(`[TG INIT] Response ${res.status}: ${text}`)
         })
         .catch(err => {
-          console.error('[DEBUG] Ошибка при отправке:', err);
-        });
+          logToVercel('[TG INIT] Error: ' + err.message)
+        })
     } else {
-      console.warn('[DEBUG] Telegram не инициализирован или пользователь не найден.');
+      logToVercel('[TG INIT] Telegram WebApp or user not available')
     }
-  }, []);
-  
+  }, [])
 
   useEffect(() => {
     getUserStats(userId)
