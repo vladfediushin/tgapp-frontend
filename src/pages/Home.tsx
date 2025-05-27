@@ -5,7 +5,7 @@ import { getUserStats, UserStats } from '../api/api'
 
 // 🔧 Утилита для логгирования на Vercel
 function logToVercel(message: string) {
-  fetch('/api/log', {
+  fetch('/api/logs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
