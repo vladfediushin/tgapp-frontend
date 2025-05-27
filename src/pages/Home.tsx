@@ -13,6 +13,10 @@ const Home = () => {
     const tg = window.Telegram?.WebApp
     const user = tg?.initDataUnsafe?.user
 
+    console.log('[DEBUG] Telegram:', tg);
+    console.log('[DEBUG] Telegram user:', user);
+    console.log('[DEBUG] API base URL:', import.meta.env.VITE_API_BASE_URL);
+
     if (tg && user) {
       tg.ready()
       tg.expand()
