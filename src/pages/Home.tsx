@@ -11,10 +11,26 @@ const Home = () => {
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp
-    if (tg) {
+    const user = tg?.initDataUnsafe?.user
+
+    if (tg && user) {
       tg.ready()
       tg.expand()
-      setUserName(tg.initDataUnsafe.user?.first_name || 'друг')
+      setUserName(user.first_name || 'друг')
+
+      // Отправляем данные юзера на бэкенд
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegram_id: user.id,
+          username: user.username,
+          first_name: user.first_name,
+          last_name: user.last_name,
+        }),
+      }).catch(err => {
+        console.error('Ошибка при отправке Telegram-пользователя:', err)
+      })
     }
   }, [])
 
