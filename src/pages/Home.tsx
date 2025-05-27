@@ -19,6 +19,8 @@ const Home = () => {
       setUserName(user.first_name || 'друг')
 
       // Отправляем данные юзера на бэкенд
+      console.log('[DEBUG] Попытка отправки пользователя', user);
+
       fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,7 +30,10 @@ const Home = () => {
           first_name: user.first_name,
           last_name: user.last_name,
         }),
-      }).catch(err => {
+      })
+      .then(res => res.json())
+      .then(data => console.log('[DEBUG] Ответ от бэка:', data))
+      .catch(err => {
         console.error('Ошибка при отправке Telegram-пользователя:', err)
       })
     }
