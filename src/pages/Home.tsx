@@ -10,38 +10,45 @@ const Home = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const tg = window.Telegram?.WebApp
-    const user = tg?.initDataUnsafe?.user
-
+    const tg = window.Telegram?.WebApp;
+    const user = tg?.initDataUnsafe?.user;
+  
     console.log('[DEBUG] Telegram:', tg);
     console.log('[DEBUG] Telegram user:', user);
     console.log('[DEBUG] API base URL:', import.meta.env.VITE_API_BASE_URL);
-
+  
     if (tg && user) {
-      tg.ready()
-      tg.expand()
-      setUserName(user.first_name || 'друг')
-
-      // Отправляем данные юзера на бэкенд
-      console.log('[DEBUG] Попытка отправки пользователя', user);
-
+      tg.ready();
+      tg.expand();
+  
+      setUserName(user.first_name || 'друг');
+  
+      const payload = {
+        telegram_id: user.id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      };
+  
+      console.log('[DEBUG] Отправка на бэкенд:', payload);
+  
       fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          telegram_id: user.id,
-          username: user.username,
-          first_name: user.first_name,
-          last_name: user.last_name,
-        }),
+        body: JSON.stringify(payload),
       })
-      .then(res => res.json())
-      .then(data => console.log('[DEBUG] Ответ от бэка:', data))
-      .catch(err => {
-        console.error('Ошибка при отправке Telegram-пользователя:', err)
-      })
+        .then(async res => {
+          const text = await res.text();
+          console.log('[DEBUG] Ответ от бэка:', res.status, text);
+        })
+        .catch(err => {
+          console.error('[DEBUG] Ошибка при отправке:', err);
+        });
+    } else {
+      console.warn('[DEBUG] Telegram не инициализирован или пользователь не найден.');
     }
-  }, [])
+  }, []);
+  
 
   useEffect(() => {
     getUserStats(userId)
