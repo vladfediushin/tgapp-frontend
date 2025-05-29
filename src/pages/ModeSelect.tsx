@@ -1,11 +1,20 @@
-// frontend/src/pages/ModeSelect.tsx
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import api, { getQuestions, QuestionOut } from '../api/api'
 
 const ModeSelect = () => {
   const navigate = useNavigate()
 
-  const startMode = (mode: string) => {
+  const startMode = async (mode: string) => {
+    if (mode === 'interval') {
+      try {
+        const response = await getQuestions({})
+        console.log('Fetched interval questions:', response.data as QuestionOut[])
+        // Здесь можно сохранить вопросы в глобальное состояние или передать дальше
+      } catch (error) {
+        console.error('Error fetching interval questions:', error)
+      }
+    }
     navigate(`/repeat?mode=${mode}`)
   }
 
@@ -29,7 +38,7 @@ const ModeSelect = () => {
   )
 }
 
-const btnStyle = {
+const btnStyle: React.CSSProperties = {
   display: 'block',
   width: '100%',
   padding: '12px',
