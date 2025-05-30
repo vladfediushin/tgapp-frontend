@@ -22,7 +22,6 @@ const Repeat: React.FC = () => {
   const answers = useSession(state => state.answers)
 
   useEffect(() => {
-    // Сброс ответов при заходе
     resetAnswers()
 
     if (preloadedQuestions) {
@@ -30,16 +29,15 @@ const Repeat: React.FC = () => {
       return
     }
 
-    // Проверяем, есть ли внутренний userId
     if (!userId) {
       console.error('Repeat: нет userId, невозможно загрузить вопросы')
       return
     }
 
-    // Запрашиваем вопросы с обязательными параметрами
+    // Запрос с обязательными параметрами: user_id, mode, country, language
     getQuestions({
       user_id: userId,
-      mode,
+      mode: mode,
       country: DEFAULT_COUNTRY,
       language: DEFAULT_LANGUAGE,
     })
@@ -49,19 +47,12 @@ const Repeat: React.FC = () => {
 
   const handleAnswer = (index: number) => {
     const current = questions[step]
-    const alreadyAnswered = answers.find(a => a.questionId === current.id)
+    if (!current) return
 
-    if (!alreadyAnswered) {
+    if (!answers.some(a => a.questionId === current.id)) {
       const isCorrect = index === current.data.correct_index
-
-      addAnswer({
-        questionId: current.id,
-        selectedIndex: index,
-        isCorrect,
-      })
-
-      // отправляем на бэкенд
-      // submitAnswer expects user_id, but backend uses query param for user_id, so skip here
+      addAnswer({ questionId: current.id, selectedIndex: index, isCorrect })
+      // здесь можно вызвать submitAnswer
     }
 
     if (step + 1 < questions.length) {
@@ -93,23 +84,21 @@ const Repeat: React.FC = () => {
         <button
           key={idx}
           onClick={() => handleAnswer(idx)}
-          style={btnStyle}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '10px',
+            margin: '10px 0',
+            border: '1px solid #ccc',
+            borderRadius: '8px',
+            backgroundColor: '#fff',
+          }}
         >
           {opt}
         </button>
       ))}
     </div>
   )
-}
-
-const btnStyle: React.CSSProperties = {
-  display: 'block',
-  width: '100%',
-  padding: '10px',
-  margin: '10px 0',
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-  backgroundColor: '#fff',
 }
 
 export default Repeat
