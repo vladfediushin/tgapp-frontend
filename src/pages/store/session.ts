@@ -1,15 +1,18 @@
 // frontend/src/store/session.ts
 import { create } from 'zustand'
 
+// Ответ пользователя на один вопрос
 interface Answer {
-  questionId: number
+  questionId: string  // UUID вопроса
   selectedIndex: number
   isCorrect: boolean
 }
 
+// Состояние сессии пользователя
 interface SessionState {
-  userId: number
-  setUserId: (id: number) => void
+  // Внутренний UUID пользователя
+  userId: string | null
+  setUserId: (id: string) => void
 
   answers: Answer[]
   addAnswer: (answer: Answer) => void
@@ -17,13 +20,13 @@ interface SessionState {
 }
 
 export const useSession = create<SessionState>((set) => ({
-  userId: 123,
-  setUserId: (id) => set({ userId: id }),
+  userId: null,
+  setUserId: (id: string) => set({ userId: id }),
 
   answers: [],
   addAnswer: (answer) =>
     set((state) => {
-      // Только если такого вопроса ещё нет
+      // Не дублировать ответы
       if (state.answers.some((a) => a.questionId === answer.questionId)) {
         return state
       }

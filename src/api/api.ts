@@ -1,39 +1,44 @@
-// frontend/src/api/api.ts
 import axios from 'axios'
 
+// создаём экземпляр axios с базовым URL из .env
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 })
 
-// Тип для отправки ответа
-export interface AnswerSubmit {
-  user_id: number
-  question_id: number
-  selected_index: number
-  is_correct: boolean
+// -------------------------
+// Типы для работы с пользователем
+// -------------------------
+
+/** Входная схема для создания/обновления пользователя */
+export interface UserCreate {
+  telegram_id: number
+  username?: string
+  first_name?: string
+  last_name?: string
 }
 
-// Отправка одного ответа
-export const submitAnswer = (payload: AnswerSubmit) => {
-  return api.post('/submit_answer', payload)
+/** Ответ от сервера при создании/получении пользователя */
+export interface UserOut {
+  telegram_id: number
+  username?: string
+  first_name?: string
+  last_name?: string
+  id: string       // UUID внутреннего пользователя
+  created_at: string // timestamp создания
 }
 
-export interface UserStats {
-  user_id: number
-  answered: number
-  correct: number
-  total_questions: number
+/** Создать или обновить пользователя */
+export const createUser = (payload: UserCreate) => {
+  return api.post<UserOut>('/users/', payload)
 }
 
-export const getUserStats = (userId: number) => {
-  return api.get<UserStats>(`/stats?user_id=${userId}`)
-}
+// -------------------------
+// Типы и функции для работы с вопросами
+// -------------------------
 
-// User is fetched/created in Home.tsx: fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`
-
-// Тип, которым бэкенд отвечает за один вопрос
+/** Структура одного вопроса из ответа сервера */
 export interface QuestionOut {
-  id: string          // UUID
+  id: string
   data: {
     question_itself: string
     question_image: string | null
@@ -45,21 +50,50 @@ export interface QuestionOut {
   topic: string
 }
 
-// Параметры фильтрации
+/** Параметры фильтра для запроса вопросов */
 export interface GetQuestionsParams {
+  user_id: string
   country?: string
   language?: string
+  mode?: string
   topic?: string
 }
 
 /**
- * Получить список вопросов с сервера
- * @param params — необязательные параметры country, language, topic
- * @returns Promise<AxiosResponse<QuestionOut[]>>
+ * Получить вопросы с сервера
  */
-export const getQuestions = (params: GetQuestionsParams = {}) => {
+export const getQuestions = (params: GetQuestionsParams) => {
   return api.get<QuestionOut[]>('/questions/', { params })
 }
 
+// -------------------------
+// Типы и функции для статистики и ответов
+// -------------------------
+
+/** Статистика пользователя */
+export interface UserStats {
+  user_id: string
+  answered: number
+  correct: number
+  total_questions: number
+}
+
+/** Получить статистику пользователя по его ID */
+export const getUserStats = (userId: string) => {
+  return api.get<UserStats>(`/stats?user_id=${userId}`)
+}
+
+/** Параметры для отправки одного ответа */
+export interface AnswerSubmit {
+  user_id: string
+  question_id: string
+  selected_index: number
+  is_correct: boolean
+}
+
+/** Отправить ответ пользователя */
+export const submitAnswer = (payload: AnswerSubmit) => {
+  return api.post('/submit_answer', payload)
+}
 
 export default api

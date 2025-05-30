@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats } from '../api/api'
+import { getUserStats, UserStats, createUser, UserOut } from '../api/api'
 
 // 🔧 Утилита для логгирования на Vercel
 function logToVercel(message: string) {
@@ -14,10 +14,11 @@ function logToVercel(message: string) {
   })
 }
 
-const Home = () => {
+const Home: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
-  const userId = useSession(state => state.userId)
+  const internalId = useSession(state => state.userId)
+  const setInternalId = useSession(state => state.setUserId)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -33,37 +34,33 @@ const Home = () => {
       tg.expand()
       setUserName(user.first_name || 'друг')
 
-      const payload = {
+      // создаём через axios функцию createUser
+      createUser({
         telegram_id: user.id,
         username: user.username,
         first_name: user.first_name,
         last_name: user.last_name,
-      }
-
-      logToVercel('[TG INIT] Sending to backend: ' + JSON.stringify(payload))
-
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/users/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
       })
-        .then(async res => {
-          const text = await res.text()
-          logToVercel(`[TG INIT] Response ${res.status}: ${text}`)
+        .then(res => {
+          const data: UserOut = res.data
+          logToVercel(`[TG INIT] createUser response id=${data.id}`)
+          // сохраняем внутренний UUID в сторадж
+          setInternalId(data.id)
         })
         .catch(err => {
-          logToVercel('[TG INIT] Error: ' + err.message)
+          logToVercel('[TG INIT] createUser error: ' + err.message)
         })
     } else {
       logToVercel('[TG INIT] Telegram WebApp or user not available')
     }
-  }, [])
+  }, [setInternalId])
 
   useEffect(() => {
-    getUserStats(userId)
+    if (!internalId) return
+    getUserStats(internalId)
       .then(res => setStats(res.data))
       .catch(err => console.error('Ошибка получения статистики', err))
-  }, [userId])
+  }, [internalId])
 
   const handleStart = () => {
     navigate('/mode')
