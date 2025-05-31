@@ -78,7 +78,7 @@ const Repeat: React.FC = () => {
           style={{ maxWidth: '100%', borderRadius: '8px' }}
         />
       )}
-      <p>{current.data.question_itself}</p>
+      <p>{current.data.question}</p>
 
       {current.data.options.map((opt, idx) => (
         <button

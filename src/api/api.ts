@@ -40,7 +40,7 @@ export const createUser = (payload: UserCreate) => {
 export interface QuestionOut {
   id: string
   data: {
-    question_itself: string
+    question: string
     question_image: string | null
     options: string[]
     correct_index: number
