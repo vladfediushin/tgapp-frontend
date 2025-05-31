@@ -87,7 +87,6 @@ export const getUserStats = (userId: string) => {
 export interface AnswerSubmit {
   user_id: string
   question_id: string
-  selected_index: number
   is_correct: boolean
 }
 
