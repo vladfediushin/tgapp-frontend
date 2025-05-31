@@ -2,14 +2,14 @@
 import { create } from 'zustand'
 
 interface Answer {
-  questionId: number
+  questionId: string
   selectedIndex: number
   isCorrect: boolean
 }
 
 interface SessionState {
-  userId: number
-  setUserId: (id: number) => void
+  userId: string | null;
+  setUserId: (id: string) => void
 
   answers: Answer[]
   addAnswer: (answer: Answer) => void
@@ -17,7 +17,7 @@ interface SessionState {
 }
 
 export const useSession = create<SessionState>((set) => ({
-  userId: 123,
+  userId: null,
   setUserId: (id) => set({ userId: id }),
 
   answers: [],
