@@ -86,7 +86,7 @@ export const getUserStats = (userId: string) => {
 /** Параметры для отправки одного ответа */
 export interface AnswerSubmit {
   user_id: string
-  question_id: string
+  question_id: number
   is_correct: boolean
 }
 
