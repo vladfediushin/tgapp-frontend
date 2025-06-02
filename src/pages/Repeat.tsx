@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getQuestions, QuestionOut } from '../api/api'
+import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
 
 const DEFAULT_COUNTRY = 'AM'
 const DEFAULT_LANGUAGE = 'ru'
@@ -13,19 +13,23 @@ const Repeat: React.FC = () => {
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
-  const [questions, setQuestions] = useState<QuestionOut[]>([])
-  const [step, setStep] = useState(0)
+  // Вместо “questions + step” заводим локальную очередь:
+  const [queue, setQueue] = useState<QuestionOut[]>([])
+  const [current, setCurrent] = useState<QuestionOut | null>(null)
 
+  // Состояние из Zustand
   const userId = useSession(state => state.userId)
   const addAnswer = useSession(state => state.addAnswer)
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
 
+  // 1) При первом рендере: сбрасываем локальные ответы и подгружаем вопросы
   useEffect(() => {
     resetAnswers()
 
+    // Если вопросы переданы через `location.state`, то сразу в очередь
     if (preloadedQuestions) {
-      setQuestions(preloadedQuestions)
+      setQueue(preloadedQuestions)
       return
     }
 
@@ -34,43 +38,86 @@ const Repeat: React.FC = () => {
       return
     }
 
-    // Запрос с обязательными параметрами: user_id, mode, country, language
+    // Запрашиваем вопросы с бэкенда
     getQuestions({
       user_id: userId,
       mode: mode,
       country: DEFAULT_COUNTRY,
       language: DEFAULT_LANGUAGE,
     })
-      .then(res => setQuestions(res.data))
+      .then(res => {
+        setQueue(res.data) // Инициализируем очередь
+      })
       .catch(err => console.error('Ошибка загрузки вопросов:', err))
   }, [mode, preloadedQuestions, userId, resetAnswers])
 
-  const handleAnswer = (index: number) => {
-    const current = questions[step]
-    if (!current) return
-
-    if (!answers.some(a => a.questionId === current.id)) {
-      const isCorrect = index === current.data.correct_index
-      addAnswer({ questionId: current.id, selectedIndex: index, isCorrect })
-      // здесь можно вызвать submitAnswer
-    }
-
-    if (step + 1 < questions.length) {
-      setStep(step + 1)
+  // 2) Следим, когда очередь изменилась: 
+  //    если появились элементы, берем первый в качестве `current`,
+  //    если очередь пустая — перенаправляем на /results
+  useEffect(() => {
+    if (queue.length > 0) {
+      setCurrent(queue[0])
     } else {
       navigate('/results')
     }
+  }, [queue, navigate])
+
+  // 3) Обработчик нажатия на вариант ответа
+  const handleAnswer = (index: number) => {
+    if (!current) return
+    const questionId = current.id
+    const isCorrect = index === current.data.correct_index
+
+    // Проверяем: первая ли это попытка для данного questionId
+    const alreadyAnswered = answers.some(a => a.questionId === questionId)
+
+    if (!alreadyAnswered) {
+      // Первая попытка: сохраняем в Zustand и отправляем на бэкенд
+      addAnswer({ questionId, selectedIndex: index, isCorrect })
+
+      if (userId) {
+        submitAnswer({
+          user_id: userId,
+          question_id: questionId,
+          is_correct: isCorrect,
+        })
+          .then(response => {
+            console.log('submitAnswer success:', response.data)
+          })
+          .catch(err => {
+            console.error('Ошибка при отправке ответа на бэк:', err)
+          })
+      } else {
+        console.error('Repeat: нет userId, не отправляем submitAnswer')
+      }
+    }
+    // Если alreadyAnswered === true, то это повторная попытка: 
+    //   мы не зовём ни addAnswer(), ни submitAnswer()
+
+    // 4) Составляем новую очередь:
+    //    — убираем текущий вопрос (первый элемент)
+    //    — если ответ неверный — ставим его в конец, иначе (если верный) — не возвращаем
+    setQueue(prevQueue => {
+      // prevQueue[0] === current
+      const rest = prevQueue.slice(1) // все, кроме первого
+      if (!isCorrect) {
+        // на неверный ответ возвращаем этот вопрос в конец
+        return [...rest, current]
+      }
+      // на правильный — просто убираем из очереди
+      return rest
+    })
   }
 
-  if (questions.length === 0) {
+  // 5) Пока очередь ещё не загрузилась, показываем «Загрузка…»
+  if (!current) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
-  const current = questions[step]
-
+  // 6) Рендер текущего вопроса
   return (
     <div style={{ padding: 20 }}>
-      <h2>Вопрос {step + 1}</h2>
+      <h2>Вопрос</h2>
       {current.data.question_image && (
         <img
           src={current.data.question_image}
@@ -78,7 +125,7 @@ const Repeat: React.FC = () => {
           style={{ maxWidth: '100%', borderRadius: '8px' }}
         />
       )}
-      <p>{current.data.question}</p>
+      <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
 
       {current.data.options.map((opt, idx) => (
         <button
@@ -92,6 +139,7 @@ const Repeat: React.FC = () => {
             border: '1px solid #ccc',
             borderRadius: '8px',
             backgroundColor: '#fff',
+            textAlign: 'left',
           }}
         >
           {opt}
