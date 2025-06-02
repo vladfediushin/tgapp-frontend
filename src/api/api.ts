@@ -92,7 +92,7 @@ export interface AnswerSubmit {
 
 /** Отправить ответ пользователя */
 export const submitAnswer = (payload: AnswerSubmit) => {
-  return api.post('/submit_answer', payload)
+  return api.post('/user_progress/submit_answer', payload)
 }
 
 export default api
