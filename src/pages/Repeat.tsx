@@ -13,22 +13,21 @@ const Repeat: React.FC = () => {
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
-  // Вместо “questions + step” заводим локальную очередь:
-  const [queue, setQueue] = useState<QuestionOut[]>([])
+  // 1) Инициализируем queue как null, чтобы отличать «ещё не загружали» от «загрузили, но пусто».
+  const [queue, setQueue] = useState<QuestionOut[] | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
 
-  // Состояние из Zustand
   const userId = useSession(state => state.userId)
   const addAnswer = useSession(state => state.addAnswer)
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
 
-  // 1) При первом рендере: сбрасываем локальные ответы и подгружаем вопросы
+  // 2) При первом монтировании: сбрасываем старые ответы и либо берём preloadedQuestions, либо запрашиваем вопросы
   useEffect(() => {
     resetAnswers()
 
-    // Если вопросы переданы через `location.state`, то сразу в очередь
     if (preloadedQuestions) {
+      // Если вопросы уже пришли через location.state, сразу кладём их в queue
       setQueue(preloadedQuestions)
       return
     }
@@ -38,7 +37,7 @@ const Repeat: React.FC = () => {
       return
     }
 
-    // Запрашиваем вопросы с бэкенда
+    // Иначе отправляем запрос на бэкенд и, когда придёт ответ, заполняем queue
     getQuestions({
       user_id: userId,
       mode: mode,
@@ -46,33 +45,43 @@ const Repeat: React.FC = () => {
       language: DEFAULT_LANGUAGE,
     })
       .then(res => {
-        setQueue(res.data) // Инициализируем очередь
+        setQueue(res.data) // res.data — массив QuestionOut[]
       })
-      .catch(err => console.error('Ошибка загрузки вопросов:', err))
+      .catch(err => {
+        console.error('Ошибка загрузки вопросов:', err)
+        // На случае ошибки можно в дальнейшем обработать либо перекинуть на какую-то ошибочную страницу.
+        // Пока оставим queue = [] (если нужно сразу редиректить), либо можно оставить queue = [].
+        setQueue([]) 
+      })
   }, [mode, preloadedQuestions, userId, resetAnswers])
 
-  // 2) Следим, когда очередь изменилась: 
-  //    если появились элементы, берем первый в качестве `current`,
-  //    если очередь пустая — перенаправляем на /results
+  // 3) Когда меняется queue, устанавливаем current или делаем редирект
   useEffect(() => {
+    // Если queue всё ещё null — значит вопросы ещё не подгрузились → ждём
+    if (queue === null) {
+      return
+    }
+
     if (queue.length > 0) {
+      // Берём первый вопрос из очереди
       setCurrent(queue[0])
     } else {
+      // Если после загрузки queue оказался пустым — идём на /results
       navigate('/results')
     }
   }, [queue, navigate])
 
-  // 3) Обработчик нажатия на вариант ответа
+  // 4) Обработчик ответа
   const handleAnswer = (index: number) => {
     if (!current) return
     const questionId = current.id
     const isCorrect = index === current.data.correct_index
 
-    // Проверяем: первая ли это попытка для данного questionId
+    // Проверяем: была ли уже первая попытка для этого questionId
     const alreadyAnswered = answers.some(a => a.questionId === questionId)
 
     if (!alreadyAnswered) {
-      // Первая попытка: сохраняем в Zustand и отправляем на бэкенд
+      // 4.1) Первая попытка: сохраняем локально и отправляем на бэкенд
       addAnswer({ questionId, selectedIndex: index, isCorrect })
 
       if (userId) {
@@ -91,26 +100,25 @@ const Repeat: React.FC = () => {
         console.error('Repeat: нет userId, не отправляем submitAnswer')
       }
     }
-    // Если alreadyAnswered === true, то это повторная попытка: 
-    //   мы не зовём ни addAnswer(), ни submitAnswer()
+    // Если это повторная попытка (alreadyAnswered === true), то ни addAnswer, ни submitAnswer не вызываем
 
-    // 4) Составляем новую очередь:
-    //    — убираем текущий вопрос (первый элемент)
-    //    — если ответ неверный — ставим его в конец, иначе (если верный) — не возвращаем
+    // 4.2) Теперь обновляем очередь:
     setQueue(prevQueue => {
-      // prevQueue[0] === current
-      const rest = prevQueue.slice(1) // все, кроме первого
+      if (!prevQueue) return prevQueue // теоретически не должно быть, т.к. queue !== null здесь
+      // Отсекаем первый элемент (current)
+      const rest = prevQueue.slice(1)
       if (!isCorrect) {
-        // на неверный ответ возвращаем этот вопрос в конец
+        // Неверный ответ → возвращаем current в конец очереди
         return [...rest, current]
       }
-      // на правильный — просто убираем из очереди
+      // Правильный ответ → просто убираем current (он не возвращается в очередь)
       return rest
     })
   }
 
-  // 5) Пока очередь ещё не загрузилась, показываем «Загрузка…»
-  if (!current) {
+  // 5) Пока queue === null (ещё не загрузились вопросы) или current === null (когда queue стал [] → navigate только что вызвался),
+  //    показываем «Загрузка…». Когда queue стал [] навигация на /results произойдёт моментально.
+  if (queue === null || current === null) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
