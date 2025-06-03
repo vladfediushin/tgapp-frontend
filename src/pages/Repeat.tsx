@@ -13,7 +13,11 @@ const Repeat: React.FC = () => {
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
+  // -------------------------------------------------------------------
+  // 1) Состояния:
+  // -------------------------------------------------------------------
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
+  const [initialCount, setInitialCount] = useState<number | null>(null) // <-- новое состояние
   const [current, setCurrent] = useState<QuestionOut | null>(null)
 
   const userId = useSession(state => state.userId)
@@ -21,22 +25,34 @@ const Repeat: React.FC = () => {
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
 
-  // --- новый блок: вычисляем счётчики ---
-  const totalQuestions = queue !== null ? queue.length : 0
+  // -------------------------------------------------------------------
+  // 2) Вычисляем динамическое "сколько вопросов осталось" и счётчики правильных/неправильных:
+  // -------------------------------------------------------------------
+  const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
   const incorrectCount = answers.filter(a => !a.isCorrect).length
-  // --------------------------------------
 
+  // -------------------------------------------------------------------
+  // 3) useEffect для загрузки вопросов и установки initialCount:
+  // -------------------------------------------------------------------
   useEffect(() => {
     resetAnswers()
+
     if (preloadedQuestions) {
       setQueue(preloadedQuestions)
+
+      // <-- сохраняем изначальную длину, если еще не было установлено
+      if (initialCount === null) {
+        setInitialCount(preloadedQuestions.length)
+      }
       return
     }
+
     if (!userId) {
       console.error('Repeat: нет userId, невозможно загрузить вопросы')
       return
     }
+
     getQuestions({
       user_id: userId,
       mode: mode,
@@ -45,17 +61,31 @@ const Repeat: React.FC = () => {
     })
       .then(res => {
         setQueue(res.data)
+
+        // <-- сохраняем изначальную длину при первом вызове
+        if (initialCount === null) {
+          setInitialCount(res.data.length)
+        }
       })
       .catch(err => {
         console.error('Ошибка загрузки вопросов:', err)
         setQueue([])
-      })
-  }, [mode, preloadedQuestions, userId, resetAnswers])
 
+        // <-- если загрузка упала, тоже устанавливаем initialCount = 0 один раз
+        if (initialCount === null) {
+          setInitialCount(0)
+        }
+      })
+  }, [mode, preloadedQuestions, userId, resetAnswers, initialCount])
+
+  // -------------------------------------------------------------------
+  // 4) useEffect для установки текущего вопроса или навигации, когда очередь пуста:
+  // -------------------------------------------------------------------
   useEffect(() => {
     if (queue === null) {
       return
     }
+
     if (queue.length > 0) {
       setCurrent(queue[0])
     } else {
@@ -63,6 +93,9 @@ const Repeat: React.FC = () => {
     }
   }, [queue, navigate])
 
+  // -------------------------------------------------------------------
+  // 5) Обработчик ответа:
+  // -------------------------------------------------------------------
   const handleAnswer = (index: number) => {
     if (!current) return
     const questionId = current.id
@@ -100,18 +133,22 @@ const Repeat: React.FC = () => {
     })
   }
 
+  // -------------------------------------------------------------------
+  // 6) Пока очередь не загружена или текущего вопроса нет — показываем «Загрузка...»
+  // -------------------------------------------------------------------
   if (queue === null || current === null) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
-  // ====================================================
-  // Здесь queue !== null и current !== null гарантированно
-  // ====================================================
+  // -------------------------------------------------------------------
+  // 7) Основной рендер: здесь queue !== null и current !== null гарантированно
+  // -------------------------------------------------------------------
   return (
     <div style={{ padding: 20 }}>
       {/* ---------- блок счётчиков ---------- */}
       <div style={{ marginBottom: 20 }}>
-        <div>Всего вопросов в очереди: {totalQuestions}</div>
+        <div>Всего вопросов в очереди (изначально): {initialCount}</div>
+        <div>Осталось вопросов в очереди: {questionsLeft}</div>
         <div>Правильно отвечено: {correctCount}</div>
         <div>Неправильно отвечено: {incorrectCount}</div>
       </div>
