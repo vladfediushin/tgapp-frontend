@@ -17,8 +17,13 @@ const Repeat: React.FC = () => {
   // 1) Состояния:
   // -------------------------------------------------------------------
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
-  const [initialCount, setInitialCount] = useState<number | null>(null) // <-- новое состояние
+  const [initialCount, setInitialCount] = useState<number | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
+
+  // Новые состояния для обработки клика по ответу
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+  const [isAnswered, setIsAnswered] = useState<boolean>(false)
+  const [isCorrect, setIsCorrect] = useState<boolean>(false)
 
   const userId = useSession(state => state.userId)
   const addAnswer = useSession(state => state.addAnswer)
@@ -26,7 +31,7 @@ const Repeat: React.FC = () => {
   const answers = useSession(state => state.answers)
 
   // -------------------------------------------------------------------
-  // 2) Вычисляем динамическое "сколько вопросов осталось" и счётчики правильных/неправильных:
+  // 2) Вычисляем "сколько вопросов осталось" и счётчики:
   // -------------------------------------------------------------------
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
@@ -40,8 +45,6 @@ const Repeat: React.FC = () => {
 
     if (preloadedQuestions) {
       setQueue(preloadedQuestions)
-
-      // <-- сохраняем изначальную длину, если еще не было установлено
       if (initialCount === null) {
         setInitialCount(preloadedQuestions.length)
       }
@@ -61,8 +64,6 @@ const Repeat: React.FC = () => {
     })
       .then(res => {
         setQueue(res.data)
-
-        // <-- сохраняем изначальную длину при первом вызове
         if (initialCount === null) {
           setInitialCount(res.data.length)
         }
@@ -70,8 +71,6 @@ const Repeat: React.FC = () => {
       .catch(err => {
         console.error('Ошибка загрузки вопросов:', err)
         setQueue([])
-
-        // <-- если загрузка упала, тоже устанавливаем initialCount = 0 один раз
         if (initialCount === null) {
           setInitialCount(0)
         }
@@ -82,9 +81,7 @@ const Repeat: React.FC = () => {
   // 4) useEffect для установки текущего вопроса или навигации, когда очередь пуста:
   // -------------------------------------------------------------------
   useEffect(() => {
-    if (queue === null) {
-      return
-    }
+    if (queue === null) return
 
     if (queue.length > 0) {
       setCurrent(queue[0])
@@ -94,54 +91,76 @@ const Repeat: React.FC = () => {
   }, [queue, navigate])
 
   // -------------------------------------------------------------------
-  // 5) Обработчик ответа:
+  // 5) Переход к следующему вопросу:
   // -------------------------------------------------------------------
-  const handleAnswer = (index: number) => {
-    if (!current) return
-    const questionId = current.id
-    const isCorrect = index === current.data.correct_index
-
-    const alreadyAnswered = answers.some(a => a.questionId === questionId)
-
-    if (!alreadyAnswered) {
-      addAnswer({ questionId, selectedIndex: index, isCorrect })
-
-      if (userId) {
-        submitAnswer({
-          user_id: userId,
-          question_id: questionId,
-          is_correct: isCorrect,
-        })
-          .then(response => {
-            console.log('submitAnswer success:', response.data)
-          })
-          .catch(err => {
-            console.error('Ошибка при отправке ответа на бэк:', err)
-          })
-      } else {
-        console.error('Repeat: нет userId, не отправляем submitAnswer')
-      }
-    }
-
+  const nextQuestion = () => {
     setQueue(prevQueue => {
       if (!prevQueue) return prevQueue
-      const rest = prevQueue.slice(1)
+      const [first, ...rest] = prevQueue
+      // Если ответ был неправильным, добавляем вопрос в конец, иначе просто удаляем
       if (!isCorrect) {
-        return [...rest, current]
+        return [...rest, first]
       }
       return rest
     })
+    // Сбрасываем состояние ответов для нового вопроса
+    setSelectedIndex(null)
+    setIsAnswered(false)
+    setIsCorrect(false)
   }
 
   // -------------------------------------------------------------------
-  // 6) Пока очередь не загружена или текущего вопроса нет — показываем «Загрузка...»
+  // 6) Обработчик ответа:
+  // -------------------------------------------------------------------
+  const handleAnswer = (index: number) => {
+    if (!current || isAnswered) return
+
+    const questionId = current.id
+    const correctIndex = current.data.correct_index
+    const wasCorrect = index === correctIndex
+
+    setSelectedIndex(index)
+    setIsAnswered(true)
+    setIsCorrect(wasCorrect)
+
+    // Сохраняем ответ в локальном сторе
+    addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
+
+    // Отправляем на бэк
+    if (userId) {
+      submitAnswer({
+        user_id: userId,
+        question_id: questionId,
+        is_correct: wasCorrect,
+      })
+        .then(response => {
+          console.log('submitAnswer success:', response.data)
+        })
+        .catch(err => {
+          console.error('Ошибка при отправке ответа на бэк:', err)
+        })
+    } else {
+      console.error('Repeat: нет userId, не отправляем submitAnswer')
+    }
+
+    if (wasCorrect) {
+      // Если ответ верный, ждём 0.5 секунды и переходим к следующему вопросу
+      setTimeout(() => {
+        nextQuestion()
+      }, 500)
+    }
+    // Если ответ неправильный, показываем кнопку "Далее", переход произойдёт после её клика
+  }
+
+  // -------------------------------------------------------------------
+  // 7) Пока очередь не загружена или текущего вопроса нет — показываем «Загрузка...»
   // -------------------------------------------------------------------
   if (queue === null || current === null) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
   // -------------------------------------------------------------------
-  // 7) Основной рендер: здесь queue !== null и current !== null гарантированно
+  // 8) Основной рендер:
   // -------------------------------------------------------------------
   return (
     <div style={{ padding: 20 }}>
@@ -164,24 +183,66 @@ const Repeat: React.FC = () => {
       )}
       <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
 
-      {current.data.options.map((opt, idx) => (
+      {current.data.options.map((opt, idx) => {
+        // Определяем цвет кнопки в зависимости от состояния
+        let backgroundColor = '#fff'
+        let color = '#000'
+
+        if (isAnswered) {
+          if (idx === selectedIndex) {
+            if (isCorrect) {
+              backgroundColor = 'green'
+              color = '#fff'
+            } else {
+              backgroundColor = 'red'
+              color = '#fff'
+            }
+          } else if (!isCorrect && idx === current.data.correct_index) {
+            backgroundColor = 'green'
+            color = '#fff'
+          }
+        }
+
+        return (
+          <button
+            key={idx}
+            onClick={() => handleAnswer(idx)}
+            disabled={isAnswered}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '10px',
+              margin: '10px 0',
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              backgroundColor,
+              color,
+              textAlign: 'left',
+              cursor: isAnswered ? 'default' : 'pointer',
+            }}
+          >
+            {opt}
+          </button>
+        )
+      })}
+
+      {/* Кнопка "Далее" появляется только при неправильном ответе */}
+      {isAnswered && !isCorrect && (
         <button
-          key={idx}
-          onClick={() => handleAnswer(idx)}
+          onClick={nextQuestion}
           style={{
-            display: 'block',
-            width: '100%',
-            padding: '10px',
-            margin: '10px 0',
-            border: '1px solid #ccc',
+            marginTop: 20,
+            padding: '10px 20px',
             borderRadius: '8px',
-            backgroundColor: '#fff',
-            textAlign: 'left',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            cursor: 'pointer',
           }}
         >
-          {opt}
+          Далее
         </button>
-      ))}
+      )}
     </div>
   )
 }
