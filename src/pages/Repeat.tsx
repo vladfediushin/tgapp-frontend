@@ -13,14 +13,11 @@ const Repeat: React.FC = () => {
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
-  // -------------------------------------------------------------------
-  // 1) Состояния:
-  // -------------------------------------------------------------------
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
   const [initialCount, setInitialCount] = useState<number | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
 
-  // Новые состояния для обработки клика по ответу
+  const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState<boolean>(false)
   const [isCorrect, setIsCorrect] = useState<boolean>(false)
@@ -30,16 +27,11 @@ const Repeat: React.FC = () => {
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
 
-  // -------------------------------------------------------------------
-  // 2) Вычисляем "сколько вопросов осталось" и счётчики:
-  // -------------------------------------------------------------------
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
   const incorrectCount = answers.filter(a => !a.isCorrect).length
 
-  // -------------------------------------------------------------------
-  // 3) useEffect для загрузки вопросов и установки initialCount:
-  // -------------------------------------------------------------------
+  // 1) Загрузка вопросов и установка initialCount
   useEffect(() => {
     resetAnswers()
 
@@ -77,41 +69,48 @@ const Repeat: React.FC = () => {
       })
   }, [mode, preloadedQuestions, userId, resetAnswers, initialCount])
 
-  // -------------------------------------------------------------------
-  // 4) useEffect для установки текущего вопроса или навигации, когда очередь пуста:
-  // -------------------------------------------------------------------
+  // 2) При изменении queue — устанавливаем current и сбрасываем состояния
   useEffect(() => {
     if (queue === null) return
 
     if (queue.length > 0) {
       setCurrent(queue[0])
+      setIsImageLoaded(false)
+      setSelectedIndex(null)
+      setIsAnswered(false)
+      setIsCorrect(false)
     } else {
       navigate('/results')
     }
   }, [queue, navigate])
 
-  // -------------------------------------------------------------------
-  // 5) Переход к следующему вопросу:
-  // -------------------------------------------------------------------
+  // 3) Прелоад следующего изображения, когда текущее загрузилось
+  useEffect(() => {
+    if (isImageLoaded && queue && queue.length > 1) {
+      const nextImgUrl = queue[1].data.question_image
+      if (nextImgUrl) {
+        const img = new Image()
+        img.src = nextImgUrl
+        // img.onload можно использовать для логов, но не обязательно
+      }
+    }
+  }, [isImageLoaded, queue])
+
+  // 4) Переход к следующему вопросу
   const nextQuestion = () => {
     setQueue(prevQueue => {
       if (!prevQueue) return prevQueue
       const [first, ...rest] = prevQueue
-      // Если ответ был неправильным, добавляем вопрос в конец, иначе просто удаляем
       if (!isCorrect) {
         return [...rest, first]
       }
       return rest
     })
-    // Сбрасываем состояние ответов для нового вопроса
-    setSelectedIndex(null)
-    setIsAnswered(false)
-    setIsCorrect(false)
+    // После изменения queue сработает второй useEffect,
+    // который сбросит isImageLoaded и другие флаги
   }
 
-  // -------------------------------------------------------------------
-  // 6) Обработчик ответа:
-  // -------------------------------------------------------------------
+  // 5) Обработчик клика по варианту
   const handleAnswer = (index: number) => {
     if (!current || isAnswered) return
 
@@ -122,11 +121,8 @@ const Repeat: React.FC = () => {
     setSelectedIndex(index)
     setIsAnswered(true)
     setIsCorrect(wasCorrect)
-
-    // Сохраняем ответ в локальном сторе
     addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
 
-    // Отправляем на бэк
     if (userId) {
       submitAnswer({
         user_id: userId,
@@ -144,104 +140,115 @@ const Repeat: React.FC = () => {
     }
 
     if (wasCorrect) {
-      // Если ответ верный, ждём 0.5 секунды и переходим к следующему вопросу
       setTimeout(() => {
         nextQuestion()
       }, 500)
     }
-    // Если ответ неправильный, показываем кнопку "Далее", переход произойдёт после её клика
+    // Если неправильный, ждём нажатия кнопки "Далее"
   }
 
-  // -------------------------------------------------------------------
-  // 7) Пока очередь не загружена или текущего вопроса нет — показываем «Загрузка...»
-  // -------------------------------------------------------------------
+  // 6) Пока queue или current не готовы — показываем "Загрузка..."
   if (queue === null || current === null) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
-  // -------------------------------------------------------------------
-  // 8) Основной рендер:
-  // -------------------------------------------------------------------
   return (
     <div style={{ padding: 20 }}>
-      {/* ---------- блок счётчиков ---------- */}
+      {/* Счётчики */}
       <div style={{ marginBottom: 20 }}>
         <div>Всего вопросов в очереди (изначально): {initialCount}</div>
         <div>Осталось вопросов в очереди: {questionsLeft}</div>
         <div>Правильно отвечено: {correctCount}</div>
         <div>Неправильно отвечено: {incorrectCount}</div>
       </div>
-      {/* ------------------------------------ */}
 
-      <h2>Вопрос</h2>
+      {/* Если изображение не загрузилось — показываем плейсхолдер */}
+      {!isImageLoaded ? (
+        <div style={{ padding: 20, textAlign: 'center' }}>
+          Загрузка изображения...
+        </div>
+      ) : (
+        // Когда isImageLoaded = true — рендерим вопрос целиком
+        <>
+          <h2>Вопрос</h2>
+          {current.data.question_image && (
+            <img
+              src={current.data.question_image}
+              alt="question"
+              style={{ maxWidth: '100%', borderRadius: '8px' }}
+            />
+          )}
+          <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
+
+          {current.data.options.map((opt, idx) => {
+            let backgroundColor = '#fff'
+            let color = '#000'
+
+            if (isAnswered) {
+              if (idx === selectedIndex) {
+                if (isCorrect) {
+                  backgroundColor = 'green'
+                  color = '#fff'
+                } else {
+                  backgroundColor = 'red'
+                  color = '#fff'
+                }
+              } else if (!isCorrect && idx === current.data.correct_index) {
+                backgroundColor = 'green'
+                color = '#fff'
+              }
+            }
+
+            return (
+              <button
+                key={idx}
+                onClick={() => handleAnswer(idx)}
+                disabled={isAnswered}
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '10px',
+                  margin: '10px 0',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  backgroundColor,
+                  color,
+                  textAlign: 'left',
+                  cursor: isAnswered ? 'default' : 'pointer',
+                }}
+              >
+                {opt}
+              </button>
+            )
+          })}
+
+          {isAnswered && !isCorrect && (
+            <button
+              onClick={nextQuestion}
+              style={{
+                marginTop: 20,
+                padding: '10px 20px',
+                borderRadius: '8px',
+                backgroundColor: '#007bff',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              Далее
+            </button>
+          )}
+        </>
+      )}
+
+      {/* Скрытое изображение для отслеживания onLoad */}
       {current.data.question_image && (
         <img
           src={current.data.question_image}
-          alt="question"
-          style={{ maxWidth: '100%', borderRadius: '8px' }}
+          alt="hidden-loader"
+          style={{ display: 'none' }}
+          onLoad={() => setIsImageLoaded(true)}
         />
-      )}
-      <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
-
-      {current.data.options.map((opt, idx) => {
-        // Определяем цвет кнопки в зависимости от состояния
-        let backgroundColor = '#fff'
-        let color = '#000'
-
-        if (isAnswered) {
-          if (idx === selectedIndex) {
-            if (isCorrect) {
-              backgroundColor = 'green'
-              color = '#fff'
-            } else {
-              backgroundColor = 'red'
-              color = '#fff'
-            }
-          } else if (!isCorrect && idx === current.data.correct_index) {
-            backgroundColor = 'green'
-            color = '#fff'
-          }
-        }
-
-        return (
-          <button
-            key={idx}
-            onClick={() => handleAnswer(idx)}
-            disabled={isAnswered}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '10px',
-              margin: '10px 0',
-              border: '1px solid #ccc',
-              borderRadius: '8px',
-              backgroundColor,
-              color,
-              textAlign: 'left',
-              cursor: isAnswered ? 'default' : 'pointer',
-            }}
-          >
-            {opt}
-          </button>
-        )
-      })}
-
-      {/* Кнопка "Далее" появляется только при неправильном ответе */}
-      {isAnswered && !isCorrect && (
-        <button
-          onClick={nextQuestion}
-          style={{
-            marginTop: 20,
-            padding: '10px 20px',
-            borderRadius: '8px',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          Далее
-        </button>
       )}
     </div>
   )
