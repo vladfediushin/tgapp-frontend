@@ -1,4 +1,3 @@
-// frontend/src/pages/Repeat.tsx
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
@@ -31,7 +30,7 @@ const Repeat: React.FC = () => {
   const answers = useSession(state => state.answers)
 
   // -------------------------------------------------------------------
-  // 2) Вычисляем "сколько вопросов осталось" и счётчики:
+  // 2) Вычисляем счетчики:
   // -------------------------------------------------------------------
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
@@ -103,7 +102,7 @@ const Repeat: React.FC = () => {
       }
       return rest
     })
-    // Сбрасываем состояние ответов для нового вопроса
+    // Сбрасываем состояние для нового вопроса
     setSelectedIndex(null)
     setIsAnswered(false)
     setIsCorrect(false)
@@ -123,10 +122,8 @@ const Repeat: React.FC = () => {
     setIsAnswered(true)
     setIsCorrect(wasCorrect)
 
-    // Сохраняем ответ в локальном сторе
     addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
 
-    // Отправляем на бэк
     if (userId) {
       submitAnswer({
         user_id: userId,
@@ -144,12 +141,11 @@ const Repeat: React.FC = () => {
     }
 
     if (wasCorrect) {
-      // Если ответ верный, ждём 0.5 секунды и переходим к следующему вопросу
       setTimeout(() => {
         nextQuestion()
       }, 500)
     }
-    // Если ответ неправильный, показываем кнопку "Далее", переход произойдёт после её клика
+    // если неправильный, ждем клика по "Далее"
   }
 
   // -------------------------------------------------------------------
@@ -164,14 +160,13 @@ const Repeat: React.FC = () => {
   // -------------------------------------------------------------------
   return (
     <div style={{ padding: 20 }}>
-      {/* ---------- блок счётчиков ---------- */}
+      {/* блок счетчиков */}
       <div style={{ marginBottom: 20 }}>
         <div>Всего вопросов в очереди (изначально): {initialCount}</div>
         <div>Осталось вопросов в очереди: {questionsLeft}</div>
         <div>Правильно отвечено: {correctCount}</div>
         <div>Неправильно отвечено: {incorrectCount}</div>
       </div>
-      {/* ------------------------------------ */}
 
       <h2>Вопрос</h2>
       {current.data.question_image && (
@@ -184,10 +179,9 @@ const Repeat: React.FC = () => {
       <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
 
       {current.data.options.map((opt, idx) => {
-        // Определяем цвет кнопки в зависимости от состояния
+        // стили кнопки
         let backgroundColor = '#fff'
         let color = '#000'
-
         if (isAnswered) {
           if (idx === selectedIndex) {
             if (isCorrect) {
@@ -202,6 +196,10 @@ const Repeat: React.FC = () => {
             color = '#fff'
           }
         }
+
+        // пытаемся достать URL из opt
+        const maybeUrl = opt.replace(/[{\}]/g, '').trim()
+        const isImage = /\.(jpe?g|png|gif|webp)$/i.test(maybeUrl)
 
         return (
           <button
@@ -221,12 +219,19 @@ const Repeat: React.FC = () => {
               cursor: isAnswered ? 'default' : 'pointer',
             }}
           >
-            {opt}
+            {isImage ? (
+              <img
+                src={maybeUrl}
+                alt={`option ${idx + 1}`}
+                style={{ maxWidth: '100%', borderRadius: '8px' }}
+              />
+            ) : (
+              <span style={{ display: 'block', textAlign: 'left' }}>{opt}</span>
+            )}
           </button>
         )
       })}
 
-      {/* Кнопка "Далее" появляется только при неправильном ответе */}
       {isAnswered && !isCorrect && (
         <button
           onClick={nextQuestion}
