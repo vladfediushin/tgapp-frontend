@@ -223,7 +223,7 @@ const Repeat: React.FC = () => {
               <img
                 src={maybeUrl}
                 alt={`option ${idx + 1}`}
-                style={{ maxWidth: '100%', borderRadius: '8px' }}
+                style={{ maxWidth: '120px', height: 'auto', borderRadius: '8px' }}
               />
             ) : (
               <span style={{ display: 'block', textAlign: 'left' }}>{opt}</span>
