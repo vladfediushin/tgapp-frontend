@@ -29,6 +29,10 @@ function logToVercel(message: string) {
 }
 
 const Authorize: React.FC = () => {
+  const internalId = useSession(state => state.userId)          // <-- новый
+  const setInternalId = useSession(state => state.setUserId)
+  const navigate = useNavigate()
+
   const [userName, setUserName] = useState<string>('друг')
   const [step, setStep] = useState<'checking' | 'form' | 'complete'>('checking')
 
@@ -38,16 +42,22 @@ const Authorize: React.FC = () => {
 
   const [error, setError] = useState<string>('')
 
-  const setInternalId = useSession(state => state.setUserId)
-  const navigate = useNavigate()
-
+  // Если уже есть internalId, сразу уходим на Home
   useEffect(() => {
+    if (internalId) {
+      navigate('/home')
+    }
+  }, [internalId, navigate])
+
+  // Основная проверка в тг WebApp – когда internalId ещё нет
+  useEffect(() => {
+    if (internalId) return  // не проверяем, если уже авторизованы
+
     const checkUser = async () => {
       const tg = window.Telegram?.WebApp
       const tgUser = tg?.initDataUnsafe?.user
 
       if (!tg || !tgUser) {
-        // если нет WebApp, пускаем на Home
         navigate('/home')
         return
       }
@@ -57,28 +67,23 @@ const Authorize: React.FC = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
-        // Получаем полную информацию о пользователе из бэка
         const res = await getUserByTelegramId(tgUser.id)
         const user: UserOut = res.data
         logToVercel(`[AUTH] Found existing user id=${user.id}`)
 
-        // сохраняем ID в Zustand
         setInternalId(user.id)
 
-        // если нет exam_* полей — показываем форму
         if (!user.exam_country || !user.exam_language) {
           setExamCountry(user.exam_country || '')
           setExamLanguage(user.exam_language || '')
           setUiLanguage(user.ui_language || 'ru')
           setStep('form')
         } else {
-          // уже заполнено — вперёд
           navigate('/home')
         }
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
-          // пользователь не найден — показываем форму
           setStep('form')
         } else {
           setError('Ошибка проверки пользователя')
@@ -88,7 +93,7 @@ const Authorize: React.FC = () => {
     }
 
     checkUser()
-  }, [navigate, setInternalId])
+  }, [internalId, navigate, setInternalId])
 
   const handleSubmit = async () => {
     if (!examCountry || !examLanguage) {
