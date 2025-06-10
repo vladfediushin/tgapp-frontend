@@ -8,19 +8,15 @@ import { UserOut } from '../api/api' // тип ответа
 
 // Константы для выпадающих списков
 const EXAM_COUNTRIES = [
-  { value: 'ru', label: 'Россия' },
-  { value: 'kz', label: 'Казахстан' },
-  { value: 'by', label: 'Беларусь' },
+  { value: 'am', label: '🇦🇲' }
 ]
 
 const EXAM_LANGUAGES = [
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'Английский' },
+  { value: 'ru', label: 'Русский' }
 ]
 
 const UI_LANGUAGES = [
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
+  { value: 'ru', label: 'Русский' }
 ]
 
 // 🔧 Логирование на Vercel
