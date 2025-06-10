@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { createUser, getUserIdByTelegramId } from '../api/api'
+import { createUser, getUserByTelegramId } from '../api/api'
 import { AxiosError } from 'axios'
 import { UserOut } from '../api/api' // Ваш тип
 
@@ -59,7 +59,7 @@ const Authorize: React.FC = () => {
 
       try {
         log(`GET /users/by-telegram-id/${tgUser.id}`)
-        const res = await getUserIdByTelegramId(tgUser.id)
+        const res = await getUserByTelegramId(tgUser.id)
         const user: UserOut = res.data
         log(`User exists: id=${user.id}`)
 
