@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { createUser, getUserByTelegramId } from '../api/api'
+import { createUser, getUserIdByTelegramId } from '../api/api'
 import { AxiosError } from 'axios'
-import { UserOut } from '../api/api'
+import { UserOut } from '../api/api' // Ваш тип
 
-// Список стран с эмодзи-флагами
+// Список стран
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
   { value: 'kz', label: '🇰🇿 Казахстан' },
@@ -23,20 +23,18 @@ const UI_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
-// Вспомогательная функция логов на Vercel
-function logToVercel(message: string) {
-  fetch('/api/logs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message }),
-  }).catch(console.error)
+// Логирование для отладки
+const log = (msg: string) => {
+  console.log('[Authorize]', msg)
+  fetch('/api/logs', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: msg })})
+    .catch(() => {})
 }
 
 const Authorize: React.FC = () => {
   const navigate = useNavigate()
   const setInternalId = useSession(state => state.setUserId)
 
-  // состояние: checking — ждём API, form — показываем форму, complete — показываем "успех"
+  // состояние: checking – ждём GET-запроса, form – показываем форму, complete – ждём редиректа
   const [step, setStep] = useState<'checking' | 'form' | 'complete'>('checking')
 
   const [userName, setUserName] = useState('друг')
@@ -51,7 +49,7 @@ const Authorize: React.FC = () => {
       const tgUser = tg?.initDataUnsafe?.user
 
       if (!tg || !tgUser) {
-        // не WebApp или нет данных — просто идём на Home
+        log('No Telegram WebApp or user – redirect to /home')
         return navigate('/home')
       }
 
@@ -60,24 +58,22 @@ const Authorize: React.FC = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
-        // Пробуем получить пользователя по telegram_id
-        const res = await getUserByTelegramId(tgUser.id)
+        log(`GET /users/by-telegram-id/${tgUser.id}`)
+        const res = await getUserIdByTelegramId(tgUser.id)
         const user: UserOut = res.data
-        logToVercel(`[AUTH] Existing user id=${user.id}`)
+        log(`User exists: id=${user.id}`)
 
-        // Сохраняем внутренний id и сразу уходим на Home
+        // сохраняем внутренний ID и сразу на Home
         setInternalId(user.id)
-        navigate('/home')
+        return navigate('/home')
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
-          // 404 — новый пользователь, показываем форму
-          setStep('form')
-        } else {
-          // другая ошибка
-          setError('Ошибка проверки пользователя')
-          console.error('[AUTH] checkUser error', axiosErr)
+          log('User not found (404) – show form')
+          return setStep('form')
         }
+        log(`Unexpected error: ${axiosErr.message}`)
+        setError('Ошибка проверки пользователя')
       }
     }
 
@@ -101,6 +97,7 @@ const Authorize: React.FC = () => {
     }
 
     try {
+      log('POST /users/ (createUser)')
       const res = await createUser({
         telegram_id: tgUser.id,
         username: tgUser.username || undefined,
@@ -110,67 +107,49 @@ const Authorize: React.FC = () => {
         exam_language: examLanguage,
         ui_language: uiLanguage,
       })
-      logToVercel(`[AUTH] Created user id=${res.data.id}`)
+      log(`User created: id=${res.data.id}`)
 
       setInternalId(res.data.id)
       navigate('/home')
     } catch (err) {
+      log(`Create user error: ${(err as Error).message}`)
       setError('Ошибка создания пользователя')
-      console.error('[AUTH] createUser error', err)
       setStep('form')
     }
   }
 
   if (step === 'checking') {
-    return <div style={{ padding: 20 }}>Проверка данных...</div>
+    return <div style={{ padding: 20 }}>Проверка данных пользователя...</div>
   }
   if (step === 'complete') {
-    return <div style={{ padding: 20 }}>Регистрация завершена...</div>
+    return <div style={{ padding: 20 }}>Регистрация успешна! Переходим…</div>
   }
 
-  // Рендерим форму, когда step === 'form'
+  // step === 'form'
   return (
     <div style={{ padding: 20 }}>
-      <h2>Привет, {userName}! Расскажите о себе:</h2>
+      <h2>Привет, {userName}! Укажи, пожалуйста, страну и язык:</h2>
 
       <label>
         Страна экзамена
-        <select
-          value={examCountry}
-          onChange={e => setExamCountry(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
+        <select value={examCountry} onChange={e => setExamCountry(e.target.value)} style={{ display: 'block', margin: '8px 0' }}>
           <option value="">— выберите —</option>
-          {EXAM_COUNTRIES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
+          {EXAM_COUNTRIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
       </label>
 
       <label>
         Язык экзамена
-        <select
-          value={examLanguage}
-          onChange={e => setExamLanguage(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
+        <select value={examLanguage} onChange={e => setExamLanguage(e.target.value)} style={{ display: 'block', margin: '8px 0' }}>
           <option value="">— выберите —</option>
-          {EXAM_LANGUAGES.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
+          {EXAM_LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
         </select>
       </label>
 
       <label>
         Язык интерфейса
-        <select
-          value={uiLanguage}
-          onChange={e => setUiLanguage(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
-          {UI_LANGUAGES.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
+        <select value={uiLanguage} onChange={e => setUiLanguage(e.target.value)} style={{ display: 'block', margin: '8px 0' }}>
+          {UI_LANGUAGES.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
         </select>
       </label>
 
