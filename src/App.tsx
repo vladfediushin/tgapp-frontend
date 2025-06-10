@@ -1,5 +1,6 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
+import Authorize from './pages/Authorize'
 import Home from './pages/Home'
 import ModeSelect from './pages/ModeSelect'
 import Repeat from './pages/Repeat'
@@ -11,7 +12,8 @@ import Topics from './pages/Topics'
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Authorize />} />
+      <Route path="/home" element={<Home />} />
       <Route path="/mode" element={<ModeSelect />} />
       <Route path="/repeat" element={<Repeat />} />
       <Route path="/results" element={<Results />} />

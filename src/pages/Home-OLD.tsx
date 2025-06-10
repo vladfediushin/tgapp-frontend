@@ -1,18 +1,59 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats } from '../api/api'
+import { getUserStats, UserStats, createUser, UserOut } from '../api/api'
+
+// 🔧 Утилита для логгирования на Vercel
+function logToVercel(message: string) {
+  fetch('/api/logs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  }).catch(err => {
+    console.error('[LOG ERROR]', err)
+  })
+}
 
 const Home: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const internalId = useSession(state => state.userId)
+  const setInternalId = useSession(state => state.setUserId)
   const navigate = useNavigate()
 
   useEffect(() => {
-    const user = window.Telegram?.WebApp?.initDataUnsafe?.user
-    setUserName(user?.first_name || 'друг')
-  }, [])
+    const tg = window.Telegram?.WebApp
+    const user = tg?.initDataUnsafe?.user
+
+    logToVercel('[TG INIT] Telegram object: ' + (tg ? '✅ found' : '❌ not found'))
+    logToVercel('[TG INIT] User object: ' + JSON.stringify(user))
+    logToVercel('[TG INIT] VITE_API_BASE_URL: ' + import.meta.env.VITE_API_BASE_URL)
+
+    if (tg && user) {
+      tg.ready()
+      tg.expand()
+      setUserName(user.first_name || 'друг')
+
+      // создаём через axios функцию createUser
+      createUser({
+        telegram_id: user.id,
+        username: user.username,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      })
+        .then(res => {
+          const data: UserOut = res.data
+          logToVercel(`[TG INIT] createUser response id=${data.id}`)
+          // сохраняем внутренний UUID в сторадж
+          setInternalId(data.id)
+        })
+        .catch(err => {
+          logToVercel('[TG INIT] createUser error: ' + err.message)
+        })
+    } else {
+      logToVercel('[TG INIT] Telegram WebApp or user not available')
+    }
+  }, [setInternalId])
 
   useEffect(() => {
     if (!internalId) return
