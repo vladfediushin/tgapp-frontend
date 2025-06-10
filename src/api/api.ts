@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios'
 
 // создаём экземпляр axios с базовым URL из .env
-const api = axios.create({
+export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 })
 
@@ -109,5 +109,5 @@ export default api
 export const getUserByTelegramId = async (
   telegramId: number
 ): Promise<AxiosResponse<UserOut>> => {
-  return axios.get<UserOut>(`/users/by-telegram-id/${telegramId}`)
+  return api.get<UserOut>(`/users/by-telegram-id/${telegramId}`)
 }
