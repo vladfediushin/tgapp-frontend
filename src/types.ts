@@ -28,3 +28,20 @@ export interface TelegramUser {
     }
   }
   
+  // === Other ===
+
+  import { AxiosResponse } from 'axios'
+
+  export interface UserOut {
+  id: string
+  telegram_id: number
+  username?: string
+  first_name?: string
+  last_name?: string
+  created_at: string
+  exam_country: string
+  exam_language: string
+  ui_language: string
+}
+
+export type ApiResponse<T> = AxiosResponse<T>

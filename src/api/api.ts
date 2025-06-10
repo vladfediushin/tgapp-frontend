@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 // создаём экземпляр axios с базовым URL из .env
 const api = axios.create({
@@ -25,6 +25,9 @@ export interface UserOut {
   last_name?: string
   id: string       // UUID внутреннего пользователя
   created_at: string // timestamp создания
+  exam_country?: string
+  exam_language?: string
+  ui_language?: string
 }
 
 /** Создать или обновить пользователя */
@@ -96,3 +99,11 @@ export const submitAnswer = (payload: AnswerSubmit) => {
 }
 
 export default api
+
+
+/**Получить юзера по Telegram ID */
+export const getUserIdByTelegramId = async (
+  telegramId: number
+): Promise<AxiosResponse<UserOut>> => {
+  return axios.get<UserOut>(`/users/by-telegram-id/${telegramId}`)
+}
