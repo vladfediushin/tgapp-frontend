@@ -102,7 +102,11 @@ export default api
 
 
 /**Получить юзера по Telegram ID */
-export const getUserIdByTelegramId = async (
+
+/**
+ * Возвращает объект пользователя по его telegram_id
+ */
+export const getUserByTelegramId = async (
   telegramId: number
 ): Promise<AxiosResponse<UserOut>> => {
   return axios.get<UserOut>(`/users/by-telegram-id/${telegramId}`)

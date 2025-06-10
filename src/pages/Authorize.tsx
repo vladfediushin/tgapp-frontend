@@ -1,11 +1,12 @@
+// src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { createUser, UserOut, getUserIdByTelegramId } from '../api/api'
+import { createUser, getUserByTelegramId } from '../api/api'
 import { AxiosError } from 'axios'
+import { UserOut } from '../api/api' // тип ответа
 
-
-// Константы для выпадающих списков — впоследствии переписать под извлекаемые из БД?
+// Константы для выпадающих списков
 const EXAM_COUNTRIES = [
   { value: 'ru', label: 'Россия' },
   { value: 'kz', label: 'Казахстан' },
@@ -22,51 +23,70 @@ const UI_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
-// 🔧 Утилита для логгирования на Vercel
+// 🔧 Логирование на Vercel
 function logToVercel(message: string) {
   fetch('/api/logs', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ message }),
-  }).catch(err => {
-    console.error('[LOG ERROR]', err)
-  })
+  }).catch(err => console.error('[LOG ERROR]', err))
 }
 
 const Authorize: React.FC = () => {
+  const [userName, setUserName] = useState<string>('друг')
   const [step, setStep] = useState<'checking' | 'form' | 'complete'>('checking')
+
   const [examCountry, setExamCountry] = useState('')
   const [examLanguage, setExamLanguage] = useState('')
   const [uiLanguage, setUiLanguage] = useState('ru')
-  const [error, setError] = useState('')
-  
+
+  const [error, setError] = useState<string>('')
+
   const setInternalId = useSession(state => state.setUserId)
   const navigate = useNavigate()
 
   useEffect(() => {
     const checkUser = async () => {
       const tg = window.Telegram?.WebApp
-      const user = tg?.initDataUnsafe?.user
+      const tgUser = tg?.initDataUnsafe?.user
 
-      if (!tg || !user) {
+      if (!tg || !tgUser) {
+        // если нет WebApp, пускаем на Home
         navigate('/home')
         return
       }
 
       tg.ready()
       tg.expand()
+      setUserName(tgUser.first_name || 'друг')
 
       try {
-        const response = await getUserIdByTelegramId(user.id)
-        setInternalId(response.data.id)
-        navigate('/home')
+        // Получаем полную информацию о пользователе из бэка
+        const res = await getUserByTelegramId(tgUser.id)
+        const user: UserOut = res.data
+        logToVercel(`[AUTH] Found existing user id=${user.id}`)
+
+        // сохраняем ID в Zustand
+        setInternalId(user.id)
+
+        // если нет exam_* полей — показываем форму
+        if (!user.exam_country || !user.exam_language) {
+          setExamCountry(user.exam_country || '')
+          setExamLanguage(user.exam_language || '')
+          setUiLanguage(user.ui_language || 'ru')
+          setStep('form')
+        } else {
+          // уже заполнено — вперёд
+          navigate('/home')
+        }
       } catch (err) {
-        const error = err as AxiosError
-        if (error.response?.status === 404) {
+        const axiosErr = err as AxiosError
+        if (axiosErr.response?.status === 404) {
+          // пользователь не найден — показываем форму
           setStep('form')
         } else {
           setError('Ошибка проверки пользователя')
-          console.error('Check user error:', error)
+          console.error('[AUTH] checkUser error', axiosErr)
         }
       }
     }
@@ -84,78 +104,105 @@ const Authorize: React.FC = () => {
     setStep('complete')
 
     const tg = window.Telegram?.WebApp
-    const user = tg?.initDataUnsafe?.user
+    const tgUser = tg?.initDataUnsafe?.user
+    if (!tgUser) {
+      setError('Не удалось получить данные Telegram')
+      return
+    }
 
     try {
-      const response = await createUser({
-        telegram_id: user.id,
-        username: user.username || undefined,
-        first_name: user.first_name || undefined,
-        last_name: user.last_name || undefined,
+      const res = await createUser({
+        telegram_id: tgUser.id,
+        username: tgUser.username || undefined,
+        first_name: tgUser.first_name || undefined,
+        last_name: tgUser.last_name || undefined,
         exam_country: examCountry,
         exam_language: examLanguage,
-        ui_language: uiLanguage
+        ui_language: uiLanguage,
       })
 
-      setInternalId(response.data.id)
+      logToVercel(`[AUTH] Created user id=${res.data.id}`)
+      setInternalId(res.data.id)
       navigate('/home')
     } catch (err) {
       setError('Ошибка создания пользователя')
-      console.error(err)
+      console.error('[AUTH] createUser error', err)
+      setStep('form')
     }
   }
 
   if (step === 'checking') {
-    return <div>Проверка данных...</div>
+    return <div style={{ padding: 20 }}>Проверка данных...</div>
   }
 
   if (step === 'complete') {
-    return <div>Регистрация завершена...</div>
+    return <div style={{ padding: 20 }}>Регистрация завершена...</div>
   }
 
+  // step === 'form'
   return (
     <div style={{ padding: 20 }}>
-      <h2>Дополнительная информация</h2>
-      
-      {/* Выпадающие списки */}
-      <div style={{ margin: '10px 0' }}>
+      <h2>Привет, {userName}! Расскажите о себе:</h2>
+
+      <label>
+        Страна экзамена
         <select
           value={examCountry}
-          onChange={(e) => setExamCountry(e.target.value)}
+          onChange={e => setExamCountry(e.target.value)}
+          style={{ display: 'block', margin: '8px 0' }}
         >
-          <option value="">Выберите страну экзамена</option>
+          <option value="">— выберите —</option>
           {EXAM_COUNTRIES.map(c => (
             <option key={c.value} value={c.value}>{c.label}</option>
           ))}
         </select>
-      </div>
+      </label>
 
-      <div style={{ margin: '10px 0' }}>
+      <label>
+        Язык экзамена
         <select
           value={examLanguage}
-          onChange={(e) => setExamLanguage(e.target.value)}
+          onChange={e => setExamLanguage(e.target.value)}
+          style={{ display: 'block', margin: '8px 0' }}
         >
-          <option value="">Выберите язык экзамена</option>
+          <option value="">— выберите —</option>
           {EXAM_LANGUAGES.map(l => (
             <option key={l.value} value={l.value}>{l.label}</option>
           ))}
         </select>
-      </div>
+      </label>
 
-      <div style={{ margin: '10px 0' }}>
+      <label>
+        Язык интерфейса
         <select
           value={uiLanguage}
-          onChange={(e) => setUiLanguage(e.target.value)}
+          onChange={e => setUiLanguage(e.target.value)}
+          style={{ display: 'block', margin: '8px 0' }}
         >
           {UI_LANGUAGES.map(l => (
             <option key={l.value} value={l.value}>{l.label}</option>
           ))}
         </select>
-      </div>
+      </label>
 
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
 
-      <button onClick={handleSubmit}>Продолжить</button>
+      <button
+        onClick={handleSubmit}
+        style={{
+          display: 'block',
+          marginTop: 20,
+          padding: '10px',
+          width: '100%',
+          backgroundColor: '#2AABEE',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+          fontSize: 16,
+        }}
+      >
+        Сохранить и продолжить
+      </button>
     </div>
   )
 }
