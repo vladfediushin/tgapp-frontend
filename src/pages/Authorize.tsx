@@ -4,22 +4,26 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { createUser, getUserByTelegramId } from '../api/api'
 import { AxiosError } from 'axios'
-import { UserOut } from '../api/api' // тип ответа
+import { UserOut } from '../api/api'
 
-// Константы для выпадающих списков
+// Список стран с эмодзи-флагами
 const EXAM_COUNTRIES = [
-  { value: 'am', label: '🇦🇲' }
+  { value: 'am', label: '🇦🇲 Армения' },
+  { value: 'kz', label: '🇰🇿 Казахстан' },
+  { value: 'by', label: '🇧🇾 Беларусь' },
 ]
 
+// Языки экзамена и интерфейса
 const EXAM_LANGUAGES = [
-  { value: 'ru', label: 'Русский' }
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
 ]
-
 const UI_LANGUAGES = [
-  { value: 'ru', label: 'Русский' }
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
 ]
 
-// 🔧 Логирование на Vercel
+// Логирование на Vercel
 function logToVercel(message: string) {
   fetch('/api/logs', {
     method: 'POST',
@@ -29,37 +33,24 @@ function logToVercel(message: string) {
 }
 
 const Authorize: React.FC = () => {
-  const internalId = useSession(state => state.userId)          // <-- новый
-  const setInternalId = useSession(state => state.setUserId)
   const navigate = useNavigate()
+  const setInternalId = useSession(state => state.setUserId)
 
-  const [userName, setUserName] = useState<string>('друг')
   const [step, setStep] = useState<'checking' | 'form' | 'complete'>('checking')
-
+  const [userName, setUserName] = useState('друг')
   const [examCountry, setExamCountry] = useState('')
   const [examLanguage, setExamLanguage] = useState('')
   const [uiLanguage, setUiLanguage] = useState('ru')
+  const [error, setError] = useState('')
 
-  const [error, setError] = useState<string>('')
-
-  // Если уже есть internalId, сразу уходим на Home
   useEffect(() => {
-    if (internalId) {
-      navigate('/home')
-    }
-  }, [internalId, navigate])
-
-  // Основная проверка в тг WebApp – когда internalId ещё нет
-  useEffect(() => {
-    if (internalId) return  // не проверяем, если уже авторизованы
-
-    const checkUser = async () => {
+    const run = async () => {
       const tg = window.Telegram?.WebApp
       const tgUser = tg?.initDataUnsafe?.user
 
+      // Без WebApp — сразу на Home
       if (!tg || !tgUser) {
-        navigate('/home')
-        return
+        return navigate('/home')
       }
 
       tg.ready()
@@ -67,40 +58,43 @@ const Authorize: React.FC = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
+        // 1) Пытаемся получить пользователя
         const res = await getUserByTelegramId(tgUser.id)
         const user: UserOut = res.data
-        logToVercel(`[AUTH] Found existing user id=${user.id}`)
+        logToVercel(`[AUTH] Existing user id=${user.id}`)
 
+        // 2) Сразу сохраняем internalId
         setInternalId(user.id)
 
-        if (!user.exam_country || !user.exam_language) {
-          setExamCountry(user.exam_country || '')
-          setExamLanguage(user.exam_language || '')
-          setUiLanguage(user.ui_language || 'ru')
-          setStep('form')
-        } else {
-          navigate('/home')
+        // 3) Если всё уже заполнено — идём на Home
+        if (user.exam_country && user.exam_language && user.ui_language) {
+          return navigate('/home')
         }
+
+        // 4) Иначе предзаполняем форму и показываем её
+        setExamCountry(user.exam_country || '')
+        setExamLanguage(user.exam_language || '')
+        setUiLanguage(user.ui_language || 'ru')
+        setStep('form')
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
-          setStep('form')
-        } else {
-          setError('Ошибка проверки пользователя')
-          console.error('[AUTH] checkUser error', axiosErr)
+          // новый пользователь — показываем форму
+          return setStep('form')
         }
+        setError('Ошибка проверки пользователя')
+        console.error('[AUTH] checkUser error', axiosErr)
       }
     }
 
-    checkUser()
-  }, [internalId, navigate, setInternalId])
+    run()
+  }, [navigate, setInternalId])
 
   const handleSubmit = async () => {
     if (!examCountry || !examLanguage) {
       setError('Заполните обязательные поля')
       return
     }
-
     setError('')
     setStep('complete')
 
@@ -135,7 +129,6 @@ const Authorize: React.FC = () => {
   if (step === 'checking') {
     return <div style={{ padding: 20 }}>Проверка данных...</div>
   }
-
   if (step === 'complete') {
     return <div style={{ padding: 20 }}>Регистрация завершена...</div>
   }
