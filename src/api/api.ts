@@ -19,12 +19,11 @@ export interface UserCreate {
 
 /** Ответ от сервера при создании/получении пользователя */
 export interface UserOut {
-  telegram_id: number
+  id: string
+  created_at: string
   username?: string
   first_name?: string
   last_name?: string
-  id: string       // UUID внутреннего пользователя
-  created_at: string // timestamp создания
   exam_country?: string
   exam_language?: string
   ui_language?: string

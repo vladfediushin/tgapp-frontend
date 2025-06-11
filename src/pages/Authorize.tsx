@@ -84,6 +84,7 @@ const Authorize: React.FC = () => {
           setStep('form')
         } else {
           setError('Ошибка проверки пользователя')
+          setStep('form')
         }
       }
     }
