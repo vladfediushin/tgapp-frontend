@@ -13,8 +13,10 @@ interface SessionState {
 
   examCountry: string
   examLanguage: string
+  uiLanguage: string 
   setExamCountry: (c: string) => void
   setExamLanguage: (l: string) => void
+  setUiLanguage: (l: string) => void
 
   answers: Answer[]
   addAnswer: (answer: Answer) => void
@@ -27,8 +29,10 @@ export const useSession = create<SessionState>((set) => ({
 
   examCountry: 'am',
   examLanguage: 'ru',
+  uiLanguage: 'ru',
   setExamCountry: (c) => set({ examCountry: c }),
   setExamLanguage: (l) => set({ examLanguage: l }),
+  setUiLanguage: (l) => set({ uiLanguage: l }),
 
   answers: [],
   addAnswer: (answer) =>
