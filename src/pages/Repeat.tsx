@@ -3,12 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
 
-const DEFAULT_COUNTRY = 'AM'
-const DEFAULT_LANGUAGE = 'ru'
-
 const Repeat: React.FC = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const exam_country = useSession(state => state.examCountry)
+  const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
@@ -58,8 +57,8 @@ const Repeat: React.FC = () => {
     getQuestions({
       user_id: userId,
       mode: mode,
-      country: DEFAULT_COUNTRY,
-      language: DEFAULT_LANGUAGE,
+      country: exam_country,
+      language: exam_language,
     })
       .then(res => {
         setQueue(res.data)

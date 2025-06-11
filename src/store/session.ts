@@ -11,6 +11,11 @@ interface SessionState {
   userId: string | null;
   setUserId: (id: string) => void
 
+  examCountry: string
+  examLanguage: string
+  setExamCountry: (c: string) => void
+  setExamLanguage: (l: string) => void
+
   answers: Answer[]
   addAnswer: (answer: Answer) => void
   resetAnswers: () => void
@@ -19,6 +24,11 @@ interface SessionState {
 export const useSession = create<SessionState>((set) => ({
   userId: null,
   setUserId: (id) => set({ userId: id }),
+
+  examCountry: 'am',
+  examLanguage: 'ru',
+  setExamCountry: (c) => set({ examCountry: c }),
+  setExamLanguage: (l) => set({ examLanguage: l }),
 
   answers: [],
   addAnswer: (answer) =>
