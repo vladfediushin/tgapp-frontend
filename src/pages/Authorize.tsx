@@ -37,12 +37,12 @@ const Authorize: React.FC = () => {
   const navigate = useNavigate()
 
   // экшены стора
-  const setInternalId       = useSession(state => state.setUserId)
-  const setStoreExamCountry = useSession(state => state.setExamCountry)
-  const setStoreExamLanguage= useSession(state => state.setExamLanguage)
-  const setStoreUiLanguage  = useSession(state => state.setUiLanguage)
+  const setInternalId        = useSession(state => state.setUserId)
+  const setStoreExamCountry  = useSession(state => state.setExamCountry)
+  const setStoreExamLanguage = useSession(state => state.setExamLanguage)
+  const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
 
-  const [step, setStep] = useState<'checking' | 'form' | 'complete'>('checking')
+  const [step, setStep]       = useState<'checking' | 'form' | 'complete'>('checking')
   const [userName, setUserName] = useState('друг')
 
   // локальные стейты для формы
@@ -52,11 +52,15 @@ const Authorize: React.FC = () => {
 
   const [error, setError] = useState('')
 
+  // Первый эффект: проверяем, есть ли пользователь в БД
   useEffect(() => {
     const init = async () => {
       const tg = window.Telegram?.WebApp
       const tgUser = tg?.initDataUnsafe?.user
-      if (!tg || !tgUser) return navigate('/home')
+      if (!tg || !tgUser) {
+        setStep('complete')
+        return
+      }
 
       tg.ready()
       tg.expand()
@@ -66,23 +70,38 @@ const Authorize: React.FC = () => {
         const res = await getUserByTelegramId(tgUser.id)
         const user: UserOut = res.data
 
-        // сохраняем ID и скипаем форму
+        // сохраняем в стор
         setInternalId(user.id)
-        // гарантированно строка
         setStoreExamCountry(user.exam_country  ?? '')
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')
-        return navigate('/home')
+
+        // переходим на Home
+        setStep('complete')
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
-          return setStep('form')
+          setStep('form')
+        } else {
+          setError('Ошибка проверки пользователя')
         }
-        setError('Ошибка проверки пользователя')
       }
     }
     init()
-  }, [navigate, setInternalId, setStoreExamCountry, setStoreExamLanguage, setStoreUiLanguage])
+  }, [
+    navigate,
+    setInternalId,
+    setStoreExamCountry,
+    setStoreExamLanguage,
+    setStoreUiLanguage,
+  ])
+
+  // Когда step становится complete — делаем navigate
+  useEffect(() => {
+    if (step === 'complete') {
+      navigate('/home', { replace: true })
+    }
+  }, [step, navigate])
 
   const handleSubmit = async () => {
     if (!examCountryInput || !examLanguageInput) {
@@ -90,12 +109,13 @@ const Authorize: React.FC = () => {
       return
     }
     setError('')
-    setStep('complete')
+    setStep('complete') // сразу переключаем, дальше навигация в эффекте
 
     const tg = window.Telegram?.WebApp
     const tgUser = tg?.initDataUnsafe?.user
     if (!tgUser) {
       setError('Не удалось получить данные Telegram')
+      setStep('form')
       return
     }
 
@@ -110,13 +130,10 @@ const Authorize: React.FC = () => {
         ui_language: uiLanguageInput,
       })
 
-      // сохраняем в стор из ответа (гарантируя строку)
       setInternalId(res.data.id)
       setStoreExamCountry(res.data.exam_country  ?? '')
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
-
-      navigate('/home')
     } catch {
       setError('Ошибка создания пользователя')
       setStep('form')
@@ -126,76 +143,76 @@ const Authorize: React.FC = () => {
   if (step === 'checking') {
     return <div style={{ padding: 20 }}>Проверка данных пользователя…</div>
   }
-  if (step === 'complete') {
-    return <div style={{ padding: 20 }}>Регистрация успешна! Переходим…</div>
+  if (step === 'form') {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>Привет, {userName}! Укажи, пожалуйста, страну и язык:</h2>
+
+        <label>
+          Страна экзамена
+          <select
+            value={examCountryInput}
+            onChange={e => setExamCountryInput(e.target.value)}
+            style={{ display: 'block', margin: '8px 0' }}
+          >
+            <option value="">— выберите —</option>
+            {EXAM_COUNTRIES.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Язык экзамена
+          <select
+            value={examLanguageInput}
+            onChange={e => setExamLanguageInput(e.target.value)}
+            style={{ display: 'block', margin: '8px 0' }}
+          >
+            <option value="">— выберите —</option>
+            {EXAM_LANGUAGES.map(l => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          Язык интерфейса
+          <select
+            value={uiLanguageInput}
+            onChange={e => setUiLanguageInput(e.target.value)}
+            style={{ display: 'block', margin: '8px 0' }}
+          >
+            {UI_LANGUAGES.map(l => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </label>
+
+        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+
+        <button
+          onClick={handleSubmit}
+          style={{
+            display: 'block',
+            marginTop: 20,
+            padding: '10px',
+            width: '100%',
+            backgroundColor: '#2AABEE',
+            color: 'white',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 16,
+          }}
+        >
+          Сохранить и продолжить
+        </button>
+      </div>
+    )
   }
 
-  // step === 'form'
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>Привет, {userName}! Укажи, пожалуйста, страну и язык:</h2>
-
-      <label>
-        Страна экзамена
-        <select
-          value={examCountryInput}
-          onChange={e => setExamCountryInput(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
-          <option value="">— выберите —</option>
-          {EXAM_COUNTRIES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
-      </label>
-
-      <label>
-        Язык экзамена
-        <select
-          value={examLanguageInput}
-          onChange={e => setExamLanguageInput(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
-          <option value="">— выберите —</option>
-          {EXAM_LANGUAGES.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
-      </label>
-
-      <label>
-        Язык интерфейса
-        <select
-          value={uiLanguageInput}
-          onChange={e => setUiLanguageInput(e.target.value)}
-          style={{ display: 'block', margin: '8px 0' }}
-        >
-          {UI_LANGUAGES.map(l => (
-            <option key={l.value} value={l.value}>{l.label}</option>
-          ))}
-        </select>
-      </label>
-
-      {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
-
-      <button
-        onClick={handleSubmit}
-        style={{
-          display: 'block',
-          marginTop: 20,
-          padding: '10px',
-          width: '100%',
-          backgroundColor: '#2AABEE',
-          color: 'white',
-          border: 'none',
-          borderRadius: 8,
-          fontSize: 16,
-        }}
-      >
-        Сохранить и продолжить
-      </button>
-    </div>
-  )
+  // step === 'complete' пока висит, но сразу перейдёт
+  return null
 }
 
 export default Authorize
