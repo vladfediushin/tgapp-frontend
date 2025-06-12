@@ -85,38 +85,62 @@ const ModeSelect: React.FC = () => {
       </button>
 
       {showTopicsModal && (
-        <div style={modalOverlayStyle}>
-          <div style={modalStyle}>
-            <h3>Выберите темы</h3>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {topics.map(topic => (
-                <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => toggleTopic(topic)}
-                  />{' '}
-                  {topic}
-                </label>
-              ))}
-            </div>
-            <div style={{ marginTop: 20, textAlign: 'right' }}>
-              <button onClick={() => setShowTopicsModal(false)} style={btnStyle}>
-                Отмена
-              </button>
-              <button
-                onClick={() => {
-                  setMode('topics')
-                  setShowTopicsModal(false)
-                }}
-                style={{ ...btnStyle, marginLeft: '8px', backgroundColor: '#2AABEE', color: '#fff', border: 'none' }}
-              >
-                Применить
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div style={modalOverlayStyle}>
+    <div style={modalStyle}>
+      <h3>Выберите темы</h3>
+      <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        {topics.map(topic => (
+          <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
+            <input
+              type="checkbox"
+              checked={selectedTopics.includes(topic)}
+              onChange={() => toggleTopic(topic)}
+            />{' '}
+            {topic}
+          </label>
+        ))}
+      </div>
+      <div
+        style={{
+          marginTop: 20,
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '10px',
+        }}
+      >
+        <button
+          onClick={() => setShowTopicsModal(false)}
+          style={{
+            flex: 1,
+            padding: '12px',
+            fontSize: '18px',
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c2c7',
+            borderRadius: '8px',
+          }}
+        >
+          🛑
+        </button>
+        <button
+          onClick={() => {
+            setMode('topics')
+            setShowTopicsModal(false)
+          }}
+          style={{
+            flex: 1,
+            padding: '12px',
+            fontSize: '18px',
+            backgroundColor: '#d1e7dd',
+            border: '1px solid #badbcc',
+            borderRadius: '8px',
+          }}
+        >
+          ✅
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }
