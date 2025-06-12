@@ -9,6 +9,7 @@ const Repeat: React.FC = () => {
   const exam_country = useSession(state => state.examCountry)
   const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval'
+  const { batchSize } = location.state
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
   // -------------------------------------------------------------------
@@ -59,6 +60,7 @@ const Repeat: React.FC = () => {
       mode: mode,
       country: exam_country,
       language: exam_language,
+      batch_size: batchSize,
     })
       .then(res => {
         setQueue(res.data)

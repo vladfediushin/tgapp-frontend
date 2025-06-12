@@ -1,51 +1,67 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getQuestions, QuestionOut } from '../api/api'
 
-const ModeSelect = () => {
+const ModeSelect: React.FC = () => {
   const navigate = useNavigate()
-  const [questions, setQuestions] = useState<QuestionOut[]>([])
-  const [loading, setLoading] = useState(false)
 
-  const startMode = async (mode: string) => {
-    if (mode === 'interval') {
-      setLoading(true)
-      try {
-        const response = await getQuestions()
-        setQuestions(response.data)
-        // Передаём вопросы в состояние навигации
-        navigate(`/repeat?mode=${mode}`, { state: { questions: response.data } })
-        return
-      } catch (error) {
-        console.error('Ошибка при загрузке вопросов:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const [mode, setMode] = useState<string>('interval')
+  const [batchSize, setBatchSize] = useState<number>(30)
 
-    // Для остальных режимов просто переходим без предзагрузки
-    navigate(`/repeat?mode=${mode}`)
+  const handleNext = () => {
+    // Переходим, передаём batchSize и режим
+    navigate(
+      `/repeat?mode=${mode}&batchSize=${batchSize}`,
+      { state: { batchSize } }
+    )
   }
 
   return (
     <div style={{ padding: 20 }}>
       <h2>Выбери режим повторения</h2>
 
+      {['interval', 'new', 'wrong', 'topics'].map(m => (
+        <button
+          key={m}
+          onClick={() => setMode(m)}
+          style={{
+            ...btnStyle,
+            backgroundColor: mode === m ? '#e0f2ff' : undefined,
+          }}
+        >
+          {{
+            interval: '📆 Интервальные (по Фибоначчи)',
+            new:      '🆕 Только новые',
+            wrong:    '❌ Только ошибочные',
+            topics:   '📚 По темам',
+          }[m]}
+        </button>
+      ))}
+
+      <div style={{ marginTop: 20 }}>
+        <label>
+          Размер партии: {batchSize}
+          <input
+            type="range"
+            min={20}
+            max={50}
+            value={batchSize}
+            onChange={e => setBatchSize(+e.target.value)}
+            style={{ width: '100%', marginTop: 8 }}
+          />
+        </label>
+      </div>
+
       <button
-        onClick={() => startMode('interval')}
-        disabled={loading}
-        style={btnStyle}
+        onClick={handleNext}
+        style={{
+          ...btnStyle,
+          marginTop: 30,
+          backgroundColor: '#2AABEE',
+          color: '#fff',
+          border: 'none',
+        }}
       >
-        📆 Интервальные (по Фибоначчи){loading ? ' (Загрузка...)' : ''}
-      </button>
-      <button onClick={() => startMode('new')} style={btnStyle}>
-        🆕 Только новые
-      </button>
-      <button onClick={() => startMode('wrong')} style={btnStyle}>
-        ❌ Только ошибочные
-      </button>
-      <button onClick={() => startMode('topics')} style={btnStyle}>
-        📚 По темам
+        Далее
       </button>
     </div>
   )
@@ -60,6 +76,8 @@ const btnStyle: React.CSSProperties = {
   backgroundColor: '#f3f3f3',
   border: '1px solid #ccc',
   borderRadius: '8px',
+  textAlign: 'left',
+  cursor: 'pointer',
 }
 
 export default ModeSelect

@@ -58,6 +58,7 @@ export interface GetQuestionsParams {
   country?: string
   language?: string
   mode?: string
+  batch_size?: number
   topic?: string
 }
 
