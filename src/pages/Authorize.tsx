@@ -23,16 +23,6 @@ const UI_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
-// Логирование для отладки
-const log = (msg: string) => {
-  console.log('[Authorize]', msg)
-  fetch('/api/logs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message: msg }),
-  }).catch(() => {})
-}
-
 const Authorize: React.FC = () => {
   const navigate = useNavigate()
 
@@ -77,7 +67,7 @@ const Authorize: React.FC = () => {
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')
 
-        // **Загружаем темы сразу после установки country/language**
+        // загружаем темы
         const topicsRes = await getTopics(
           user.exam_country  ?? '',
           user.exam_language ?? ''
@@ -103,7 +93,7 @@ const Authorize: React.FC = () => {
     setStoreExamCountry,
     setStoreExamLanguage,
     setStoreUiLanguage,
-    setTopics,            // добавил в зависимости
+    setTopics,
   ])
 
   // Когда step становится complete — делаем navigate
@@ -119,7 +109,6 @@ const Authorize: React.FC = () => {
       return
     }
     setError('')
-    setStep('complete') // сразу переключаем, дальше навигация в эффекте
 
     const tg = window.Telegram?.WebApp
     const tgUser = tg?.initDataUnsafe?.user
@@ -145,12 +134,15 @@ const Authorize: React.FC = () => {
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
 
-      // **И здесь тоже сразу подтягиваем темы**
+      // подтягиваем темы
       const topicsRes = await getTopics(
         res.data.exam_country  ?? '',
         res.data.exam_language ?? ''
       )
       setTopics(topicsRes.data.topics)
+
+      // только теперь завершаем авторизацию
+      setStep('complete')
     } catch {
       setError('Ошибка создания пользователя')
       setStep('form')
