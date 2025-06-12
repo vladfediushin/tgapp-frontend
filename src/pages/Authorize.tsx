@@ -2,10 +2,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { createUser, getUserByTelegramId } from '../api/api'
+import { createUser, getUserByTelegramId, getTopics } from '../api/api'
 import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
-import { getTopics } from '../api/api'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -42,8 +41,7 @@ const Authorize: React.FC = () => {
   const setStoreExamCountry  = useSession(state => state.setExamCountry)
   const setStoreExamLanguage = useSession(state => state.setExamLanguage)
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
-  const setTopics = useSession(state => state.setTopics)
-
+  const setTopics            = useSession(state => state.setTopics)
 
   const [step, setStep]       = useState<'checking' | 'form' | 'complete'>('checking')
   const [userName, setUserName] = useState('друг')
@@ -79,6 +77,13 @@ const Authorize: React.FC = () => {
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')
 
+        // **Загружаем темы сразу после установки country/language**
+        const topicsRes = await getTopics(
+          user.exam_country  ?? '',
+          user.exam_language ?? ''
+        )
+        setTopics(topicsRes.data.topics)
+
         // переходим на Home
         setStep('complete')
       } catch (err) {
@@ -98,6 +103,7 @@ const Authorize: React.FC = () => {
     setStoreExamCountry,
     setStoreExamLanguage,
     setStoreUiLanguage,
+    setTopics,            // добавил в зависимости
   ])
 
   // Когда step становится complete — делаем navigate
@@ -138,16 +144,18 @@ const Authorize: React.FC = () => {
       setStoreExamCountry(res.data.exam_country  ?? '')
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
+
+      // **И здесь тоже сразу подтягиваем темы**
       const topicsRes = await getTopics(
-      res.data.exam_country  ?? '',
-      res.data.exam_language ?? ''
-    )
-    setTopics(topicsRes.data.topics)
-  } catch {
-    setError('Ошибка создания пользователя')
-    setStep('form')
+        res.data.exam_country  ?? '',
+        res.data.exam_language ?? ''
+      )
+      setTopics(topicsRes.data.topics)
+    } catch {
+      setError('Ошибка создания пользователя')
+      setStep('form')
+    }
   }
-}
 
   if (step === 'checking') {
     return <div style={{ padding: 20 }}>Проверка данных пользователя…</div>
@@ -220,7 +228,6 @@ const Authorize: React.FC = () => {
     )
   }
 
-  // step === 'complete' пока висит, но сразу перейдёт
   return null
 }
 
