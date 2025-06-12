@@ -55,24 +55,6 @@ const Results = () => {
       >
         На главную
       </button>
-
-      {incorrectAnswers.length > 0 && (
-        <button
-          onClick={handleRepeatIncorrect}
-          style={{
-            marginTop: 10,
-            padding: '12px',
-            width: '100%',
-            backgroundColor: '#fce4e4',
-            color: '#333',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            fontSize: '14px',
-          }}
-        >
-          Повторить ошибочные
-        </button>
-      )}
     </div>
   )
 }
