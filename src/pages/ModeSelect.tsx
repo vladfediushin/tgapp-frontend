@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 const ModeSelect: React.FC = () => {
   const navigate = useNavigate()
 
-  const [mode, setMode] = useState<string>('interval')
+  const [mode, setMode] = useState<string>('interval_all')
   const [batchSize, setBatchSize] = useState<number>(30)
 
   const handleNext = () => {
@@ -19,7 +19,7 @@ const ModeSelect: React.FC = () => {
     <div style={{ padding: 20 }}>
       <h2>Выбери режим повторения</h2>
 
-      {['interval', 'new', 'wrong', 'topics'].map(m => (
+      {['interval_all', 'new_only', 'shown_before', 'topics'].map(m => (
         <button
           key={m}
           onClick={() => setMode(m)}
@@ -29,9 +29,9 @@ const ModeSelect: React.FC = () => {
           }}
         >
           {{
-            interval: '📆 Интервальные (по Фибоначчи)',
-            new:      '🆕 Только новые',
-            wrong:    '❌ Только ошибочные',
+            interval_all: '📆 Интервальные (по Фибоначчи)',
+            new_only:      '🆕 Только новые',
+            shown_before:    '❌ Только ошибочные',
             topics:   '📚 По темам',
           }[m]}
         </button>

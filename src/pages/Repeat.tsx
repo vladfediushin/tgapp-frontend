@@ -8,7 +8,7 @@ const Repeat: React.FC = () => {
   const navigate = useNavigate()
   const exam_country = useSession(state => state.examCountry)
   const exam_language = useSession(state => state.examLanguage)
-  const mode = new URLSearchParams(location.search).get('mode') || 'interval'
+  const mode = new URLSearchParams(location.search).get('mode') || 'interval_all'
   const { batchSize } = location.state
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 

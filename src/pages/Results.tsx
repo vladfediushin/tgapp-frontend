@@ -22,7 +22,7 @@ const Results = () => {
 
   const handleRepeatIncorrect = async () => {
     try {
-      const response = await fetch('http://localhost:8000/questions?mode=interval')
+      const response = await fetch('http://localhost:8000/questions?mode=interval_all')
       const allQuestions = await response.json()
       const toRepeat = allQuestions.filter((q: any) =>
         incorrectAnswers.some((a) => a.questionId === q.id)
