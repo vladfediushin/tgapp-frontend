@@ -111,3 +111,9 @@ export const getUserByTelegramId = async (
 ): Promise<AxiosResponse<UserOut>> => {
   return api.get<UserOut>(`/users/by-telegram-id/${telegramId}`)
 }
+
+/** Получить список тем для юзера */
+export const getTopics = (country: string, language: string) =>
+  axios.get<{ topics: string[] }>(
+    `/topics?country=${country}&language=${language}`
+  )

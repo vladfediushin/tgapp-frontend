@@ -5,6 +5,7 @@ import { useSession } from '../store/session'
 import { createUser, getUserByTelegramId } from '../api/api'
 import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
+import { getTopics } from '../api/api'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -41,6 +42,8 @@ const Authorize: React.FC = () => {
   const setStoreExamCountry  = useSession(state => state.setExamCountry)
   const setStoreExamLanguage = useSession(state => state.setExamLanguage)
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
+  const setTopics = useSession(state => state.setTopics)
+
 
   const [step, setStep]       = useState<'checking' | 'form' | 'complete'>('checking')
   const [userName, setUserName] = useState('друг')
@@ -135,11 +138,16 @@ const Authorize: React.FC = () => {
       setStoreExamCountry(res.data.exam_country  ?? '')
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
-    } catch {
-      setError('Ошибка создания пользователя')
-      setStep('form')
-    }
+      const topicsRes = await getTopics(
+      res.data.exam_country  ?? '',
+      res.data.exam_language ?? ''
+    )
+    setTopics(topicsRes.data.topics)
+  } catch {
+    setError('Ошибка создания пользователя')
+    setStep('form')
   }
+}
 
   if (step === 'checking') {
     return <div style={{ padding: 20 }}>Проверка данных пользователя…</div>
