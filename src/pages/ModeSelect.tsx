@@ -29,9 +29,9 @@ const ModeSelect: React.FC = () => {
           }}
         >
           {{
-            interval_all: '📆 Интервальные (по Фибоначчи)',
-            new_only:      '🆕 Только новые',
-            shown_before:    '❌ Только ошибочные',
+            interval_all: 'Все вопросы',
+            new_only:      'Только новые',
+            shown_before:    'Только показанные раньше',
             topics:   '📚 По темам',
           }[m]}
         </button>
@@ -42,7 +42,7 @@ const ModeSelect: React.FC = () => {
           Размер партии: {batchSize}
           <input
             type="range"
-            min={20}
+            min={10}
             max={50}
             value={batchSize}
             onChange={e => setBatchSize(+e.target.value)}
