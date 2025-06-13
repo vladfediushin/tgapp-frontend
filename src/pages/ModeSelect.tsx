@@ -90,6 +90,23 @@ const ModeSelect: React.FC = () => {
         Далее
       </button>
 
+      <button
+        onClick={() => navigate('/home')}
+        style={{
+          display: 'block',
+          width: '100%',
+          padding: '12px',
+          marginTop: '20px',
+          fontSize: '16px',
+          backgroundColor: '#ccc',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+        }}
+      >
+        Назад
+      </button>
+
       {showTopicsModal && (
         <div style={modalOverlayStyle}>
           <div style={modalStyle}>
