@@ -83,12 +83,13 @@ const Repeat: React.FC = () => {
   useEffect(() => {
     if (queue === null) return
 
-    if (queue.length > 0) {
-      setCurrent(queue[0])
-    } else {
-      navigate('/results')
-    }
-  }, [queue, navigate])
+    if (queue.length === 0) {
+    setCurrent(null)
+    navigate('/results')
+  } else {
+    setCurrent(queue[0])
+  }
+}, [queue, navigate])
 
   // -------------------------------------------------------------------
   // 5) Переход к следующему вопросу:
