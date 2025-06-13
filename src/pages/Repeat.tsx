@@ -9,17 +9,13 @@ const Repeat: React.FC = () => {
   const exam_country = useSession(state => state.examCountry)
   const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval_all'
-  const { batchSize } = location.state
+  const { batchSize } = location.state || {}
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
-  // -------------------------------------------------------------------
-  // 1) Состояния:
-  // -------------------------------------------------------------------
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
   const [initialCount, setInitialCount] = useState<number | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
 
-  // Новые состояния для обработки клика по ответу
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState<boolean>(false)
   const [isCorrect, setIsCorrect] = useState<boolean>(false)
@@ -29,24 +25,17 @@ const Repeat: React.FC = () => {
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
 
-  // -------------------------------------------------------------------
-  // 2) Вычисляем счетчики:
-  // -------------------------------------------------------------------
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
   const incorrectCount = answers.filter(a => !a.isCorrect).length
 
-  // -------------------------------------------------------------------
-  // 3) useEffect для загрузки вопросов и установки initialCount:
-  // -------------------------------------------------------------------
   useEffect(() => {
     resetAnswers()
 
     if (preloadedQuestions) {
       setQueue(preloadedQuestions)
-      if (initialCount === null) {
-        setInitialCount(preloadedQuestions.length)
-      }
+      setInitialCount(preloadedQuestions.length)
+      setCurrent(preloadedQuestions[0] || null)
       return
     }
 
@@ -57,64 +46,45 @@ const Repeat: React.FC = () => {
 
     getQuestions({
       user_id: userId,
-      mode: mode,
+      mode,
       country: exam_country,
       language: exam_language,
       batch_size: batchSize,
     })
       .then(res => {
         setQueue(res.data)
-        if (initialCount === null) {
-          setInitialCount(res.data.length)
-        }
+        setInitialCount(res.data.length)
+        setCurrent(res.data[0] || null)
       })
       .catch(err => {
         console.error('Ошибка загрузки вопросов:', err)
         setQueue([])
-        if (initialCount === null) {
-          setInitialCount(0)
-        }
+        setInitialCount(0)
+        setCurrent(null)
       })
-  }, [mode, preloadedQuestions, userId, resetAnswers, initialCount])
+  }, [mode, preloadedQuestions, userId, resetAnswers, exam_country, exam_language, batchSize])
 
-  // -------------------------------------------------------------------
-  // 4) useEffect для установки текущего вопроса или навигации, когда очередь пуста:
-  // -------------------------------------------------------------------
-  useEffect(() => {
-    if (queue === null) return
+  const nextQuestion = (wasCorrect: boolean) => {
+    setQueue(prevQueue => {
+      if (!prevQueue) return prevQueue
 
-    if (queue.length === 0) {
-    setCurrent(null)
-    navigate('/results')
-  } else {
-    setCurrent(queue[0])
+      const [first, ...rest] = prevQueue
+      const newQueue = wasCorrect ? rest : [...rest, first]
+      const next = newQueue[0] || null
+
+      setCurrent(next)
+
+      if (!next) {
+        navigate('/results')
+      }
+
+      return newQueue
+    })
+
+    setSelectedIndex(null)
+    setIsAnswered(false)
   }
-}, [queue, navigate])
 
-  // -------------------------------------------------------------------
-  // 5) Переход к следующему вопросу:
-  // -------------------------------------------------------------------
-  const nextQuestion = () => {
-  setQueue(prevQueue => {
-    if (!prevQueue) return prevQueue
-    const [first, ...rest] = prevQueue
-
-    const newQueue = isCorrect ? rest : [...rest, first]
-    // Обновим current вручную
-    setCurrent(newQueue[0] || null)
-
-    return newQueue
-  })
-
-  // Сбрасываем состояние для нового вопроса
-  setSelectedIndex(null)
-  setIsAnswered(false)
-  setIsCorrect(false)
-}
-
-  // -------------------------------------------------------------------
-  // 6) Обработчик ответа:
-  // -------------------------------------------------------------------
   const handleAnswer = (index: number) => {
     if (!current || isAnswered) return
 
@@ -140,31 +110,21 @@ const Repeat: React.FC = () => {
         .catch(err => {
           console.error('Ошибка при отправке ответа на бэк:', err)
         })
-    } else {
-      console.error('Repeat: нет userId, не отправляем submitAnswer')
     }
 
     if (wasCorrect) {
       setTimeout(() => {
-        nextQuestion()
+        nextQuestion(true)
       }, 500)
     }
-    // если неправильный, ждем клика по "Далее"
   }
 
-  // -------------------------------------------------------------------
-  // 7) Пока очередь не загружена или текущего вопроса нет — показываем «Загрузка...»
-  // -------------------------------------------------------------------
   if (queue === null || current === null) {
     return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
   }
 
-  // -------------------------------------------------------------------
-  // 8) Основной рендер:
-  // -------------------------------------------------------------------
   return (
     <div style={{ padding: 20 }}>
-      {/* блок счетчиков */}
       <div style={{ marginBottom: 20 }}>
         <div>Всего вопросов в очереди (изначально): {initialCount}</div>
         <div>Осталось вопросов в очереди: {questionsLeft}</div>
@@ -183,25 +143,18 @@ const Repeat: React.FC = () => {
       <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
 
       {current.data.options.map((opt, idx) => {
-        // стили кнопки
         let backgroundColor = '#fff'
         let color = '#000'
         if (isAnswered) {
           if (idx === selectedIndex) {
-            if (isCorrect) {
-              backgroundColor = 'green'
-              color = '#fff'
-            } else {
-              backgroundColor = 'red'
-              color = '#fff'
-            }
+            backgroundColor = isCorrect ? 'green' : 'red'
+            color = '#fff'
           } else if (!isCorrect && idx === current.data.correct_index) {
             backgroundColor = 'green'
             color = '#fff'
           }
         }
 
-        // пытаемся достать URL из opt
         const maybeUrl = opt.replace(/[{\}]/g, '').trim()
         const isImage = /\.(jpe?g|png|gif|webp)$/i.test(maybeUrl)
 
@@ -238,7 +191,7 @@ const Repeat: React.FC = () => {
 
       {isAnswered && !isCorrect && (
         <button
-          onClick={nextQuestion}
+          onClick={() => nextQuestion(false)}
           style={{
             marginTop: 20,
             padding: '10px 20px',
@@ -254,21 +207,21 @@ const Repeat: React.FC = () => {
       )}
 
       <button
-      onClick={() => navigate('/results')}
-      style={{
-        display: 'block',
-        width: '100%',
-        padding: '12px',
-        marginTop: '20px',
-        fontSize: '16px',
-        backgroundColor: '#ccc',
-        border: 'none',
-        borderRadius: '8px',
-        cursor: 'pointer',
-      }}
-    >
-      Назад
-    </button>
+        onClick={() => navigate('/results')}
+        style={{
+          display: 'block',
+          width: '100%',
+          padding: '12px',
+          marginTop: '20px',
+          fontSize: '16px',
+          backgroundColor: '#ccc',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+        }}
+      >
+        Назад
+      </button>
     </div>
   )
 }
