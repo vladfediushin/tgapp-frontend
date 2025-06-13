@@ -68,7 +68,7 @@ const ModeSelect: React.FC = () => {
           Размер партии: {batchSize}
           <input
             type="range"
-            min={10}
+            min={1}
             max={50}
             value={batchSize}
             onChange={e => setBatchSize(+e.target.value)}
