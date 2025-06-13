@@ -26,19 +26,20 @@ const Profile = () => {
       <p>Правильных: {correct}</p>
       <p>Текущий стрик: {streak} день</p>
       <button
-        onClick={goHome}
+        onClick={() => navigate('/home')}
         style={{
-          marginTop: 20,
-          padding: '12px',
+          display: 'block',
           width: '100%',
-          backgroundColor: '#2AABEE',
-          color: 'white',
+          padding: '12px',
+          marginTop: '20px',
+          fontSize: '16px',
+          backgroundColor: '#ccc',
           border: 'none',
           borderRadius: '8px',
-          fontSize: '16px',
+          cursor: 'pointer',
         }}
       >
-        На главную
+        Назад
       </button>
     </div>
   )
