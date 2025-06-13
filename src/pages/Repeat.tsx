@@ -94,20 +94,22 @@ const Repeat: React.FC = () => {
   // 5) Переход к следующему вопросу:
   // -------------------------------------------------------------------
   const nextQuestion = () => {
-    setQueue(prevQueue => {
-      if (!prevQueue) return prevQueue
-      const [first, ...rest] = prevQueue
-      // Если ответ был неправильным, добавляем вопрос в конец, иначе просто удаляем
-      if (!isCorrect) {
-        return [...rest, first]
-      }
-      return rest
-    })
-    // Сбрасываем состояние для нового вопроса
-    setSelectedIndex(null)
-    setIsAnswered(false)
-    setIsCorrect(false)
-  }
+  setQueue(prevQueue => {
+    if (!prevQueue) return prevQueue
+    const [first, ...rest] = prevQueue
+
+    const newQueue = isCorrect ? rest : [...rest, first]
+    // Обновим current вручную
+    setCurrent(newQueue[0] || null)
+
+    return newQueue
+  })
+
+  // Сбрасываем состояние для нового вопроса
+  setSelectedIndex(null)
+  setIsAnswered(false)
+  setIsCorrect(false)
+}
 
   // -------------------------------------------------------------------
   // 6) Обработчик ответа:
