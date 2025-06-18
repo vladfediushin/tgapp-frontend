@@ -75,7 +75,6 @@ export const getQuestions = (params: GetQuestionsParams) => {
 
 /** Статистика пользователя */
 export interface UserStats {
-  user_id: string
   answered: number
   correct: number
   total_questions: number
