@@ -177,7 +177,7 @@ const btnStyle: React.CSSProperties = {
   backgroundColor: '#f3f3f3',
   border: '1px solid #ccc',
   borderRadius: '8px',
-  textAlign: 'left',
+  textAlign: 'center',
   cursor: 'pointer',
 }
 
