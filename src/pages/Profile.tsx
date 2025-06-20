@@ -41,7 +41,7 @@ const Profile: React.FC = () => {
       .catch(err => console.error('Ошибка получения статистики:', err))
       .finally(() => setLoading(false))
     // fetch count of questions ready for repeat
-    getQuestions({ user_id: userId, mode: 'interval', country: examCountry, language: examLanguage })
+    getQuestions({ user_id: userId, mode: 'interval_all', country: examCountry, language: examLanguage })
       .then(res => setDueCount(res.data.length))
       .catch(err => console.error('Ошибка получения повторных вопросов:', err))
   }, [userId, examCountry, examLanguage])
