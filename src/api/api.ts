@@ -82,7 +82,7 @@ export interface UserStats {
 
 /** Получить статистику пользователя по его ID */
 export const getUserStats = (userId: string) => {
-  return api.get<UserStats>(`/stats?user_id=${userId}`)
+  return api.get<UserStats>(`/users/${userId}/stats`)
 }
 
 /** Параметры для отправки одного ответа */
