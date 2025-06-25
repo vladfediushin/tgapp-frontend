@@ -16,12 +16,10 @@ const ModeSelect: React.FC = () => {
     // и в любом случае кладём их в URL
     const realMode = selectedTopics.length > 0 ? 'topics' : mode
     const params = new URLSearchParams({
-      mode:    realMode,
+      mode: realMode,
       batchSize: String(batchSize),
     })
-    selectedTopics.forEach(topic =>
-      params.append('topic', topic)
-    )
+    selectedTopics.forEach(topic => params.append('topic', topic))
     navigate(
       `/repeat?${params.toString()}`,
       { state: { batchSize, selectedTopics } }
@@ -121,16 +119,23 @@ const ModeSelect: React.FC = () => {
           <div style={modalStyle}>
             <h3>Выберите темы</h3>
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {topics.map(topic => (
-                <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => toggleTopic(topic)}
-                  />{' '}
-                  {topic}
-                </label>
-              ))}
+              {[
+                // 1) создаём копию, чтобы не мутировать исходный массив
+                ...topics,
+              ]
+                // 2) сразу сортируем
+                .sort((a, b) => a.localeCompare(b, 'ru'))
+                // 3) рисуем
+                .map(topic => (
+                  <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
+                    <input
+                      type="checkbox"
+                      checked={selectedTopics.includes(topic)}
+                      onChange={() => toggleTopic(topic)}
+                    />
+                    {topic}
+                  </label>
+                ))}
             </div>
             <div
               style={{
