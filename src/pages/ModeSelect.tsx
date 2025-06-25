@@ -126,7 +126,7 @@ const ModeSelect: React.FC = () => {
                 // 2) сразу сортируем
                 .sort((a, b) => {
                   const numA = parseInt(a.match(/\d+/)?.[0] ?? '', 10)
-                  const numB = parseInt(a.match(/\d+/)?.[0] ?? '', 10)
+                  const numB = parseInt(b.match(/\d+/)?.[0] ?? '', 10)
                   
                   if(!isNaN(numA) && !isNaN(numB)) {
                     return numA - numB
