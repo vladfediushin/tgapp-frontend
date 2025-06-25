@@ -124,7 +124,16 @@ const ModeSelect: React.FC = () => {
                 ...topics,
               ]
                 // 2) сразу сортируем
-                .sort((a, b) => a.localeCompare(b, 'ru'))
+                .sort((a, b) => {
+                  const numA = parseInt(a.match(/\d+/)?.[0] ?? '', 10)
+                  const numB = parseInt(a.match(/\d+/)?.[0] ?? '', 10)
+                  
+                  if(!isNaN(numA) && !isNaN(numB)) {
+                    return numA - numB
+                  }
+                  
+                  return a.localeCompare(b, 'ru')
+                })
                 // 3) рисуем
                 .map(topic => (
                   <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
