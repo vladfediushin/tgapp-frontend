@@ -9,7 +9,11 @@ const Repeat: React.FC = () => {
   const exam_country = useSession(state => state.examCountry)
   const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval_all'
-  const { batchSize } = location.state || {}
+  // кроме batchSize сразу тащим выбранные темы (по умолчанию пустой массив)
+  const {
+    batchSize,
+    selectedTopics = []
+  } = location.state || {}
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
@@ -50,6 +54,8 @@ const Repeat: React.FC = () => {
       country: exam_country,
       language: exam_language,
       batch_size: batchSize,
+      // здесь может быть либо undefined, либо массив строк
+      topic: selectedTopics.length > 0 ? selectedTopics : undefined,
     })
       .then(res => {
         setQueue(res.data)

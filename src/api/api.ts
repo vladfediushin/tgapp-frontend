@@ -59,7 +59,7 @@ export interface GetQuestionsParams {
   language?: string
   mode?: string
   batch_size?: number
-  topic?: string
+  topic?: string | string[]
 }
 
 /**

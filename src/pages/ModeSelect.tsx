@@ -12,11 +12,20 @@ const ModeSelect: React.FC = () => {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([])
 
   const handleNext = () => {
-    const params = new URLSearchParams({ mode, batchSize: String(batchSize) })
-    if (mode === 'topics' && selectedTopics.length) {
-      selectedTopics.forEach(topic => params.append('topic', topic))
-    }
-    navigate(`/repeat?${params.toString()}`, { state: { batchSize, selectedTopics } })
+    // если выбраны темы — переключаем режим на 'topics',
+    // и в любом случае кладём их в URL
+    const realMode = selectedTopics.length > 0 ? 'topics' : mode
+    const params = new URLSearchParams({
+      mode:    realMode,
+      batchSize: String(batchSize),
+    })
+    selectedTopics.forEach(topic =>
+      params.append('topic', topic)
+    )
+    navigate(
+      `/repeat?${params.toString()}`,
+      { state: { batchSize, selectedTopics } }
+    )
   }
 
   const toggleTopic = (topic: string) => {
