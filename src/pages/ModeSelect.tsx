@@ -65,7 +65,7 @@ const ModeSelect: React.FC = () => {
           {{
             interval_all: 'Все вопросы',
             new_only: 'Только новые',
-            shown_before: 'Только показанные раньше',
+            shown_before: 'Только отвеченные неправильно',
           }[m]}
         </button>
       ))}
