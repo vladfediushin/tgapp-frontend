@@ -9,17 +9,12 @@ const Repeat: React.FC = () => {
   const exam_country = useSession(state => state.examCountry)
   const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval_all'
-  // кроме batchSize сразу тащим выбранные темы (по умолчанию пустой массив)
-  const {
-    batchSize,
-    selectedTopics = []
-  } = location.state || {}
+  const { batchSize, selectedTopics = [] } = location.state || {}
   const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
 
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
   const [initialCount, setInitialCount] = useState<number | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
-
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState<boolean>(false)
   const [isCorrect, setIsCorrect] = useState<boolean>(false)
@@ -32,6 +27,24 @@ const Repeat: React.FC = () => {
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
   const incorrectCount = answers.filter(a => !a.isCorrect).length
+
+  // Предзагрузка изображений следующего вопроса
+  useEffect(() => {
+    if (!queue?.length || queue.length < 2) return
+    const next = queue[1]
+    const preload = (url?: string) => {
+      if (!url) return
+      const img = new Image()
+      img.src = url
+    }
+    // Предзагрузить изображение вопроса
+    preload(next.data.question_image)
+    // Предзагрузить изображения в опциях (если они есть)
+    next.data.options?.forEach(opt => {
+      const maybeUrl = String(opt).replace(/[{}]/g, '').trim()
+      if (/(jpe?g|png|gif|webp)$/i.test(maybeUrl)) preload(maybeUrl)
+    })
+  }, [current, queue])
 
   useEffect(() => {
     resetAnswers()
@@ -54,7 +67,6 @@ const Repeat: React.FC = () => {
       country: exam_country,
       language: exam_language,
       batch_size: batchSize,
-      // здесь может быть либо undefined, либо массив строк
       topic: selectedTopics.length > 0 ? selectedTopics : undefined,
     })
       .then(res => {
@@ -73,27 +85,19 @@ const Repeat: React.FC = () => {
   const nextQuestion = (wasCorrect: boolean) => {
     setQueue(prevQueue => {
       if (!prevQueue) return prevQueue
-
       const [first, ...rest] = prevQueue
       const newQueue = wasCorrect ? rest : [...rest, first]
       const next = newQueue[0] || null
-
       setCurrent(next)
-
-      if (!next) {
-        navigate('/results')
-      }
-
+      if (!next) navigate('/results')
       return newQueue
     })
-
     setSelectedIndex(null)
     setIsAnswered(false)
   }
 
   const handleAnswer = (index: number) => {
     if (!current || isAnswered) return
-
     const questionId = current.id
     const correctIndex = current.data.correct_index
     const wasCorrect = index === correctIndex
@@ -101,27 +105,16 @@ const Repeat: React.FC = () => {
     setSelectedIndex(index)
     setIsAnswered(true)
     setIsCorrect(wasCorrect)
-
     addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
 
     if (userId) {
-      submitAnswer({
-        user_id: userId,
-        question_id: questionId,
-        is_correct: wasCorrect,
-      })
-        .then(response => {
-          console.log('submitAnswer success:', response.data)
-        })
-        .catch(err => {
-          console.error('Ошибка при отправке ответа на бэк:', err)
-        })
+      submitAnswer({ user_id: userId, question_id: questionId, is_correct: wasCorrect })
+        .then(response => console.log('submitAnswer success:', response.data))
+        .catch(err => console.error('Ошибка при отправке ответа на бэк:', err))
     }
 
     if (wasCorrect) {
-      setTimeout(() => {
-        nextQuestion(true)
-      }, 500)
+      setTimeout(() => nextQuestion(true), 500)
     }
   }
 
@@ -161,7 +154,7 @@ const Repeat: React.FC = () => {
           }
         }
 
-        const maybeUrl = opt.replace(/[{\}]/g, '').trim()
+        const maybeUrl = opt.replace(/[{}]/g, '').trim()
         const isImage = /\.(jpe?g|png|gif|webp)$/i.test(maybeUrl)
 
         return (
