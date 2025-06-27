@@ -129,7 +129,9 @@ const Home: React.FC = () => {
                 fontSize: size * 0.2
               }}
             >
-              {`${stats.correct}/${stats.total_questions}`}
+              {stats.total_questions > 0
+              ? `${Math.round((stats.correct / stats.total_questions) * 100)}%`
+              : '0%'}
             </div>
           </div>
         </>
