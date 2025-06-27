@@ -1,7 +1,15 @@
+// Home.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats } from '../api/api'
+
+// импортируем прогресс-бар
+import {
+  CircularProgressbar,
+  buildStyles
+} from 'react-circular-progressbar'
+import 'react-circular-progressbar/dist/styles.css'
 
 const Home: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null)
@@ -29,14 +37,102 @@ const Home: React.FC = () => {
     navigate('/profile')
   }
 
+  // размеры и отступы для прогресс-бара
+  const size = 150
+  const strokeWidth = 12
+
   return (
     <div style={{ padding: 20 }}>
       <h2>Привет, {userName}!</h2>
 
       {stats ? (
-        <p>
-          Пройдено: {stats.answered} из {stats.total_questions}, верных: {stats.correct}
-        </p>
+        <>
+          {/* Строка с числами */}
+          <p>
+            Пройдено: {stats.answered} из {stats.total_questions}, верных:{' '}
+            {stats.correct}
+          </p>
+
+          {/* Трёхслойный круговой прогресс-бар */}
+          <div
+            style={{
+              width: size,
+              height: size,
+              margin: '20px auto',
+              position: 'relative'
+            }}
+          >
+            {/* 1. Фоновый серый круг = total */}
+            <CircularProgressbar
+              value={stats.total_questions}
+              maxValue={stats.total_questions}
+              strokeWidth={strokeWidth}
+              styles={buildStyles({
+                pathColor: '#e0e0e0',
+                trailColor: 'transparent',
+                strokeLinecap: 'butt'
+              })}
+            />
+
+            {/* 2. Оранжевый сегмент = answered */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%'
+              }}
+            >
+              <CircularProgressbar
+                value={stats.answered}
+                maxValue={stats.total_questions}
+                strokeWidth={strokeWidth}
+                styles={buildStyles({
+                  pathColor: '#FFA500',
+                  trailColor: 'transparent',
+                  strokeLinecap: 'butt'
+                })}
+              />
+            </div>
+
+            {/* 3. Зелёный сегмент = correct */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%'
+              }}
+            >
+              <CircularProgressbar
+                value={stats.correct}
+                maxValue={stats.total_questions}
+                strokeWidth={strokeWidth}
+                styles={buildStyles({
+                  pathColor: '#4CAF50',
+                  trailColor: 'transparent',
+                  strokeLinecap: 'butt'
+                })}
+              />
+            </div>
+
+            {/* Номер в центре */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                fontWeight: 'bold',
+                fontSize: size * 0.2
+              }}
+            >
+              {`${stats.correct}/${stats.total_questions}`}
+            </div>
+          </div>
+        </>
       ) : (
         <p>Загрузка статистики...</p>
       )}
@@ -51,7 +147,7 @@ const Home: React.FC = () => {
           backgroundColor: '#2AABEE',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
+          borderRadius: '8px'
         }}
         onClick={handleStart}
       >
@@ -67,7 +163,7 @@ const Home: React.FC = () => {
           fontSize: '14px',
           backgroundColor: '#ECECEC',
           border: '1px solid #CCC',
-          borderRadius: '8px',
+          borderRadius: '8px'
         }}
         onClick={handleProfile}
       >
