@@ -1,11 +1,4 @@
 {
-  "modeSelect": {
-    "title": "Select repetition mode",
-    "allQuestions": "All questions",
-    "newOnly": "New only",
-    "shownBefore": "Shown before",
-    "batchSize": "Batch size"
-  },
   "buttons": {
     "next": "Next",
     "back": "Back",
@@ -25,5 +18,74 @@
       "checkUser": "Error checking user",
       "createUser": "Error creating user"
     }
+  },
+  "home": {
+    "greeting": "Hello, {{name}}!",
+    "stats": "Completed: {{answered}} of {{total}}, correct: {{correct}}",
+    "loadingStats": "Loading stats...",
+    "startRevision": "Start revision",
+    "profile": "Profile"
+  },
+  "modeSelect": {
+    "title": "Select revision mode",
+    "topics": "Topics ({{count}})",
+    "topicsAll": "all",
+    "modes": {
+      "interval_all": "All questions",
+      "new_only": "New only",
+      "shown_before": "Only incorrect"
+    },
+    "batchSize": "Batch size",
+    "next": "Next",
+    "back": "Back",
+    "modal": {
+      "title": "Choose topics",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  },
+  "profile": {
+    "loading": "Loading profile...",
+    "title": "User Profile",
+    "settings": "Settings",
+    "examCountryLabel": "Exam country",
+    "examLanguageLabel": "Exam language",
+    "uiLanguageLabel": "UI language",
+    "statsTitle": "Statistics",
+    "totalQuestions": "Total questions: {{total}}",
+    "answered": "Answered: {{answered}}",
+    "correct": "Correct answers: {{correct}}",
+    "incorrect": "Incorrect answers: {{incorrect}}",
+    "unanswered": "Unanswered questions: {{unanswered}}",
+    "dueCount": "Ready for review: {{dueCount}}",
+    "back": "Back"
+  },
+  "repeat": {
+    "loading": "Loading questions...",
+    "statsInitial": "Total in queue (initial): {{initialCount}}",
+    "statsLeft": "Remaining in queue: {{questionsLeft}}",
+    "statsCorrect": "Correct answers: {{correctCount}}",
+    "statsIncorrect": "Incorrect answers: {{incorrectCount}}",
+    "question": "Question",
+    "next": "Next",
+    "back": "Back"
+  },
+  "results": {
+    "sessionComplete": "Session complete ✅",
+    "answeredCount": "You answered {{count}} questions.",
+    "correctCount": "Correct answers: {{correct}}",
+    "incorrectCount": "Incorrect answers: {{incorrect}}",
+    "goHome": "Go home"
+  },
+  "topics": {
+    "title": "Choose a topic",
+    "list": {
+      "Знаки": "Signs",
+      "Светофоры": "Traffic lights",
+      "Разметка": "Markings",
+      "Ситуации": "Scenarios",
+      "Парковка": "Parking"
+    },
+    "goHome": "Home"
   }
 }

@@ -1,11 +1,4 @@
 {
-  "modeSelect": {
-    "title": "Выбери режим повторения",
-    "allQuestions": "Все вопросы",
-    "newOnly": "Только новые",
-    "shownBefore": "Только показанные раньше",
-    "batchSize": "Размер партии"
-  },
   "buttons": {
     "next": "Далее",
     "back": "Назад",
@@ -25,5 +18,74 @@
       "checkUser": "Ошибка проверки пользователя",
       "createUser": "Ошибка создания пользователя"
         }
+    },
+    "home": {
+    "greeting": "Привет, {{name}}!",
+    "stats": "Пройдено: {{answered}} из {{total}}, верных: {{correct}}",
+    "loadingStats": "Загрузка статистики...",
+    "startRevision": "Начать повторение",
+    "profile": "Личный кабинет"
+  },
+  "modeSelect": {
+    "title": "Выбери режим повторения",
+    "topics": "Темы ({{count}})",
+    "topicsAll": "все",
+    "modes": {
+      "interval_all": "Все вопросы",
+      "new_only": "Только новые",
+      "shown_before": "Только отвеченные неправильно"
+    },
+    "batchSize": "Размер партии",
+    "next": "Далее",
+    "back": "Назад",
+    "modal": {
+      "title": "Выберите темы",
+      "cancel": "Отмена",
+      "confirm": "Подтвердить"
     }
+  },
+  "profile": {
+    "loading": "Загрузка профиля...",
+    "title": "Профиль пользователя",
+    "settings": "Настройки",
+    "examCountryLabel": "Страна экзамена",
+    "examLanguageLabel": "Язык экзамена",
+    "uiLanguageLabel": "Язык интерфейса",
+    "statsTitle": "Статистика",
+    "totalQuestions": "Всего вопросов: {{total}}",
+    "answered": "Отвечено: {{answered}}",
+    "correct": "Верных ответов: {{correct}}",
+    "incorrect": "Ошибочных ответов: {{incorrect}}",
+    "unanswered": "Неотвеченных вопросов: {{unanswered}}",
+    "dueCount": "Готовы к повторению: {{dueCount}}",
+    "back": "Назад"
+  },
+  "repeat": {
+    "loading": "Загрузка вопросов...",
+    "statsInitial": "Всего вопросов в очереди (изначально): {{initialCount}}",
+    "statsLeft": "Осталось вопросов в очереди: {{questionsLeft}}",
+    "statsCorrect": "Правильно отвечено: {{correctCount}}",
+    "statsIncorrect": "Неправильно отвечено: {{incorrectCount}}",
+    "question": "Вопрос",
+    "next": "Далее",
+    "back": "Назад"
+  },
+  "results": {
+    "sessionComplete": "Сессия завершена ✅",
+    "answeredCount": "Вы ответили на {{count}} вопросов.",
+    "correctCount": "Правильных ответов: {{correct}}",
+    "incorrectCount": "Неправильных ответов: {{incorrect}}",
+    "goHome": "На главную"
+  },
+  "topics": {
+    "title": "Выберите тему",
+    "list": {
+      "Знаки": "Знаки",
+      "Светофоры": "Светофоры",
+      "Разметка": "Разметка",
+      "Ситуации": "Ситуации",
+      "Парковка": "Парковка"
+    },
+    "goHome": "На главную"
+  }
 }

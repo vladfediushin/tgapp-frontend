@@ -1,8 +1,9 @@
-// Home.tsx
+// src/pages/Home.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats } from '../api/api'
+import { useTranslation } from 'react-i18next'
 
 // импортируем прогресс-бар
 import {
@@ -12,6 +13,7 @@ import {
 import 'react-circular-progressbar/dist/styles.css'
 
 const Home: React.FC = () => {
+  const { t } = useTranslation()
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
   const internalId = useSession(state => state.userId)
@@ -43,14 +45,17 @@ const Home: React.FC = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Привет, {userName}!</h2>
+      <h2>{t('home.greeting', { name: userName })}</h2>
 
       {stats ? (
         <>
           {/* Строка с числами */}
           <p>
-            Пройдено: {stats.answered} из {stats.total_questions}, верных:{' '}
-            {stats.correct}
+            {t('home.stats', {
+              answered: stats.answered,
+              total: stats.total_questions,
+              correct: stats.correct
+            })}
           </p>
 
           {/* Трёхслойный круговой прогресс-бар */}
@@ -130,13 +135,13 @@ const Home: React.FC = () => {
               }}
             >
               {stats.total_questions > 0
-              ? `${Math.round((stats.correct / stats.total_questions) * 100)}%`
-              : '0%'}
+                ? `${Math.round((stats.correct / stats.total_questions) * 100)}%`
+                : '0%'}
             </div>
           </div>
         </>
       ) : (
-        <p>Загрузка статистики...</p>
+        <p>{t('home.loadingStats')}</p>
       )}
 
       <button
@@ -153,7 +158,7 @@ const Home: React.FC = () => {
         }}
         onClick={handleStart}
       >
-        Начать повторение
+        {t('home.startRevision')}
       </button>
 
       <button
@@ -169,7 +174,7 @@ const Home: React.FC = () => {
         }}
         onClick={handleProfile}
       >
-        Личный кабинет
+        {t('home.profile')}
       </button>
     </div>
   )

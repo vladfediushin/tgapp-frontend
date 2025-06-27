@@ -1,7 +1,9 @@
+// src/pages/Profile.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, QuestionOut } from '../api/api'
+import { useTranslation } from 'react-i18next'
 
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
@@ -18,6 +20,7 @@ const UI_LANGUAGES = [
 ]
 
 const Profile: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const userId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
@@ -41,7 +44,12 @@ const Profile: React.FC = () => {
       .catch(err => console.error('Ошибка получения статистики:', err))
       .finally(() => setLoading(false))
     // fetch count of questions ready for repeat
-    getQuestions({ user_id: userId, mode: 'interval_all', country: examCountry, language: examLanguage })
+    getQuestions({
+      user_id: userId,
+      mode: 'interval_all',
+      country: examCountry,
+      language: examLanguage
+    })
       .then(res => setDueCount(res.data.length))
       .catch(err => console.error('Ошибка получения повторных вопросов:', err))
   }, [userId, examCountry, examLanguage])
@@ -49,7 +57,7 @@ const Profile: React.FC = () => {
   const handleBack = () => navigate('/home')
 
   if (loading || stats === null || dueCount === null) {
-    return <div style={{ padding: 20 }}>Загрузка профиля...</div>
+    return <div style={{ padding: 20 }}>{t('profile.loading')}</div>
   }
 
   const { total_questions, answered, correct } = stats
@@ -58,13 +66,13 @@ const Profile: React.FC = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Профиль пользователя</h2>
+      <h2>{t('profile.title')}</h2>
 
       {/* Настройки */}
       <section style={{ marginBottom: 24 }}>
-        <h3>Настройки</h3>
+        <h3>{t('profile.settings')}</h3>
         <label style={{ display: 'block', margin: '8px 0' }}>
-          Страна экзамена
+          {t('profile.examCountryLabel')}
           <select
             value={examCountry}
             onChange={e => setExamCountry(e.target.value)}
@@ -78,7 +86,7 @@ const Profile: React.FC = () => {
           </select>
         </label>
         <label style={{ display: 'block', margin: '8px 0' }}>
-          Язык экзамена
+          {t('profile.examLanguageLabel')}
           <select
             value={examLanguage}
             onChange={e => setExamLanguage(e.target.value)}
@@ -92,7 +100,7 @@ const Profile: React.FC = () => {
           </select>
         </label>
         <label style={{ display: 'block', margin: '8px 0' }}>
-          Язык интерфейса
+          {t('profile.uiLanguageLabel')}
           <select
             value={uiLanguage}
             onChange={e => setUiLanguage(e.target.value)}
@@ -109,13 +117,13 @@ const Profile: React.FC = () => {
 
       {/* Статистика */}
       <section style={{ marginBottom: 24 }}>
-        <h3>Статистика</h3>
-        <div>Всего вопросов: {total_questions}</div>
-        <div>Отвечено: {answered}</div>
-        <div>Верных ответов: {correct}</div>
-        <div>Ошибочных ответов: {incorrect}</div>
-        <div>Неотвеченных вопросов: {unanswered}</div>
-        <div>Готовы к повторению: {dueCount}</div>
+        <h3>{t('profile.statsTitle')}</h3>
+        <div>{t('profile.totalQuestions', { total: total_questions })}</div>
+        <div>{t('profile.answered', { answered })}</div>
+        <div>{t('profile.correct', { correct })}</div>
+        <div>{t('profile.incorrect', { incorrect })}</div>
+        <div>{t('profile.unanswered', { unanswered })}</div>
+        <div>{t('profile.dueCount', { dueCount })}</div>
       </section>
 
       <button
@@ -131,7 +139,7 @@ const Profile: React.FC = () => {
           cursor: 'pointer',
         }}
       >
-        Назад
+        {t('profile.back')}
       </button>
     </div>
   )

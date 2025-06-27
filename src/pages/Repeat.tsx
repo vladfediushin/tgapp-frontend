@@ -1,9 +1,12 @@
+// src/pages/Repeat.tsx
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
+import { useTranslation } from 'react-i18next'
 
 const Repeat: React.FC = () => {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const exam_country = useSession(state => state.examCountry)
@@ -37,9 +40,7 @@ const Repeat: React.FC = () => {
       const img = new Image()
       img.src = url
     }
-    // Предзагрузить изображение вопроса
     preload(next.data.question_image)
-    // Предзагрузить изображения в опциях (если они есть)
     next.data.options?.forEach(opt => {
       const maybeUrl = String(opt).replace(/[{}]/g, '').trim()
       if (/(jpe?g|png|gif|webp)$/i.test(maybeUrl)) preload(maybeUrl)
@@ -119,19 +120,19 @@ const Repeat: React.FC = () => {
   }
 
   if (queue === null || current === null) {
-    return <div style={{ padding: 20 }}>Загрузка вопросов...</div>
+    return <div style={{ padding: 20 }}>{t('repeat.loading')}</div>
   }
 
   return (
     <div style={{ padding: 20 }}>
       <div style={{ marginBottom: 20 }}>
-        <div>Всего вопросов в очереди (изначально): {initialCount}</div>
-        <div>Осталось вопросов в очереди: {questionsLeft}</div>
-        <div>Правильно отвечено: {correctCount}</div>
-        <div>Неправильно отвечено: {incorrectCount}</div>
+        <div>{t('repeat.statsInitial', { initialCount })}</div>
+        <div>{t('repeat.statsLeft', { questionsLeft })}</div>
+        <div>{t('repeat.statsCorrect', { correctCount })}</div>
+        <div>{t('repeat.statsIncorrect', { incorrectCount })}</div>
       </div>
 
-      <h2>Вопрос</h2>
+      <h2>{t('repeat.question')}</h2>
       {current.data.question_image && (
         <img
           src={current.data.question_image}
@@ -201,7 +202,7 @@ const Repeat: React.FC = () => {
             cursor: 'pointer',
           }}
         >
-          Далее
+          {t('repeat.next')}
         </button>
       )}
 
@@ -219,7 +220,7 @@ const Repeat: React.FC = () => {
           cursor: 'pointer',
         }}
       >
-        Назад
+        {t('repeat.back')}
       </button>
     </div>
   )

@@ -1,8 +1,11 @@
+// src/pages/ModeSelect.tsx
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
+import { useTranslation } from 'react-i18next'
 
 const ModeSelect: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const topics = useSession(state => state.topics)
 
@@ -12,8 +15,6 @@ const ModeSelect: React.FC = () => {
   const [selectedTopics, setSelectedTopics] = useState<string[]>([])
 
   const handleNext = () => {
-    // если выбраны темы — переключаем режим на 'topics',
-    // и в любом случае кладём их в URL
     const realMode = selectedTopics.length > 0 ? 'topics' : mode
     const params = new URLSearchParams({
       mode: realMode,
@@ -37,7 +38,7 @@ const ModeSelect: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>Выбери режим повторения</h2>
+        <h2 style={{ margin: 0 }}>{t('modeSelect.title')}</h2>
         <button
           onClick={() => setShowTopicsModal(true)}
           style={{
@@ -49,7 +50,11 @@ const ModeSelect: React.FC = () => {
             cursor: 'pointer',
           }}
         >
-          🧠 Темы ({selectedTopics.length || 'все'})
+          🧠 {t('modeSelect.topics', {
+            count: selectedTopics.length > 0
+              ? selectedTopics.length
+              : t('modeSelect.topicsAll')
+          })}
         </button>
       </div>
 
@@ -58,21 +63,25 @@ const ModeSelect: React.FC = () => {
           key={m}
           onClick={() => setMode(m)}
           style={{
-            ...btnStyle,
-            backgroundColor: mode === m ? '#e0f2ff' : undefined,
+            display: 'block',
+            width: '100%',
+            padding: '12px',
+            marginTop: '10px',
+            fontSize: '16px',
+            backgroundColor: mode === m ? '#e0f2ff' : '#f3f3f3',
+            border: '1px solid #ccc',
+            borderRadius: '8px',
+            textAlign: 'center',
+            cursor: 'pointer',
           }}
         >
-          {{
-            interval_all: 'Все вопросы',
-            new_only: 'Только новые',
-            shown_before: 'Только отвеченные неправильно',
-          }[m]}
+          {t(`modeSelect.modes.${m}`)}
         </button>
       ))}
 
       <div style={{ marginTop: 20 }}>
         <label>
-          Размер партии: {batchSize}
+          {t('modeSelect.batchSize')}: {batchSize}
           <input
             type="range"
             min={1}
@@ -87,14 +96,19 @@ const ModeSelect: React.FC = () => {
       <button
         onClick={handleNext}
         style={{
-          ...btnStyle,
-          marginTop: 30,
+          display: 'block',
+          width: '100%',
+          padding: '12px',
+          marginTop: '30px',
+          fontSize: '16px',
           backgroundColor: '#2AABEE',
           color: '#fff',
           border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
         }}
       >
-        Далее
+        {t('modeSelect.next')}
       </button>
 
       <button
@@ -111,30 +125,34 @@ const ModeSelect: React.FC = () => {
           cursor: 'pointer',
         }}
       >
-        Назад
+        {t('modeSelect.back')}
       </button>
 
       {showTopicsModal && (
-        <div style={modalOverlayStyle}>
-          <div style={modalStyle}>
-            <h3>Выберите темы</h3>
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: '#fff',
+            padding: '20px',
+            borderRadius: '8px',
+            width: '80%',
+            maxWidth: '400px',
+            boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
+          }}>
+            <h3>{t('modeSelect.modal.title')}</h3>
             <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-              {[
-                // 1) создаём копию, чтобы не мутировать исходный массив
-                ...topics,
-              ]
-                // 2) сразу сортируем
+              {[...topics]
                 .sort((a, b) => {
-                  const numA = parseInt(a.match(/\d+/)?.[0] ?? '', 10)
-                  const numB = parseInt(b.match(/\d+/)?.[0] ?? '', 10)
-                  
-                  if(!isNaN(numA) && !isNaN(numB)) {
-                    return numA - numB
-                  }
-                  
+                  const numA = parseInt(a.match(/\d+/)?.[0] || '', 10)
+                  const numB = parseInt(b.match(/\d+/)?.[0] || '', 10)
+                  if (!isNaN(numA) && !isNaN(numB)) return numA - numB
                   return a.localeCompare(b, 'ru')
                 })
-                // 3) рисуем
                 .map(topic => (
                   <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
                     <input
@@ -146,15 +164,9 @@ const ModeSelect: React.FC = () => {
                   </label>
                 ))}
             </div>
-            <div
-              style={{
-                marginTop: 20,
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: '10px',
-              }}
-            >
+            <div style={{ marginTop: 20, display: 'flex', gap: '10px' }}>
               <button
+                title={t('modeSelect.modal.cancel')}
                 onClick={() => setShowTopicsModal(false)}
                 style={{
                   flex: 1,
@@ -163,11 +175,13 @@ const ModeSelect: React.FC = () => {
                   backgroundColor: '#f8d7da',
                   border: '1px solid #f5c2c7',
                   borderRadius: '8px',
+                  cursor: 'pointer',
                 }}
               >
                 🛑
               </button>
               <button
+                title={t('modeSelect.modal.confirm')}
                 onClick={() => {
                   setMode('topics')
                   setShowTopicsModal(false)
@@ -179,6 +193,7 @@ const ModeSelect: React.FC = () => {
                   backgroundColor: '#d1e7dd',
                   border: '1px solid #badbcc',
                   borderRadius: '8px',
+                  cursor: 'pointer',
                 }}
               >
                 ✅
@@ -189,40 +204,6 @@ const ModeSelect: React.FC = () => {
       )}
     </div>
   )
-}
-
-const btnStyle: React.CSSProperties = {
-  display: 'block',
-  width: '100%',
-  padding: '12px',
-  marginTop: '10px',
-  fontSize: '16px',
-  backgroundColor: '#f3f3f3',
-  border: '1px solid #ccc',
-  borderRadius: '8px',
-  textAlign: 'center',
-  cursor: 'pointer',
-}
-
-const modalOverlayStyle: React.CSSProperties = {
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const modalStyle: React.CSSProperties = {
-  backgroundColor: '#fff',
-  padding: '20px',
-  borderRadius: '8px',
-  width: '80%',
-  maxWidth: '400px',
-  boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
 }
 
 export default ModeSelect

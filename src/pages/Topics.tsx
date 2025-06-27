@@ -1,11 +1,14 @@
 // frontend/src/pages/Topics.tsx
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const topics = ['Знаки', 'Светофоры', 'Разметка', 'Ситуации', 'Парковка']
 
-const Topics = () => {
+const Topics: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
   const goHome = () => {
     navigate('/')
   }
@@ -16,11 +19,11 @@ const Topics = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Выберите тему</h2>
-      {topics.map((t, i) => (
+      <h2>{t('topics.title')}</h2>
+      {topics.map((topic) => (
         <button
-          key={i}
-          onClick={() => handleSelect(t)}
+          key={topic}
+          onClick={() => handleSelect(topic)}
           style={{
             display: 'block',
             width: '100%',
@@ -28,12 +31,13 @@ const Topics = () => {
             padding: '12px',
             borderRadius: '8px',
             border: '1px solid #ccc',
+            cursor: 'pointer',
           }}
         >
-          {t}
+          {t(`topics.list.${topic}`)}
         </button>
       ))}
-            <button
+      <button
         onClick={goHome}
         style={{
           marginTop: 20,
@@ -44,9 +48,10 @@ const Topics = () => {
           border: 'none',
           borderRadius: '8px',
           fontSize: '16px',
+          cursor: 'pointer',
         }}
       >
-        На главную
+        {t('topics.goHome')}
       </button>
     </div>
   )
