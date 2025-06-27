@@ -5,6 +5,8 @@ import { useSession } from '../store/session'
 import { createUser, getUserByTelegramId, getTopics } from '../api/api'
 import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
+import { useTranslation } from 'react-i18next'
+import i18n from 'i18next'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -24,7 +26,14 @@ const UI_LANGUAGES = [
 ]
 
 const Authorize: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
+
+  // для этой страницы: подтягиваем языковой код из Telegram и ставим дефолт
+  const tgUserInit = window.Telegram?.WebApp?.initDataUnsafe?.user
+  const rawLang = tgUserInit?.language_code?.split('-')[0] ?? ''
+  const hasLang = UI_LANGUAGES.some(l => l.value === rawLang)
+  const defaultUiLang = hasLang ? rawLang : 'en'
 
   // экшены стора
   const setInternalId        = useSession(state => state.setUserId)
@@ -33,15 +42,20 @@ const Authorize: React.FC = () => {
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
   const setTopics            = useSession(state => state.setTopics)
 
-  const [step, setStep]       = useState<'checking' | 'form' | 'complete'>('checking')
+  const [step, setStep]         = useState<'checking' | 'form' | 'complete'>('checking')
   const [userName, setUserName] = useState('друг')
 
   // локальные стейты для формы
   const [examCountryInput, setExamCountryInput]   = useState<string>('')
   const [examLanguageInput, setExamLanguageInput] = useState<string>('')
-  const [uiLanguageInput, setUiLanguageInput]     = useState<string>('ru')
+  const [uiLanguageInput, setUiLanguageInput]     = useState<string>(defaultUiLang)
 
   const [error, setError] = useState('')
+
+  // меняем язык i18next на тот, что из Telegram (или en), и затем при выборе в форме
+  useEffect(() => {
+    i18n.changeLanguage(uiLanguageInput)
+  }, [uiLanguageInput])
 
   // Первый эффект: проверяем, есть ли пользователь в БД
   useEffect(() => {
@@ -81,14 +95,14 @@ const Authorize: React.FC = () => {
         if (axiosErr.response?.status === 404) {
           setStep('form')
         } else {
-          setError('Ошибка проверки пользователя')
+          setError(t('authorize.error.checkUser'))
           setStep('form')
         }
       }
     }
     init()
   }, [
-    navigate,
+    t,
     setInternalId,
     setStoreExamCountry,
     setStoreExamLanguage,
@@ -105,7 +119,7 @@ const Authorize: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!examCountryInput || !examLanguageInput) {
-      setError('Заполните обязательные поля')
+      setError(t('authorize.error.requiredFields'))
       return
     }
     setError('')
@@ -113,7 +127,7 @@ const Authorize: React.FC = () => {
     const tg = window.Telegram?.WebApp
     const tgUser = tg?.initDataUnsafe?.user
     if (!tgUser) {
-      setError('Не удалось получить данные Telegram')
+      setError(t('authorize.error.telegramData'))
       setStep('form')
       return
     }
@@ -144,27 +158,27 @@ const Authorize: React.FC = () => {
       // только теперь завершаем авторизацию
       setStep('complete')
     } catch {
-      setError('Ошибка создания пользователя')
+      setError(t('authorize.error.createUser'))
       setStep('form')
     }
   }
 
   if (step === 'checking') {
-    return <div style={{ padding: 20 }}>Проверка данных пользователя…</div>
+    return <div style={{ padding: 20 }}>{t('authorize.checking')}</div>
   }
   if (step === 'form') {
     return (
       <div style={{ padding: 20 }}>
-        <h2>Привет, {userName}! Укажи, пожалуйста, страну и язык:</h2>
+        <h2>{t('authorize.greeting', { name: userName })}</h2>
 
         <label>
-          Страна экзамена
+          {t('authorize.examCountryLabel')}
           <select
             value={examCountryInput}
             onChange={e => setExamCountryInput(e.target.value)}
             style={{ display: 'block', margin: '8px 0' }}
           >
-            <option value="">— выберите —</option>
+            <option value="">{t('authorize.selectPlaceholder')}</option>
             {EXAM_COUNTRIES.map(c => (
               <option key={c.value} value={c.value}>{c.label}</option>
             ))}
@@ -172,13 +186,13 @@ const Authorize: React.FC = () => {
         </label>
 
         <label>
-          Язык экзамена
+          {t('authorize.examLanguageLabel')}
           <select
             value={examLanguageInput}
             onChange={e => setExamLanguageInput(e.target.value)}
             style={{ display: 'block', margin: '8px 0' }}
           >
-            <option value="">— выберите —</option>
+            <option value="">{t('authorize.selectPlaceholder')}</option>
             {EXAM_LANGUAGES.map(l => (
               <option key={l.value} value={l.value}>{l.label}</option>
             ))}
@@ -186,7 +200,7 @@ const Authorize: React.FC = () => {
         </label>
 
         <label>
-          Язык интерфейса
+          {t('authorize.uiLanguageLabel')}
           <select
             value={uiLanguageInput}
             onChange={e => setUiLanguageInput(e.target.value)}
@@ -214,7 +228,7 @@ const Authorize: React.FC = () => {
             fontSize: 16,
           }}
         >
-          Сохранить и продолжить
+          {t('authorize.submit')}
         </button>
       </div>
     )

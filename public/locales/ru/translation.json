@@ -1,0 +1,29 @@
+{
+  "modeSelect": {
+    "title": "Выбери режим повторения",
+    "allQuestions": "Все вопросы",
+    "newOnly": "Только новые",
+    "shownBefore": "Только показанные раньше",
+    "batchSize": "Размер партии"
+  },
+  "buttons": {
+    "next": "Далее",
+    "back": "Назад",
+    "topics": "Темы ({{count}})"
+  },
+  "authorize": {
+    "checking": "Проверка данных пользователя…",
+    "greeting": "Привет, {{name}}! Укажи, пожалуйста, страну и язык:",
+    "examCountryLabel": "Страна экзамена",
+    "examLanguageLabel": "Язык экзамена",
+    "uiLanguageLabel": "Язык интерфейса",
+    "selectPlaceholder": "— выберите —",
+    "submit": "Сохранить и продолжить",
+    "error": {
+      "requiredFields": "Заполните обязательные поля",
+      "telegramData": "Не удалось получить данные Telegram",
+      "checkUser": "Ошибка проверки пользователя",
+      "createUser": "Ошибка создания пользователя"
+        }
+    }
+}

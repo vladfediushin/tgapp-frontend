@@ -1,0 +1,29 @@
+{
+  "modeSelect": {
+    "title": "Select repetition mode",
+    "allQuestions": "All questions",
+    "newOnly": "New only",
+    "shownBefore": "Shown before",
+    "batchSize": "Batch size"
+  },
+  "buttons": {
+    "next": "Next",
+    "back": "Back",
+    "topics": "Topics ({{count}})"
+  },
+  "authorize": {
+    "checking": "Checking user data…",
+    "greeting": "Hello, {{name}}! Please select your country and language:",
+    "examCountryLabel": "Exam country",
+    "examLanguageLabel": "Exam language",
+    "uiLanguageLabel": "UI language",
+    "selectPlaceholder": "— select —",
+    "submit": "Save and continue",
+    "error": {
+      "requiredFields": "Please fill in all required fields",
+      "telegramData": "Failed to get Telegram data",
+      "checkUser": "Error checking user",
+      "createUser": "Error creating user"
+    }
+  }
+}
