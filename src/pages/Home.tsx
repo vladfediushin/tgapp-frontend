@@ -16,7 +16,11 @@ const Home: React.FC = () => {
   const { t } = useTranslation()
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
-  const internalId = useSession(state => state.userId)
+
+  const internalId    = useSession(state => state.userId)
+  const examCountry   = useSession(state => state.examCountry)
+  const examLanguage  = useSession(state => state.examLanguage)
+
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -26,10 +30,11 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (!internalId) return
+
     getUserStats(internalId)
       .then(res => setStats(res.data))
       .catch(err => console.error('Ошибка получения статистики', err))
-  }, [internalId])
+  }, [internalId, examCountry, examLanguage])
 
   const handleStart = () => {
     navigate('/mode')
