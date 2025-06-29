@@ -17,6 +17,24 @@ export interface UserCreate {
   last_name?: string
 }
 
+/** Создать или обновить пользователя */
+export const createUser = (payload: UserCreate) => {
+  return api.post<UserOut>('/users/', payload)
+}
+
+/** Схема для изменения параметров юзера */
+export interface UserUpdate {
+  first_name?: string
+  last_name?: string
+  exam_country?: string
+  exam_language?: string
+  ui_language?: string
+}
+
+export const updateUser = (userId: string, payload: UserUpdate) => {
+  return api.patch<UserOut>(`/users/${userId}`, payload)
+}
+
 /** Ответ от сервера при создании/получении пользователя */
 export interface UserOut {
   id: string
@@ -29,10 +47,6 @@ export interface UserOut {
   ui_language?: string
 }
 
-/** Создать или обновить пользователя */
-export const createUser = (payload: UserCreate) => {
-  return api.post<UserOut>('/users/', payload)
-}
 
 // -------------------------
 // Типы и функции для работы с вопросами
