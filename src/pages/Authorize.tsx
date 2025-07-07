@@ -7,6 +7,7 @@ import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
+import ExamSettingsComponent from '../components/ExamSettingsComponent'  // Import the component
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -42,13 +43,16 @@ const Authorize: React.FC = () => {
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
   const setTopics            = useSession(state => state.setTopics)
 
-  const [step, setStep]         = useState<'checking' | 'form' | 'complete'>('checking')
+  const [step, setStep]         = useState<'checking' | 'form' | 'exam_settings' | 'complete'>('checking')
   const [userName, setUserName] = useState('друг')
 
   // локальные стейты для формы
   const [examCountryInput, setExamCountryInput]   = useState<string>('')
   const [examLanguageInput, setExamLanguageInput] = useState<string>('')
   const [uiLanguageInput, setUiLanguageInput]     = useState<string>(defaultUiLang)
+
+  // State to track if user is new (needs to see exam settings)
+  const [isNewUser, setIsNewUser] = useState(false)
 
   const [error, setError] = useState('')
 
@@ -88,11 +92,13 @@ const Authorize: React.FC = () => {
         )
         setTopics(topicsRes.data.topics)
 
-        // переходим на Home
+        // переходим на Home - existing user
         setStep('complete')
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
+          // New user - show form
+          setIsNewUser(true)
           setStep('form')
         } else {
           setError(t('authorize.error.checkUser'))
@@ -141,6 +147,7 @@ const Authorize: React.FC = () => {
         exam_country: examCountryInput,
         exam_language: examLanguageInput,
         ui_language: uiLanguageInput,
+        // exam_date and daily_goal are optional - will be set in next step
       })
 
       setInternalId(res.data.id)
@@ -155,17 +162,28 @@ const Authorize: React.FC = () => {
       )
       setTopics(topicsRes.data.topics)
 
-      // только теперь завершаем авторизацию
-      setStep('complete')
+      // Show exam settings step for new users
+      setStep('exam_settings')
     } catch {
       setError(t('authorize.error.createUser'))
       setStep('form')
     }
   }
 
+  const handleExamSettingsSave = () => {
+    // User saved exam settings, move to complete
+    setStep('complete')
+  }
+
+  const handleSkipExamSettings = () => {
+    // User skipped exam settings, move to complete
+    setStep('complete')
+  }
+
   if (step === 'checking') {
     return <div style={{ padding: 20 }}>{t('authorize.checking')}</div>
   }
+  
   if (step === 'form') {
     return (
       <div style={{ padding: 20 }}>
@@ -229,6 +247,44 @@ const Authorize: React.FC = () => {
           }}
         >
           {t('authorize.submit')}
+        </button>
+      </div>
+    )
+  }
+
+  if (step === 'exam_settings') {
+    return (
+      <div style={{ padding: 20 }}>
+        <h2>Почти готово, {userName}!</h2>
+        <p style={{ marginBottom: 20, color: '#666' }}>
+          Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
+          рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
+          вы можете пропустить их и добавить позже.
+        </p>
+
+        {/* Embed the ExamSettingsComponent */}
+        <ExamSettingsComponent 
+          showTitle={false} 
+          compact={true}
+          onSave={handleExamSettingsSave}
+        />
+
+        <button
+          onClick={handleSkipExamSettings}
+          style={{
+            display: 'block',
+            width: '100%',
+            padding: '10px',
+            marginTop: '15px',
+            backgroundColor: '#f5f5f5',
+            color: '#666',
+            border: '1px solid #ccc',
+            borderRadius: 8,
+            fontSize: 16,
+            cursor: 'pointer'
+          }}
+        >
+          Пропустить (настроить позже)
         </button>
       </div>
     )

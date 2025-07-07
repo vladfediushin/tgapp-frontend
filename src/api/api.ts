@@ -15,26 +15,24 @@ export interface UserCreate {
   username?: string
   first_name?: string
   last_name?: string
-  exam_country:  string
+  exam_country: string
   exam_language: string
-  ui_langugage: string
-  exam_date?: string
-  daily_goal?: number
-}
-
-/** Создать или обновить пользователя */
-export const createUser = (payload: UserCreate) => {
-  return api.post<UserOut>('/users/', payload)
+  ui_language: string  // FIXED: removed typo from ui_langugage
+  exam_date?: string    // OPTIONAL: ISO date string
+  daily_goal?: number   // OPTIONAL: daily goal
 }
 
 export interface UserSettingsUpdate {
-  exam_country:  string
-  exam_language: string
-  ui_language:   string
-  exam_date:     string    // ISO-строка, обязателен
-  daily_goal:    number    // обязателен
+  exam_country?: string   // Made optional
+  exam_language?: string  // Made optional
+  ui_language?: string    // Made optional
+  exam_date?: string      // ISO-строка, optional
+  daily_goal?: number     // optional
 }
 
+export const createUser = (payload: UserCreate) => {
+  return api.post<UserOut>('/users/', payload)
+}
 
 export const updateUser = (userId: string, payload: UserSettingsUpdate) => {
   return api.patch<UserOut>(`/users/${userId}`, payload)
@@ -50,8 +48,33 @@ export interface UserOut {
   exam_country?: string
   exam_language?: string
   ui_language?: string
+  exam_date?: string     // ISO date string
+  daily_goal?: number
 }
 
+// -------------------------
+// NEW: Exam Settings Types
+// -------------------------
+
+export interface ExamSettingsUpdate {
+  exam_date: string  // ISO date string (YYYY-MM-DD)
+  daily_goal: number // 1-100
+}
+
+export interface ExamSettingsResponse {
+  exam_date?: string
+  daily_goal?: number
+  days_until_exam?: number
+  recommended_daily_goal?: number
+}
+
+export const setExamSettings = (userId: string, settings: ExamSettingsUpdate) => {
+  return api.post<ExamSettingsResponse>(`/users/${userId}/exam-settings`, settings)
+}
+
+export const getExamSettings = (userId: string) => {
+  return api.get<ExamSettingsResponse>(`/users/${userId}/exam-settings`)
+}
 
 // -------------------------
 // Типы и функции для работы с вопросами
@@ -116,11 +139,7 @@ export const submitAnswer = (payload: AnswerSubmit) => {
   return api.post('/user_progress/submit_answer', payload)
 }
 
-export default api
-
-
 /**Получить юзера по Telegram ID */
-
 /**
  * Возвращает объект пользователя по его telegram_id
  */
@@ -135,3 +154,5 @@ export const getTopics = (country: string, language: string) =>
   api.get<{ topics: string[] }>(
     `/topics?country=${country}&language=${language}`,
   )
+
+export default api

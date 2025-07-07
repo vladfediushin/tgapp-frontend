@@ -5,6 +5,7 @@ import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
+import ExamSettingsComponent from '../components/ExamSettingsComponent'  // Import the component
 
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
@@ -55,6 +56,11 @@ const Profile: React.FC = () => {
   }, [userId, examCountry, examLanguage])
 
   const handleBack = () => navigate('/home')
+
+  const handleExamSettingsSave = () => {
+    // Optional: You can show a success message or refresh stats
+    console.log('Exam settings saved from profile!')
+  }
 
   if (loading || stats === null || dueCount === null) {
     return <div style={{ padding: 20 }}>{t('profile.loading')}</div>
@@ -137,6 +143,15 @@ const Profile: React.FC = () => {
             ))}
           </select>
         </label>
+      </section>
+
+      {/* Exam Settings Component */}
+      <section style={{ marginBottom: 24 }}>
+        <ExamSettingsComponent 
+          showTitle={true}
+          compact={false}
+          onSave={handleExamSettingsSave}
+        />
       </section>
 
       {/* Статистика */}
