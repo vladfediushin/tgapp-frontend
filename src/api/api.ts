@@ -15,6 +15,11 @@ export interface UserCreate {
   username?: string
   first_name?: string
   last_name?: string
+  exam_country:  string
+  exam_language: string
+  ui_langugage: string
+  exam_date?: string
+  daily_goal?: number
 }
 
 /** Создать или обновить пользователя */
@@ -22,16 +27,16 @@ export const createUser = (payload: UserCreate) => {
   return api.post<UserOut>('/users/', payload)
 }
 
-/** Схема для изменения параметров юзера */
-export interface UserUpdate {
-  first_name?: string
-  last_name?: string
-  exam_country?: string
-  exam_language?: string
-  ui_language?: string
+export interface UserSettingsUpdate {
+  exam_country:  string
+  exam_language: string
+  ui_language:   string
+  exam_date:     string    // ISO-строка, обязателен
+  daily_goal:    number    // обязателен
 }
 
-export const updateUser = (userId: string, payload: UserUpdate) => {
+
+export const updateUser = (userId: string, payload: UserSettingsUpdate) => {
   return api.patch<UserOut>(`/users/${userId}`, payload)
 }
 
