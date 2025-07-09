@@ -24,7 +24,9 @@
     "stats": "Completed: {{answered}} of {{total}}, correct: {{correct}}",
     "loadingStats": "Loading stats...",
     "startRevision": "Start revision",
-    "profile": "Profile"
+    "profile": "Profile",
+    "dailyProgress": "Daily progress",
+    "questionsMasteredToday": "Questions mastered today"
   },
   "modeSelect": {
     "title": "Select revision mode",
