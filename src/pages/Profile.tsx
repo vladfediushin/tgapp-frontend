@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats, getQuestions, updateUser, getCountries, getLanguages } from '../api/api'  // ДОБАВИЛ getCountries, getLanguages
+import { getUserStats, UserStats, getQuestions, updateUser } from '../api/api'  // ДОБАВИЛ getCountries, getLanguages
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
@@ -36,17 +36,6 @@ const Profile: React.FC = () => {
   const [countries, setCountries] = useState<string[]>([])
   const [languages, setLanguages] = useState<string[]>([])
   const [dataLoading, setDataLoading] = useState(true)
-
-  // ДОБАВИЛ загрузку стран и языков
-  useEffect(() => {
-    Promise.all([getCountries(), getLanguages()])
-      .then(([countriesRes, languagesRes]) => {
-        setCountries(countriesRes.data)
-        setLanguages(languagesRes.data)
-      })
-      .catch(err => console.error('Ошибка загрузки стран/языков:', err))
-      .finally(() => setDataLoading(false))
-  }, [])
 
   useEffect(() => {
     if (!userId) return
