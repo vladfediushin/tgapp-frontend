@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats } from '../api/api'
+import { getUserStats, UserStats, getDailyProgress } from '../api/api'  // ДОБАВИЛ getDailyProgress
 import { useTranslation } from 'react-i18next'
+import { calculateDailyGoal } from '../utils/dailyGoals'  // ДОБАВИЛ для расчета дневной цели
 
 // импортируем прогресс-бар
 import {
@@ -17,9 +18,16 @@ const Home: React.FC = () => {
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
 
-  const internalId    = useSession(state => state.userId)
-  const examCountry   = useSession(state => state.examCountry)
-  const examLanguage  = useSession(state => state.examLanguage)
+  const internalId = useSession(state => state.userId)
+  const examCountry = useSession(state => state.examCountry)
+  const examLanguage = useSession(state => state.examLanguage)
+
+  // ДОБАВИЛ поля для дневной цели
+  const examDate = useSession(state => state.examDate)
+  const manualDailyGoal = useSession(state => state.manualDailyGoal)
+  const dailyProgress = useSession(state => state.dailyProgress)
+  const dailyProgressDate = useSession(state => state.dailyProgressDate)
+  const setDailyProgress = useSession(state => state.setDailyProgress)
 
   const navigate = useNavigate()
 
@@ -31,10 +39,17 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (!internalId) return
 
-    getUserStats(internalId)
-      .then(res => setStats(res.data))
-      .catch(err => console.error('Ошибка получения статистики', err))
-  }, [internalId, examCountry, examLanguage])
+    // ИЗМЕНИЛ: загружаем статистику И daily progress параллельно
+    Promise.all([
+      getUserStats(internalId),
+      getDailyProgress(internalId)
+    ])
+    .then(([statsRes, progressRes]) => {
+      setStats(statsRes.data)
+      setDailyProgress(progressRes.data.questions_mastered_today, progressRes.data.date)
+    })
+    .catch(err => console.error('Ошибка получения данных', err))
+  }, [internalId, examCountry, examLanguage, setDailyProgress])
 
   const handleStart = () => {
     navigate('/mode')
@@ -44,6 +59,21 @@ const Home: React.FC = () => {
     navigate('/profile')
   }
 
+  // ДОБАВИЛ расчет дневной цели
+  const dailyGoalData = stats ? calculateDailyGoal(
+    examDate,
+    stats.total_questions,
+    stats.correct
+  ) : null
+
+  const finalDailyGoal = manualDailyGoal || dailyGoalData?.dailyGoal || 30
+  const todayQuestionsMastered = dailyProgress || 0
+  const goalProgress = finalDailyGoal > 0 ? Math.min((todayQuestionsMastered / finalDailyGoal) * 100, 100) : 0
+
+  // Проверяем актуальность кэшированных данных
+  const today = new Date().toISOString().split('T')[0]
+  const isProgressCurrent = dailyProgressDate === today
+
   // размеры и отступы для прогресс-бара
   const size = 150
   const strokeWidth = 12
@@ -52,6 +82,49 @@ const Home: React.FC = () => {
     <div style={{ padding: 20 }}>
       <h2>{t('home.greeting', { name: userName })}</h2>
 
+      {/* ДОБАВИЛ секцию дневного прогресса */}
+      {isProgressCurrent && (
+        <div style={{ 
+          marginBottom: 20, 
+          padding: 16, 
+          backgroundColor: '#f5f5f5', 
+          borderRadius: 8 
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: 18 }}>
+            {t('home.dailyProgress')}
+          </h3>
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center' 
+          }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 'bold' }}>
+                {todayQuestionsMastered} / {finalDailyGoal}
+              </div>
+              <div style={{ fontSize: 14, color: '#666' }}>
+                {t('home.questionsMasteredToday')}
+              </div>
+            </div>
+            
+            {/* Мини прогресс-кольцо */}
+            <div style={{ width: 50, height: 50 }}>
+              <CircularProgressbar
+                value={goalProgress}
+                maxValue={100}
+                strokeWidth={15}
+                styles={buildStyles({
+                  pathColor: goalProgress >= 100 ? '#4CAF50' : '#FFA500',
+                  trailColor: '#e0e0e0',
+                  strokeLinecap: 'round'
+                })}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* СУЩЕСТВУЮЩАЯ секция статистики БЕЗ ИЗМЕНЕНИЙ */}
       {stats ? (
         <>
           {/* Строка с числами */}
@@ -149,6 +222,7 @@ const Home: React.FC = () => {
         <p>{t('home.loadingStats')}</p>
       )}
 
+      {/* СУЩЕСТВУЮЩИЕ кнопки БЕЗ ИЗМЕНЕНИЙ */}
       <button
         style={{
           display: 'block',

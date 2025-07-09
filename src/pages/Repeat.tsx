@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
+import { getQuestions, QuestionOut, submitAnswer, getDailyProgress } from '../api/api'  // ДОБАВИЛ getDailyProgress
 import { useTranslation } from 'react-i18next'
 
 const Repeat: React.FC = () => {
@@ -26,6 +26,7 @@ const Repeat: React.FC = () => {
   const addAnswer = useSession(state => state.addAnswer)
   const resetAnswers = useSession(state => state.resetAnswers)
   const answers = useSession(state => state.answers)
+  const setDailyProgress = useSession(state => state.setDailyProgress)  // ДОБАВИЛ
 
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
@@ -97,7 +98,7 @@ const Repeat: React.FC = () => {
     setIsAnswered(false)
   }
 
-  const handleAnswer = (index: number) => {
+  const handleAnswer = async (index: number) => {  // ДОБАВИЛ async
     if (!current || isAnswered) return
     const questionId = current.id
     const correctIndex = current.data.correct_index
@@ -109,9 +110,18 @@ const Repeat: React.FC = () => {
     addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
 
     if (userId) {
-      submitAnswer({ user_id: userId, question_id: questionId, is_correct: wasCorrect })
-        .then(response => console.log('submitAnswer success:', response.data))
-        .catch(err => console.error('Ошибка при отправке ответа на бэк:', err))
+      try {
+        await submitAnswer({ user_id: userId, question_id: questionId, is_correct: wasCorrect })
+        console.log('submitAnswer success')
+        
+        // ДОБАВИЛ: Обновляем daily progress если ответ правильный
+        if (wasCorrect) {
+          const progressRes = await getDailyProgress(userId)
+          setDailyProgress(progressRes.data.questions_mastered_today, progressRes.data.date)
+        }
+      } catch (err) {
+        console.error('Ошибка при отправке ответа на бэк:', err)
+      }
     }
 
     if (wasCorrect) {

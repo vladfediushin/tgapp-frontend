@@ -1,5 +1,6 @@
 // frontend/src/store/session.ts
 import { create } from 'zustand'
+import api from '../api/api'
 
 interface Answer {
   questionId: string
@@ -23,6 +24,16 @@ interface SessionState {
   topics: string[]
   setTopics: (topics: string[]) => void
 
+  examDate: string | null
+  setExamDate: (date: string | null) => void
+
+  manualDailyGoal: number | null
+  setManualDailyGoal: (goal: number | null) => void
+
+  dailyProgress: number | null
+  dailyProgressDate: string | null  // дата, для которой кэшированы данные
+  setDailyProgress: (count: number, date: string) => void
+
   answers: Answer[]
   addAnswer: (answer: Answer) => void
   resetAnswers: () => void
@@ -44,6 +55,18 @@ export const useSession = create<SessionState>((set) => ({
   topics: [],
   setTopics: (topics) => set({ topics }),
 
+  examDate: null,
+  setExamDate: (date) => set({ examDate: date }),
+  manualDailyGoal: null,
+  setManualDailyGoal: (goal) => set({ manualDailyGoal: goal }),
+
+  dailyProgress: null,
+  dailyProgressDate: null,
+  setDailyProgress: (count, date) => set({ 
+    dailyProgress: count, 
+    dailyProgressDate: date 
+  }),
+
   answers: [],
   addAnswer: (answer) =>
     set((state) => {
@@ -55,3 +78,8 @@ export const useSession = create<SessionState>((set) => ({
 
   resetAnswers: () => set({ answers: [] }),
 }))
+
+export const getDailyProgress = (userId: string, targetDate?: string) => {
+  const params = targetDate ? `?target_date=${targetDate}` : ''
+  return api.get<DailyProgress>(`/users/${userId}/daily-progress${params}`)
+}

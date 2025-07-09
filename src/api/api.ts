@@ -155,4 +155,16 @@ export const getTopics = (country: string, language: string) =>
     `/topics?country=${country}&language=${language}`,
   )
 
+/**Дневной прогресс */
+export interface DailyProgress {
+  questions_mastered_today: number
+  date: string
+}
+
+export const getDailyProgress = (userId: string, targetDate?: string) => {
+  const params = targetDate ? `?target_date=${targetDate}` : ''
+  return api.get<DailyProgress>(`/users/${userId}/daily-progress${params}`)
+}
+
+
 export default api
