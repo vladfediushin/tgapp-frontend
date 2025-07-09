@@ -1,4 +1,4 @@
-// frontend/src/store/session.ts
+// frontend/src/store/ts
 import { create } from 'zustand'
 import api from '../api/api'
 
