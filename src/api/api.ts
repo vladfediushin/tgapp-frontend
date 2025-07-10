@@ -162,7 +162,9 @@ export interface DailyProgress {
 }
 
 export const getDailyProgress = (userId: string, targetDate?: string) => {
-  const params = targetDate ? `?target_date=${targetDate}` : ''
+  // Если targetDate не передан, используем сегодняшнюю дату в формате YYYY-MM-DD
+  const dateToUse = targetDate || new Date().toISOString().split('T')[0]
+  const params = `?target_date=${dateToUse}`
   return api.get<DailyProgress>(`/users/${userId}/daily-progress${params}`)
 }
 
