@@ -57,8 +57,8 @@ export interface UserOut {
 // -------------------------
 
 export interface ExamSettingsUpdate {
-  exam_date: string  // ISO date string (YYYY-MM-DD)
-  daily_goal: number // 1-100
+  exam_date?: string  // ISO date string (YYYY-MM-DD)
+  daily_goal?: number // 1-100
 }
 
 export interface ExamSettingsResponse {
