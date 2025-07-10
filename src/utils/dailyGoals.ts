@@ -22,20 +22,12 @@ export interface TodayProgress {
  */
 export function calculateDailyGoal(
   examDate: string | null,
-  totalQuestions: number, // Из getUserStats API
-  alreadyCorrectCount: number // Из getUserStats API  
-): DailyGoalData {
+  totalQuestions: number,
+  alreadyCorrectCount: number 
+): DailyGoalData | null {
   
   if (!examDate) {
-    return {
-      dailyGoal: 30, // Дефолт
-      totalQuestions,
-      alreadyCorrect: alreadyCorrectCount,
-      remainingQuestions: totalQuestions - alreadyCorrectCount,
-      daysUntilExam: 0,
-      learningDays: 0,
-      isCalculated: false
-    }
+    return null
   }
 
   const today = new Date()

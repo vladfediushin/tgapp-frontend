@@ -98,9 +98,9 @@ const Home: React.FC = () => {
     ? calculateDailyGoal(examDate, stats.total_questions, stats.correct)
     : null
 
-  const finalDailyGoal = manualDailyGoal || dailyGoalData?.dailyGoal || 30
+  const finalDailyGoal = manualDailyGoal ?? dailyGoalData?.dailyGoal ?? null
   const todayQuestionsMastered = dailyProgress || 0
-  const goalProgress = finalDailyGoal > 0
+  const goalProgress = finalDailyGoal && finalDailyGoal > 0
     ? Math.min((todayQuestionsMastered / finalDailyGoal) * 100, 100)
     : 0
 
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
     <div style={{ padding: 20 }}>
       <h2>{t('home.greeting', { name: userName })}</h2>
 
-      {isProgressCurrent && (
+      {isProgressCurrent && finalDailyGoal !== null && (
         <div style={{
           marginBottom: 20,
           padding: 16,
