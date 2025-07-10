@@ -23,6 +23,7 @@ const Home: React.FC = () => {
 
   const [userName, setUserName] = useState<string | null>(null)
   const [stats, setStats] = useState<UserStats | null>(null)
+  const [userLoaded, setUserLoaded] = useState(false) // <- флаг загрузки user
 
   const internalId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
@@ -59,13 +60,20 @@ const Home: React.FC = () => {
         if (user.exam_date) setExamDate(user.exam_date)
         if (user.daily_goal !== undefined && user.daily_goal !== null)
           setManualDailyGoal(user.daily_goal)
+
+        setUserLoaded(true) // отметим, что загрузили user и установили данные
       })
-      .catch(err => console.error('Ошибка при получении пользователя:', err))
+      .catch(err => {
+        console.error('Ошибка при получении пользователя:', err)
+        setUserLoaded(true) // чтобы не блокировать навсегда
+      })
   }, [])
 
-  // Загружаем статистику и дневной прогресс
+  // Загружаем статистику и дневной прогресс только после загрузки пользователя и когда есть нужные параметры
   useEffect(() => {
     if (!internalId) return
+    if (!userLoaded) return
+    if (!examCountry || !examLanguage) return
 
     Promise.all([
       getUserStats(internalId),
@@ -76,7 +84,7 @@ const Home: React.FC = () => {
         setDailyProgress(progressRes.data.questions_mastered_today, progressRes.data.date)
       })
       .catch(err => console.error('Ошибка получения данных', err))
-  }, [internalId, examCountry, examLanguage, setDailyProgress])
+  }, [internalId, userLoaded, examCountry, examLanguage, setDailyProgress])
 
   const handleStart = () => {
     navigate('/mode')
