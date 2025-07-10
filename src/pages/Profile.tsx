@@ -2,48 +2,62 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats, getQuestions, updateUser } from '../api/api'  // ДОБАВИЛ getCountries, getLanguages
+// ВАЖНО: импортируем ТОЛЬКО существующие функции из api.ts
+import { getUserStats, UserStats, getQuestions, updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
 
-// УБРАЛ хардкод списки - заменил на API
+// ВАЖНО: Используем ХАРДКОД массивы, т.к. в API нет endpoints для получения стран/языков
+const EXAM_COUNTRIES = [
+  { value: 'am', label: '🇦🇲 Армения' },
+  { value: 'kz', label: '🇰🇿 Казахстан' },
+  { value: 'by', label: '🇧🇾 Беларусь' },
+]
+
+const EXAM_LANGUAGES = [
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
+]
+
+const UI_LANGUAGES = [
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
+]
 
 const Profile: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const userId = useSession(state => state.userId)
+  // ВАЖНО: Получаем данные из zustand store
+  const userId = useSession(state => state.userId) // это string согласно store
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   const uiLanguage = useSession(state => state.uiLanguage)
 
+  // Функции для обновления store
   const setExamCountry = useSession(state => state.setExamCountry)
   const setExamLanguage = useSession(state => state.setExamLanguage)
   const setUiLanguage = useSession(state => state.setUiLanguage)
 
-  // ДОБАВИЛ поля для дневной цели
-  const examDate = useSession(state => state.examDate)
-  const manualDailyGoal = useSession(state => state.manualDailyGoal)
-  const setExamDate = useSession(state => state.setExamDate)
-  const setManualDailyGoal = useSession(state => state.setManualDailyGoal)
-
+  // Локальный state для статистики
   const [stats, setStats] = useState<UserStats | null>(null)
   const [dueCount, setDueCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // ДОБАВИЛ состояние для данных из API
-  const [countries, setCountries] = useState<string[]>([])
-  const [languages, setLanguages] = useState<string[]>([])
-  const [dataLoading, setDataLoading] = useState(true)
-
+  // ВАЖНО: Загружаем статистику и количество вопросов для повторения
   useEffect(() => {
     if (!userId) return
+    
     setLoading(true)
+    
+    // ВАЖНО: getUserStats принимает userId как string
     getUserStats(userId)
       .then(res => setStats(res.data))
       .catch(err => console.error('Ошибка получения статистики:', err))
       .finally(() => setLoading(false))
+    
+    // ВАЖНО: getQuestions принимает объект параметров
     getQuestions({
       user_id: userId,
       mode: 'interval_all',
@@ -57,14 +71,16 @@ const Profile: React.FC = () => {
   const handleBack = () => navigate('/home')
 
   const handleExamSettingsSave = () => {
-    // Optional: You can show a success message or refresh stats
+    // Callback когда настройки экзамена сохранены
     console.log('Exam settings saved from profile!')
   }
 
-  if (loading || stats === null || dueCount === null || dataLoading) {
+  // Показываем загрузку пока данные не готовы
+  if (loading || stats === null || dueCount === null) {
     return <div style={{ padding: 20 }}>{t('profile.loading')}</div>
   }
 
+  // Деструктурируем статистику
   const { total_questions, answered, correct } = stats
   const incorrect = answered - correct
   const unanswered = total_questions - answered
@@ -76,13 +92,17 @@ const Profile: React.FC = () => {
       {/* Настройки */}
       <section style={{ marginBottom: 24 }}>
         <h3>{t('profile.settings')}</h3>
+        
+        {/* ВАЖНО: Выбор страны экзамена */}
         <label style={{ display: 'block', margin: '8px 0' }}>
           {t('profile.examCountryLabel')}
           <select
             value={examCountry}
             onChange={e => {
               const newCountry = e.target.value
+              // Обновляем в store
               setExamCountry(newCountry)
+              // ВАЖНО: Синхронизируем с backend через updateUser
               if (userId) {
                 updateUser(userId, { exam_country: newCountry })
                   .catch(err => console.error('Ошибка обновления страны экзамена:', err))
@@ -90,21 +110,24 @@ const Profile: React.FC = () => {
             }}
             style={{ display: 'block', marginTop: 4 }}
           >
-            {countries.map(country => (
-              <option key={country} value={country}>
-                {country.toUpperCase()}
+            {EXAM_COUNTRIES.map(c => (
+              <option key={c.value} value={c.value}>
+                {c.label}
               </option>
             ))}
           </select>
         </label>
 
+        {/* ВАЖНО: Выбор языка экзамена */}
         <label style={{ display: 'block', margin: '8px 0' }}>
           {t('profile.examLanguageLabel')}
           <select
             value={examLanguage}
             onChange={e => {
               const newLang = e.target.value
+              // Обновляем в store
               setExamLanguage(newLang)
+              // ВАЖНО: Синхронизируем с backend через updateUser
               if (userId) {
                 updateUser(userId, { exam_language: newLang })
                   .catch(err => console.error('Ошибка обновления языка экзамена:', err))
@@ -112,22 +135,26 @@ const Profile: React.FC = () => {
             }}
             style={{ display: 'block', marginTop: 4 }}
           >
-            {languages.map(language => (
-              <option key={language} value={language}>
-                {language.toUpperCase()}
+            {EXAM_LANGUAGES.map(l => (
+              <option key={l.value} value={l.value}>
+                {l.label}
               </option>
             ))}
           </select>
         </label>
 
+        {/* ВАЖНО: Выбор языка интерфейса */}
         <label style={{ display: 'block', margin: '8px 0' }}>
           {t('profile.uiLanguageLabel')}
           <select
             value={uiLanguage}
             onChange={e => {
               const newUi = e.target.value
+              // Обновляем в store
               setUiLanguage(newUi)
+              // ВАЖНО: Меняем язык в i18n
               i18n.changeLanguage(newUi)
+              // ВАЖНО: Синхронизируем с backend через updateUser
               if (userId) {
                 updateUser(userId, { ui_language: newUi })
                   .catch(err => console.error('Ошибка обновления языка интерфейса:', err))
@@ -135,67 +162,16 @@ const Profile: React.FC = () => {
             }}
             style={{ display: 'block', marginTop: 4 }}
           >
-            {languages.map(language => (
-              <option key={language} value={language}>
-                {language.toUpperCase()}
+            {UI_LANGUAGES.map(l => (
+              <option key={l.value} value={l.value}>
+                {l.label}
               </option>
             ))}
           </select>
         </label>
       </section>
 
-      {/* ДОБАВИЛ секцию дневной цели */}
-      <section style={{ marginBottom: 24 }}>
-        <h3>{t('profile.dailyGoalSettings')}</h3>
-        
-        <label style={{ display: 'block', margin: '8px 0' }}>
-          {t('profile.examDate')}:
-          <input
-            type="date"
-            value={examDate || ''}
-            onChange={e => setExamDate(e.target.value || null)}
-            style={{ 
-              display: 'block', 
-              marginTop: 4, 
-              padding: 8, 
-              width: '100%',
-              fontSize: 16
-            }}
-          />
-        </label>
-
-        <label style={{ display: 'flex', alignItems: 'center', margin: '12px 0' }}>
-          <input
-            type="checkbox"
-            checked={manualDailyGoal === null}
-            onChange={e => setManualDailyGoal(e.target.checked ? null : 30)}
-            style={{ marginRight: 8 }}
-          />
-          {t('profile.useAutomaticGoal')}
-        </label>
-
-        {manualDailyGoal !== null && (
-          <label style={{ display: 'block', margin: '8px 0' }}>
-            {t('profile.manualDailyGoal')}:
-            <input
-              type="number"
-              min={1}
-              max={100}
-              value={manualDailyGoal}
-              onChange={e => setManualDailyGoal(parseInt(e.target.value) || 1)}
-              style={{ 
-                display: 'block', 
-                marginTop: 4, 
-                padding: 8, 
-                width: '100%',
-                fontSize: 16
-              }}
-            />
-          </label>
-        )}
-      </section>
-
-      {/* Exam Settings Component */}
+      {/* ВАЖНО: Компонент настроек экзамена (дата экзамена и дневная цель) */}
       <section style={{ marginBottom: 24 }}>
         <ExamSettingsComponent 
           showTitle={true}
