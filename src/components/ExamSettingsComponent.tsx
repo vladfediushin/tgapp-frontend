@@ -67,8 +67,8 @@ const ExamSettingsComponent: React.FC<ExamSettingsComponentProps> = ({
       setError(null)
       
       const updateData: ExamSettingsUpdate = {
-        exam_date: examDate,
-        daily_goal: dailyGoal
+        exam_date: examDate || null,
+        daily_goal: dailyGoal || null
       }
       
       const response = await setExamSettings(userId, updateData)
