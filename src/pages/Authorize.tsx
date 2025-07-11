@@ -181,76 +181,43 @@ const Authorize: React.FC = () => {
   }
 
   if (step === 'checking') {
-    return <div style={{ padding: 20 }}>{t('authorize.checking')}</div>
-  }
-  
-  if (step === 'form') {
-    return (
-      <div style={{ padding: 20 }}>
-        <h2>{t('authorize.greeting', { name: userName })}</h2>
+  return (
+    <div style={{
+      padding: 20,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      height: '100vh',
+      backgroundColor: '#f9f9f9'
+    }}>
+      <img
+        src="/speedometer.gif"
+        alt="Loading..."
+        style={{ width: 120, height: 120, marginBottom: 16 }}
+      />
+      <p style={{ fontSize: 18, color: '#333' }}>Loading...</p>
 
-        <label>
-          {t('authorize.examCountryLabel')}
-          <select
-            value={examCountryInput}
-            onChange={e => setExamCountryInput(e.target.value)}
-            style={{ display: 'block', margin: '8px 0' }}
-          >
-            <option value="">{t('authorize.selectPlaceholder')}</option>
-            {EXAM_COUNTRIES.map(c => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          {t('authorize.examLanguageLabel')}
-          <select
-            value={examLanguageInput}
-            onChange={e => setExamLanguageInput(e.target.value)}
-            style={{ display: 'block', margin: '8px 0' }}
-          >
-            <option value="">{t('authorize.selectPlaceholder')}</option>
-            {EXAM_LANGUAGES.map(l => (
-              <option key={l.value} value={l.value}>{l.label}</option>
-            ))}
-          </select>
-        </label>
-
-        <label>
-          {t('authorize.uiLanguageLabel')}
-          <select
-            value={uiLanguageInput}
-            onChange={e => setUiLanguageInput(e.target.value)}
-            style={{ display: 'block', margin: '8px 0' }}
-          >
-            {UI_LANGUAGES.map(l => (
-              <option key={l.value} value={l.value}>{l.label}</option>
-            ))}
-          </select>
-        </label>
-
-        {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
-
-        <button
-          onClick={handleSubmit}
-          style={{
-            display: 'block',
-            marginTop: 20,
-            padding: '10px',
-            width: '100%',
-            backgroundColor: '#2AABEE',
-            color: 'white',
-            border: 'none',
-            borderRadius: 8,
-            fontSize: 16,
-          }}
+      <p style={{
+        fontSize: 10,
+        color: '#aaa',
+        marginTop: 24,
+        textAlign: 'center',
+        maxWidth: 240
+      }}>
+        <a
+          href="https://www.flaticon.com/free-animated-icons/speedometer"
+          title="speedometer animated icons"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#aaa', textDecoration: 'none' }}
         >
-          {t('authorize.submit')}
-        </button>
-      </div>
-    )
-  }
+          Speedometer animated icons created by Freepik - Flaticon
+        </a>
+      </p>
+    </div>
+  )
+}
 
   if (step === 'exam_settings') {
     return (
