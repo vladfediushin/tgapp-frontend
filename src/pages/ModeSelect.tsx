@@ -38,8 +38,9 @@ const ModeSelect = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>{t('modeSelect.title')}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+        <HomeButton style={{ marginRight: 16 }} />
+        <h2 style={{ margin: 0, flex: 1 }}>{t('modeSelect.title')}</h2>
         <button
           onClick={() => setShowTopicsModal(true)}
           style={{
@@ -110,23 +111,6 @@ const ModeSelect = () => {
         }}
       >
         {t('modeSelect.next')}
-      </button>
-
-      <button
-        onClick={() => navigate('/home')}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '12px',
-          marginTop: '20px',
-          fontSize: '16px',
-          backgroundColor: '#ccc',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-        }}
-      >
-        {t('modeSelect.back')}
       </button>
 
       {showTopicsModal && (

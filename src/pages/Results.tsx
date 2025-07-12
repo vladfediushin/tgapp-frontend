@@ -3,11 +3,11 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { useTranslation } from 'react-i18next'
+import HomeButton from '../components/HomeButton'
 
-const Results: React.FC = () => {
+const Results = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const goHome = () => navigate('/')
   const answers = useSession(state => state.answers)
   const location = window.location
   const state = (location as any).state || {}
@@ -38,7 +38,10 @@ const Results: React.FC = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>{t('results.sessionComplete')}</h2>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+        <HomeButton style={{ marginRight: 16 }} />
+        <h2 style={{ margin: 0 }}>{t('results.sessionComplete')}</h2>
+      </div>
       {noQuestions && (
         <p style={{ color: 'red', fontWeight: 'bold', fontSize: 18 }}>
           {t('results.noQuestions')}
@@ -47,22 +50,6 @@ const Results: React.FC = () => {
       <p>{t('results.answeredCount', { count: uniqueAnswers.length })}</p>
       <p>{t('results.correctCount', { correct })}</p>
       <p>{t('results.incorrectCount', { incorrect })}</p>
-      <button
-        onClick={goHome}
-        style={{
-          marginTop: 20,
-          padding: '12px',
-          width: '100%',
-          backgroundColor: '#2AABEE',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          cursor: 'pointer',
-        }}
-      >
-        {t('results.goHome')}
-      </button>
     </div>
   )
 }

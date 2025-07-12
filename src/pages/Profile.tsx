@@ -162,9 +162,16 @@ const Profile = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      {/* Header */}
+      {/* Uniform Header with HomeButton */}
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+        <HomeButton style={{ marginRight: 16 }} />
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 600 }}>
+          {t('profile.title')}
+        </h1>
+      </div>
+
+      {/* User Profile Section */}
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
-        <HomeButton style={{ marginRight: 16, marginTop: 16 }} />
         <img src={userAvatar} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', marginRight: 16 }} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>

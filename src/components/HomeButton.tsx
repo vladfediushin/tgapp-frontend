@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { FaHome } from 'react-icons/fa'
 
 interface HomeButtonProps {
   style?: any
@@ -28,7 +29,7 @@ const HomeButton = ({ style, size = 24 }: HomeButtonProps) => {
       }}
       title={t('buttons.backToHome')}
     >
-      ←
+      <FaHome size={size} />
     </button>
   )
 }
