@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, UserStats, getQuestions, updateUser } from '../api/api'
+import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
@@ -78,25 +78,22 @@ const Profile: React.FC = () => {
   const incorrect = answered - correct
   const unanswered = total_questions - answered
 
-  // --- Streak logic: use local date strings for last 7 days ---
-  function getLast7LocalDates() {
-    const pad = n => n.toString().padStart(2, '0')
-    const localDateString = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
-    const dates = []
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      dates.push(localDateString(d))
-    }
-    return dates
-  }
+  // --- Streak logic: fetch real data for last 7 days ---
+  const [streakProgress, setStreakProgress] = useState<number[]>([])
+  const [streakLoading, setStreakLoading] = useState(true)
 
-  // Example: fetch streak progress for each day (replace with real API call)
-  const last7Dates = getLast7LocalDates()
-  // TODO: Replace with real API call to getDailyProgress for each date
-  // For now, mock data:
-  const streakProgress = [10, 10, 7, 10, 3, 0, 10]
-  const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10
+  useEffect(() => {
+    if (!userId) return
+    setStreakLoading(true)
+    const last7Dates = getLast7LocalDates()
+    Promise.all(
+      last7Dates.map(date => getDailyProgress(userId, date).then(res => res.data.questions_mastered_today).catch(() => 0))
+    ).then(progressArr => {
+      setStreakProgress(progressArr)
+    }).finally(() => setStreakLoading(false))
+  }, [userId])
+
+  const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10 // fallback
   const streak = streakProgress.map(p => p >= dailyGoal)
 
   // User info (Telegram Mini App)
@@ -120,52 +117,112 @@ const Profile: React.FC = () => {
 
       {/* --- Country & Language widgets --- */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer' }}
-          onClick={() => {/* open country select modal or dropdown */}}>
-          <span style={{ fontSize: 24, marginRight: 8 }}>
-            {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ')[0]}
-          </span>
-          <span style={{ fontWeight: 600, fontSize: 16 }}>
-            {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ').slice(1).join(' ')}
-          </span>
+        {/* Country Widget */}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, color: '#888', marginBottom: 4 }}>{t('profile.examCountryLabel')}</div>
+          <button
+            style={{ width: '100%', display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer', border: 'none' }}
+            onClick={() => setShowCountrySelect(true)}
+          >
+            <span style={{ fontSize: 24, marginRight: 8 }}>
+              {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ')[0]}
+            </span>
+            <span style={{ fontWeight: 600, fontSize: 16 }}>
+              {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ').slice(1).join(' ')}
+            </span>
+          </button>
+          {/* Country select modal */}
+          {showCountrySelect && (
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000 }} onClick={() => setShowCountrySelect(false)}>
+              <div style={{ background: '#fff', borderRadius: 12, padding: 20, maxWidth: 320, margin: '80px auto', boxShadow: '0 2px 16px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+                <h4 style={{ marginBottom: 12 }}>{t('profile.examCountryLabel')}</h4>
+                {EXAM_COUNTRIES.map(c => (
+                  <button key={c.value} style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: c.value === examCountry ? '2px solid #2AABEE' : '1px solid #ccc', background: c.value === examCountry ? '#e3f2fd' : '#fff', fontWeight: 600, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                    onClick={() => {
+                      setExamCountry(c.value)
+                      setShowCountrySelect(false)
+                      if (userId) {
+                        updateUser(userId, { exam_country: c.value }).catch(err => console.error('Ошибка обновления страны экзамена:', err))
+                      }
+                    }}
+                  >
+                    <span style={{ fontSize: 22 }}>{c.label.split(' ')[0]}</span>
+                    <span>{c.label.split(' ').slice(1).join(' ')}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer' }}
-          onClick={() => {/* open language select modal or dropdown */}}>
-          <span style={{ fontSize: 20, marginRight: 8 }}>
-            {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label === 'Русский' ? '🇷🇺' : '🇬🇧'}
-          </span>
-          <span style={{ fontWeight: 600, fontSize: 16 }}>
-            {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label}
-          </span>
+        {/* Language Widget */}
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 13, color: '#888', marginBottom: 4 }}>{t('profile.examLanguageLabel')}</div>
+          <button
+            style={{ width: '100%', display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer', border: 'none' }}
+            onClick={() => setShowLanguageSelect(true)}
+          >
+            <span style={{ fontSize: 20, marginRight: 8 }}>
+              {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label === 'Русский' ? '🇷🇺' : '🇬🇧'}
+            </span>
+            <span style={{ fontWeight: 600, fontSize: 16 }}>
+              {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label}
+            </span>
+          </button>
+          {/* Language select modal */}
+          {showLanguageSelect && (
+            <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.3)', zIndex: 1000 }} onClick={() => setShowLanguageSelect(false)}>
+              <div style={{ background: '#fff', borderRadius: 12, padding: 20, maxWidth: 320, margin: '80px auto', boxShadow: '0 2px 16px rgba(0,0,0,0.15)' }} onClick={e => e.stopPropagation()}>
+                <h4 style={{ marginBottom: 12 }}>{t('profile.examLanguageLabel')}</h4>
+                {EXAM_LANGUAGES.map(l => (
+                  <button key={l.value} style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: l.value === examLanguage ? '2px solid #2AABEE' : '1px solid #ccc', background: l.value === examLanguage ? '#e3f2fd' : '#fff', fontWeight: 600, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}
+                    onClick={() => {
+                      setExamLanguage(l.value)
+                      setShowLanguageSelect(false)
+                      if (userId) {
+                        updateUser(userId, { exam_language: l.value }).catch(err => console.error('Ошибка обновления языка экзамена:', err))
+                      }
+                    }}
+                  >
+                    <span style={{ fontSize: 20 }}>{l.label === 'Русский' ? '🇷🇺' : '🇬🇧'}</span>
+                    <span>{l.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* Daily Streak */}
       <div style={{ marginBottom: 24 }}>
         <h3 style={{ marginBottom: 12 }}>{t('profile.dailyStreak')}</h3>
-        <div style={{ display: 'flex', gap: 12 }}>
-          {last7Dates.map((date, idx) => (
-            <div key={date} style={{ textAlign: 'center' }}>
-              <div style={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                background: streak[idx] ? '#4CAF50' : '#e0e0e0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: streak[idx] ? '#fff' : '#333',
-                fontWeight: 700,
-                fontSize: 16,
-                border: streak[idx] ? '2px solid #388e3c' : '2px solid #ccc',
-                position: 'relative',
-              }}>
-                {streak[idx] ? '✔' : streakProgress[idx]}
+        {streakLoading ? (
+          <div>{t('profile.loading')}</div>
+        ) : (
+          <div style={{ display: 'flex', gap: 12 }}>
+            {last7Dates.map((date, idx) => (
+              <div key={date} style={{ textAlign: 'center' }}>
+                <div style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '50%',
+                  background: streak[idx] ? '#4CAF50' : '#e0e0e0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: streak[idx] ? '#fff' : '#333',
+                  fontWeight: 700,
+                  fontSize: 16,
+                  border: streak[idx] ? '2px solid #388e3c' : '2px solid #ccc',
+                  position: 'relative',
+                }}>
+                  {streak[idx] ? '✔' : streakProgress[idx]}
+                </div>
+                <div style={{ fontSize: 12, marginTop: 4 }}>{date.slice(5)}</div>
               </div>
-              <div style={{ fontSize: 12, marginTop: 4 }}>{date.slice(5)}</div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         {/* Daily goal and exam date info */}
         <div style={{ marginTop: 16, display: 'flex', gap: 16 }}>
           <div style={{ flex: 1, background: '#e3f2fd', borderRadius: 8, padding: 10, textAlign: 'center', fontSize: 14 }}>
