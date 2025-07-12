@@ -118,6 +118,28 @@ const Profile: React.FC = () => {
         </button>
       </div>
 
+      {/* --- Country & Language widgets --- */}
+      <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer' }}
+          onClick={() => {/* open country select modal or dropdown */}}>
+          <span style={{ fontSize: 24, marginRight: 8 }}>
+            {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ')[0]}
+          </span>
+          <span style={{ fontWeight: 600, fontSize: 16 }}>
+            {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ').slice(1).join(' ')}
+          </span>
+        </div>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#f5f5f5', borderRadius: 8, padding: 12, cursor: 'pointer' }}
+          onClick={() => {/* open language select modal or dropdown */}}>
+          <span style={{ fontSize: 20, marginRight: 8 }}>
+            {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label === 'Русский' ? '🇷🇺' : '🇬🇧'}
+          </span>
+          <span style={{ fontWeight: 600, fontSize: 16 }}>
+            {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label}
+          </span>
+        </div>
+      </div>
+
       {/* Daily Streak */}
       <div style={{ marginBottom: 24 }}>
         <h3 style={{ marginBottom: 12 }}>{t('profile.dailyStreak')}</h3>
@@ -144,6 +166,17 @@ const Profile: React.FC = () => {
             </div>
           ))}
         </div>
+        {/* Daily goal and exam date info */}
+        <div style={{ marginTop: 16, display: 'flex', gap: 16 }}>
+          <div style={{ flex: 1, background: '#e3f2fd', borderRadius: 8, padding: 10, textAlign: 'center', fontSize: 14 }}>
+            {t('profile.dailyGoal')}: {dailyGoal}
+          </div>
+          {stats.exam_date && (
+            <div style={{ flex: 1, background: '#fff3e0', borderRadius: 8, padding: 10, textAlign: 'center', fontSize: 14 }}>
+              {t('profile.examDate')}: {stats.exam_date}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Statistics Cards */}
@@ -164,12 +197,6 @@ const Profile: React.FC = () => {
 
       {/* Quick Actions */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-        <button title={t('profile.changeLanguage')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
-          <FaGlobe /> {t('profile.changeLanguage')}
-        </button>
-        <button title={t('profile.changeCountry')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
-          <FaFlag /> {t('profile.changeCountry')}
-        </button>
         <button title={t('profile.resetProgress')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
           <FaRedo /> {t('profile.resetProgress')}
         </button>
