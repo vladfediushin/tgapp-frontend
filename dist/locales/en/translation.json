@@ -1,0 +1,94 @@
+{
+  "buttons": {
+    "next": "Next",
+    "back": "Back",
+    "topics": "Topics ({{count}})"
+  },
+  "authorize": {
+    "checking": "Checking user data…",
+    "greeting": "Hello, {{name}}! Please select your country and language:",
+    "examCountryLabel": "Exam country",
+    "examLanguageLabel": "Exam language",
+    "uiLanguageLabel": "UI language",
+    "selectPlaceholder": "— select —",
+    "submit": "Save and continue",
+    "error": {
+      "requiredFields": "Please fill in all required fields",
+      "telegramData": "Failed to get Telegram data",
+      "checkUser": "Error checking user",
+      "createUser": "Error creating user"
+    }
+  },
+  "home": {
+    "greeting": "Hello, {{name}}!",
+    "stats": "Completed: {{answered}} of {{total}}, correct: {{correct}}",
+    "loadingStats": "Loading stats...",
+    "startRevision": "Start revision",
+    "profile": "Profile",
+    "dailyProgress": "Daily progress",
+    "questionsMasteredToday": "Questions mastered today"
+  },
+  "modeSelect": {
+    "title": "Select revision mode",
+    "topics": "Topics ({{count}})",
+    "topicsAll": "all",
+    "modes": {
+      "interval_all": "All questions",
+      "new_only": "New only",
+      "incorrect": "Only incorrect"
+    },
+    "batchSize": "Batch size",
+    "next": "Next",
+    "back": "Back",
+    "modal": {
+      "title": "Choose topics",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    }
+  },
+  "profile": {
+    "loading": "Loading profile...",
+    "title": "User Profile",
+    "settings": "Settings",
+    "examCountryLabel": "Exam country",
+    "examLanguageLabel": "Exam language",
+    "uiLanguageLabel": "UI language",
+    "statsTitle": "Statistics",
+    "totalQuestions": "Total questions: {{total}}",
+    "answered": "Answered: {{answered}}",
+    "correct": "Correct answers: {{correct}}",
+    "incorrect": "Incorrect answers: {{incorrect}}",
+    "unanswered": "Unanswered questions: {{unanswered}}",
+    "dueCount": "Ready for review: {{dueCount}}",
+    "back": "Back"
+  },
+  "repeat": {
+    "loading": "Loading questions...",
+    "statsInitial": "Total in queue (initial): {{initialCount}}",
+    "statsLeft": "Remaining in queue: {{questionsLeft}}",
+    "statsCorrect": "Correct answers: {{correctCount}}",
+    "statsIncorrect": "Incorrect answers: {{incorrectCount}}",
+    "question": "Question",
+    "next": "Next",
+    "back": "Back"
+  },
+  "results": {
+    "sessionComplete": "Session complete ✅",
+    "answeredCount": "You answered {{count}} questions.",
+    "correctCount": "Correct answers: {{correct}}",
+    "incorrectCount": "Incorrect answers: {{incorrect}}",
+    "goHome": "Go home",
+    "noQuestions": "No questions available for this mode."
+  },
+  "topics": {
+    "title": "Choose a topic",
+    "list": {
+      "Знаки": "Signs",
+      "Светофоры": "Traffic lights",
+      "Разметка": "Markings",
+      "Ситуации": "Scenarios",
+      "Парковка": "Parking"
+    },
+    "goHome": "Home"
+  }
+}
