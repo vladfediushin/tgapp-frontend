@@ -6,6 +6,7 @@ import ModeSelect from './pages/ModeSelect'
 import Repeat from './pages/Repeat'
 import Results from './pages/Results'
 import Profile from './pages/Profile'
+import Settings from './pages/Settings'
 import Topics from './pages/Topics'
 
 
@@ -18,6 +19,7 @@ const App = () => {
       <Route path="/repeat" element={<Repeat />} />
       <Route path="/results" element={<Results />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="/topics" element={<Topics />} />
       {/* другие страницы будут добавлены позже */}
     </Routes>

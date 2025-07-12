@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
-import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
 import { FaUserEdit, FaCog, FaEdit } from 'react-icons/fa'
 import { calculateDailyGoal } from '../utils/dailyGoals'
@@ -17,11 +16,6 @@ const EXAM_COUNTRIES = [
 ]
 
 const EXAM_LANGUAGES = [
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
-]
-
-const UI_LANGUAGES = [
   { value: 'ru', label: 'Русский' },
   { value: 'en', label: 'English' },
 ]
@@ -46,13 +40,11 @@ const Profile = () => {
   const userId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
-  const uiLanguage = useSession(state => state.uiLanguage)
   const examDate = useSession(state => state.examDate)
   const manualDailyGoal = useSession(state => state.manualDailyGoal)
 
   const setExamCountry = useSession(state => state.setExamCountry)
   const setExamLanguage = useSession(state => state.setExamLanguage)
-  const setUiLanguage = useSession(state => state.setUiLanguage)
 
   const [stats, setStats] = useState(null)
   const [dueCount, setDueCount] = useState(null)
@@ -400,48 +392,19 @@ const Profile = () => {
 
       {/* Statistics Cards */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#888' }}>{t('profile.totalQuestions')}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
+          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.totalQuestions')}</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{total_questions}</div>
         </div>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#888' }}>{t('profile.answered')}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
+          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.answered')}</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{answered}</div>
         </div>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#888' }}>{t('profile.correct')}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
+          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.correct')}</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{correct}</div>
         </div>
       </div>
-
-      {/* Basic Settings */}
-      <section style={{ marginBottom: 24 }}>
-        <h3>{t('profile.settings')}</h3>
-
-        <label style={{ display: 'block', margin: '8px 0' }}>
-          {t('profile.uiLanguageLabel')}
-          <select
-            value={uiLanguage}
-            onChange={e => {
-              const newUi = e.target.value
-              setUiLanguage(newUi)
-              i18n.changeLanguage(newUi)
-              if (userId) {
-                updateUser(userId, { ui_language: newUi }).catch(err =>
-                  console.error('Ошибка обновления языка интерфейса:', err)
-                )
-              }
-            }}
-            style={{ display: 'block', marginTop: 4 }}
-          >
-            {UI_LANGUAGES.map(l => (
-              <option key={l.value} value={l.value}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </section>
 
       <section style={{ marginBottom: 24 }}>
         <ExamSettingsComponent showTitle={true} compact={false} onSave={handleExamSettingsSave} />

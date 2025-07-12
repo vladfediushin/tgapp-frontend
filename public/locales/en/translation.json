@@ -97,5 +97,9 @@
       "Парковка": "Parking"
     },
     "goHome": "Home"
+  },
+  "settings": {
+    "title": "Advanced Settings",
+    "uiLanguageLabel": "Interface Language"
   }
 }
