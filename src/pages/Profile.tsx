@@ -361,4 +361,16 @@ const Profile: React.FC = () => {
   )
 }
 
+function getLast7LocalDates() {
+  const pad = n => n.toString().padStart(2, '0')
+  const localDateString = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+  const dates = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    dates.push(localDateString(d))
+  }
+  return dates
+}
+
 export default Profile
