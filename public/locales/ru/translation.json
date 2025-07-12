@@ -25,7 +25,9 @@
     "stats": "Пройдено: {{answered}} из {{total}}, верных: {{correct}}",
     "loadingStats": "Загрузка статистики...",
     "startRevision": "Начать повторение",
-    "profile": "Личный кабинет",
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "statistics": "Статистика",
     "dailyProgress": "Цель на сегодня",
     "questionsMasteredToday": "Отвечено правильно сегодня"
   },

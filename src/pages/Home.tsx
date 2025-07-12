@@ -10,6 +10,7 @@ import {
 } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
+import { FaCog, FaUser, FaChartBar } from 'react-icons/fa'
 import {
   CircularProgressbar,
   buildStyles
@@ -17,12 +18,12 @@ import {
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
 
-const Home: React.FC = () => {
+const Home = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
-  const [userName, setUserName] = useState<string | null>(null)
-  const [stats, setStats] = useState<UserStats | null>(null)
+  const [userName, setUserName] = useState(null)
+  const [stats, setStats] = useState(null)
   const [userLoaded, setUserLoaded] = useState(false) // <- флаг загрузки user
 
   const internalId = useSession(state => state.userId)
@@ -88,10 +89,6 @@ const Home: React.FC = () => {
 
   const handleStart = () => {
     navigate('/mode')
-  }
-
-  const handleProfile = () => {
-    navigate('/profile')
   }
 
   const dailyGoalData = stats
@@ -255,21 +252,70 @@ const Home: React.FC = () => {
         {t('home.startRevision')}
       </button>
 
-      <button
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '10px',
-          marginTop: '10px',
-          fontSize: '14px',
-          backgroundColor: '#ECECEC',
-          border: '1px solid #CCC',
-          borderRadius: '8px'
-        }}
-        onClick={handleProfile}
-      >
-        {t('home.profile')}
-      </button>
+      {/* Footer */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        marginTop: '20px',
+        padding: '16px',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '12px',
+        border: '1px solid #e9ecef'
+      }}>
+        <button
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            color: '#6c757d'
+          }}
+          onClick={() => navigate('/settings')}
+          title={t('home.settings')}
+        >
+          <FaCog size={20} />
+          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.settings')}</span>
+        </button>
+
+        <button
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            color: '#6c757d'
+          }}
+          onClick={() => navigate('/profile')}
+          title={t('home.profile')}
+        >
+          <FaUser size={20} />
+          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.profile')}</span>
+        </button>
+
+        <button
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '8px',
+            color: '#6c757d'
+          }}
+          title={t('home.statistics')}
+        >
+          <FaChartBar size={20} />
+          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.statistics')}</span>
+        </button>
+      </div>
     </div>
   )
 }

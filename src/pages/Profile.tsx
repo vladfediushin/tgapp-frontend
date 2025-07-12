@@ -174,17 +174,10 @@ const Profile = () => {
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
         <img src={userAvatar} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', marginRight: 16 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <div style={{ marginBottom: 8 }}>
             <div style={{ fontSize: 20, fontWeight: 600 }}>{userName}</div>
-            <button 
-              style={{ background: 'none', border: 'none', cursor: 'pointer' }} 
-              title={t('profile.advancedSettings')}
-              onClick={() => navigate('/settings')}
-            >
-              <FaCog size={24} />
-            </button>
           </div>
-          {/* Country and Language buttons in header */}
+          {/* Country and Language buttons - full width */}
           <div style={{ display: 'flex', gap: 8, width: '100%' }}>
             {/* Country button */}
             <button
