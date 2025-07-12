@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
 import { FaUserEdit, FaCog, FaEdit } from 'react-icons/fa'
+import { calculateDailyGoal } from '../utils/dailyGoals'
 
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
@@ -46,6 +47,8 @@ const Profile = () => {
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   const uiLanguage = useSession(state => state.uiLanguage)
+  const examDate = useSession(state => state.examDate)
+  const manualDailyGoal = useSession(state => state.manualDailyGoal)
 
   const setExamCountry = useSession(state => state.setExamCountry)
   const setExamLanguage = useSession(state => state.setExamLanguage)
@@ -159,8 +162,12 @@ const Profile = () => {
   const incorrect = answered - correct
   const unanswered = total_questions - answered
 
-  const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10
-  const streak = streakProgress.map(p => p >= dailyGoal)
+  // Calculate daily goal using the same logic as Home.tsx
+  const dailyGoalData = stats
+    ? calculateDailyGoal(examDate, stats.total_questions, stats.correct)
+    : null
+  const finalDailyGoal = manualDailyGoal ?? dailyGoalData?.dailyGoal ?? 10
+  const streak = streakProgress.map(p => p >= finalDailyGoal)
 
   // User info (Telegram Mini App)
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
@@ -366,7 +373,7 @@ const Profile = () => {
         {/* Daily goal and exam date info */}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <div style={{ flex: 1, background: '#e3f2fd', borderRadius: 8, padding: 12, textAlign: 'center', fontSize: 14 }}>
-            {t('profile.goal')}: {dailyGoal}
+            {t('profile.goal')}: {finalDailyGoal}
           </div>
           {stats.exam_date && (
             <div style={{ flex: 1, background: '#fff3e0', borderRadius: 8, padding: 12, textAlign: 'center', fontSize: 14 }}>
@@ -394,7 +401,7 @@ const Profile = () => {
       {/* Statistics Cards */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
         <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center' }}>
-          <div style={{ fontSize: 14, color: '#888' }}>{t('profile.totalQuestions', { total: total_questions })}</div>
+          <div style={{ fontSize: 14, color: '#888' }}>{t('profile.totalQuestions')}</div>
           <div style={{ fontSize: 22, fontWeight: 700 }}>{total_questions}</div>
         </div>
         <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center' }}>
