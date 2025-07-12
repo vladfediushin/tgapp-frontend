@@ -63,8 +63,10 @@
     "back": "Back",
     "dailyStreak": "Daily Streak",
     "dailyGoal": "Daily Goal",
+    "goal": "Goal",
     "examDate": "Exam Date",
     "editProfile": "Edit Profile",
+    "editSettings": "Edit Settings",
     "advancedSettings": "Advanced Settings"
   },
   "repeat": {

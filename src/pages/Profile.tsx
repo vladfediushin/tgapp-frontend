@@ -7,7 +7,7 @@ import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } f
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
-import { FaUserEdit } from 'react-icons/fa'
+import { FaUserEdit, FaCog, FaEdit } from 'react-icons/fa'
 
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
@@ -170,10 +170,19 @@ const Profile = () => {
   return (
     <div style={{ padding: 20 }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
         <img src={userAvatar} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', marginRight: 16 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{userName}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <div style={{ fontSize: 20, fontWeight: 600 }}>{userName}</div>
+            <button 
+              style={{ background: 'none', border: 'none', cursor: 'pointer' }} 
+              title={t('profile.advancedSettings')}
+              onClick={() => navigate('/settings')}
+            >
+              <FaCog size={24} />
+            </button>
+          </div>
           {/* Country and Language buttons in header */}
           <div style={{ display: 'flex', gap: 8, width: '100%' }}>
             {/* Country button */}
@@ -222,9 +231,6 @@ const Profile = () => {
             </button>
           </div>
         </div>
-        <button style={{ background: 'none', border: 'none', cursor: 'pointer' }} title={t('profile.editProfile')}>
-          <FaUserEdit size={24} />
-        </button>
       </div>
 
       {/* Country Selection Modal */}
@@ -327,18 +333,18 @@ const Profile = () => {
         </div>
       )}
 
-      {/* Daily Streak */}
-      <div style={{ marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 12 }}>{t('profile.dailyStreak')}</h3>
+      {/* Daily Streak Block */}
+      <div style={{ background: '#f8f9fa', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+        <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>{t('profile.dailyStreak')}</h3>
         {streakLoading ? (
           <div>{t('profile.loading')}</div>
         ) : (
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'space-between', marginBottom: 16 }}>
             {last7Dates.map((date, idx) => (
-              <div key={date} style={{ textAlign: 'center' }}>
+              <div key={date} style={{ textAlign: 'center', flex: 1 }}>
                 <div style={{
-                  width: 40,
-                  height: 40,
+                  width: 36,
+                  height: 36,
                   borderRadius: '50%',
                   background: streak[idx] ? '#4CAF50' : '#e0e0e0',
                   display: 'flex',
@@ -346,27 +352,42 @@ const Profile = () => {
                   justifyContent: 'center',
                   color: streak[idx] ? '#fff' : '#333',
                   fontWeight: 700,
-                  fontSize: 16,
+                  fontSize: 14,
                   border: streak[idx] ? '2px solid #388e3c' : '2px solid #ccc',
-                  position: 'relative',
+                  margin: '0 auto'
                 }}>
                   {streak[idx] ? '✔' : streakProgress[idx]}
                 </div>
-                <div style={{ fontSize: 12, marginTop: 4 }}>{date.slice(5)}</div>
+                <div style={{ fontSize: 11, marginTop: 4 }}>{date.slice(5)}</div>
               </div>
             ))}
           </div>
         )}
         {/* Daily goal and exam date info */}
-        <div style={{ marginTop: 16, display: 'flex', gap: 16 }}>
-          <div style={{ flex: 1, background: '#e3f2fd', borderRadius: 8, padding: 10, textAlign: 'center', fontSize: 14 }}>
-            {t('profile.dailyGoal')}: {dailyGoal}
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div style={{ flex: 1, background: '#e3f2fd', borderRadius: 8, padding: 12, textAlign: 'center', fontSize: 14 }}>
+            {t('profile.goal')}: {dailyGoal}
           </div>
           {stats.exam_date && (
-            <div style={{ flex: 1, background: '#fff3e0', borderRadius: 8, padding: 10, textAlign: 'center', fontSize: 14 }}>
+            <div style={{ flex: 1, background: '#fff3e0', borderRadius: 8, padding: 12, textAlign: 'center', fontSize: 14 }}>
               {t('profile.examDate')}: {stats.exam_date}
             </div>
           )}
+          <button
+            style={{
+              background: '#f0f8ff',
+              border: '1px solid #2AABEE',
+              borderRadius: 8,
+              padding: 12,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            title={t('profile.editSettings')}
+          >
+            <FaEdit size={16} color="#2AABEE" />
+          </button>
         </div>
       </div>
 
@@ -418,14 +439,6 @@ const Profile = () => {
       <section style={{ marginBottom: 24 }}>
         <ExamSettingsComponent showTitle={true} compact={false} onSave={handleExamSettingsSave} />
       </section>
-
-      {/* Advanced Settings Link */}
-      <button
-        onClick={() => navigate('/settings')}
-        style={{ display: 'block', width: '100%', padding: '12px', backgroundColor: '#2AABEE', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', marginBottom: 16 }}
-      >
-        {t('profile.advancedSettings')}
-      </button>
 
       <button
         onClick={handleBack}
