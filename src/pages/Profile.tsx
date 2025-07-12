@@ -80,6 +80,8 @@ const Profile: React.FC = () => {
   const incorrect = answered - correct
   const unanswered = total_questions - answered
 
+  const last7Dates = getLast7LocalDates(); // <-- Ensure this is available for rendering and streak logic
+
   // --- Streak logic: fetch real data for last 7 days ---
   const [streakProgress, setStreakProgress] = useState<number[]>([])
   const [streakLoading, setStreakLoading] = useState(true)
@@ -87,13 +89,12 @@ const Profile: React.FC = () => {
   useEffect(() => {
     if (!userId) return
     setStreakLoading(true)
-    const last7Dates = getLast7LocalDates()
     Promise.all(
       last7Dates.map(date => getDailyProgress(userId, date).then(res => res.data.questions_mastered_today).catch(() => 0))
     ).then(progressArr => {
       setStreakProgress(progressArr)
     }).finally(() => setStreakLoading(false))
-  }, [userId])
+  }, [userId, last7Dates])
 
   const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10 // fallback
   const streak = streakProgress.map(p => p >= dailyGoal)
