@@ -7,7 +7,7 @@ import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } f
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
-import { FaUserEdit, FaSignOutAlt, FaRedo, FaGlobe, FaFlag } from 'react-icons/fa'
+import { FaUserEdit } from 'react-icons/fa'
 
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
@@ -175,16 +175,18 @@ const Profile = () => {
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{userName}</div>
           {/* Country and Language buttons in header */}
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, width: '100%' }}>
             {/* Country button */}
             <button
               style={{ 
+                flex: 1,
                 display: 'flex', 
                 alignItems: 'center', 
+                justifyContent: 'center',
                 background: '#f0f8ff', 
                 border: '1px solid #2AABEE', 
                 borderRadius: 20, 
-                padding: '4px 8px', 
+                padding: '6px 8px', 
                 cursor: 'pointer',
                 fontSize: 14,
                 fontWeight: 500
@@ -199,12 +201,14 @@ const Profile = () => {
             {/* Language button */}
             <button
               style={{ 
+                flex: 1,
                 display: 'flex', 
                 alignItems: 'center', 
+                justifyContent: 'center',
                 background: '#f0f8ff', 
                 border: '1px solid #2AABEE', 
                 borderRadius: 20, 
-                padding: '4px 8px', 
+                padding: '6px 8px', 
                 cursor: 'pointer',
                 fontSize: 14,
                 fontWeight: 500
@@ -382,65 +386,9 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-        <button title={t('profile.resetProgress')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
-          <FaRedo /> {t('profile.resetProgress')}
-        </button>
-        <button title={t('profile.logout')} style={{ flex: 1, padding: 10, borderRadius: 8, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}>
-          <FaSignOutAlt /> {t('profile.logout')}
-        </button>
-      </div>
-
       {/* Basic Settings */}
       <section style={{ marginBottom: 24 }}>
         <h3>{t('profile.settings')}</h3>
-
-        <label style={{ display: 'block', margin: '8px 0' }}>
-          {t('profile.examCountryLabel')}
-          <select
-            value={examCountry}
-            onChange={e => {
-              const newCountry = e.target.value
-              setExamCountry(newCountry)
-              if (userId) {
-                updateUser(userId, { exam_country: newCountry }).catch(err =>
-                  console.error('Ошибка обновления страны экзамена:', err)
-                )
-              }
-            }}
-            style={{ display: 'block', marginTop: 4 }}
-          >
-            {EXAM_COUNTRIES.map(c => (
-              <option key={c.value} value={c.value}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label style={{ display: 'block', margin: '8px 0' }}>
-          {t('profile.examLanguageLabel')}
-          <select
-            value={examLanguage}
-            onChange={e => {
-              const newLang = e.target.value
-              setExamLanguage(newLang)
-              if (userId) {
-                updateUser(userId, { exam_language: newLang }).catch(err =>
-                  console.error('Ошибка обновления языка экзамена:', err)
-                )
-              }
-            }}
-            style={{ display: 'block', marginTop: 4 }}
-          >
-            {EXAM_LANGUAGES.map(l => (
-              <option key={l.value} value={l.value}>
-                {l.label}
-              </option>
-            ))}
-          </select>
-        </label>
 
         <label style={{ display: 'block', margin: '8px 0' }}>
           {t('profile.uiLanguageLabel')}

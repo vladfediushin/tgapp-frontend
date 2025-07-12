@@ -60,7 +60,12 @@
     "incorrect": "Incorrect answers: {{incorrect}}",
     "unanswered": "Unanswered questions: {{unanswered}}",
     "dueCount": "Ready for review: {{dueCount}}",
-    "back": "Back"
+    "back": "Back",
+    "dailyStreak": "Daily Streak",
+    "dailyGoal": "Daily Goal",
+    "examDate": "Exam Date",
+    "editProfile": "Edit Profile",
+    "advancedSettings": "Advanced Settings"
   },
   "repeat": {
     "loading": "Loading questions...",

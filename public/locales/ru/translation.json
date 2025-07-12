@@ -60,7 +60,12 @@
     "incorrect": "Ошибочных ответов: {{incorrect}}",
     "unanswered": "Неотвеченных вопросов: {{unanswered}}",
     "dueCount": "Готовы к повторению: {{dueCount}}",
-    "back": "Назад"
+    "back": "Назад",
+    "dailyStreak": "Ежедневная активность",
+    "dailyGoal": "Ежедневная цель",
+    "examDate": "Дата экзамена",
+    "editProfile": "Редактировать профиль",
+    "advancedSettings": "Дополнительные настройки"
   },
   "repeat": {
     "loading": "Загрузка вопросов...",
