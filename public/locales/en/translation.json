@@ -101,5 +101,8 @@
   "settings": {
     "title": "Advanced Settings",
     "uiLanguageLabel": "Interface Language"
+  },
+  "examSettings": {
+    "title": "Exam Settings"
   }
 }

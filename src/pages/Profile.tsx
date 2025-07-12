@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
-import ExamSettingsComponent from '../components/ExamSettingsComponent'
+
 import { FaUserEdit, FaCog, FaEdit } from 'react-icons/fa'
 import { calculateDailyGoal } from '../utils/dailyGoals'
 
@@ -109,10 +109,6 @@ const Profile = () => {
   }, [userId, last7Dates])
 
   const handleBack = () => navigate('/home')
-
-  const handleExamSettingsSave = () => {
-    console.log('Exam settings saved from profile!')
-  }
 
   if (loading) {
     return <div style={{ padding: 20 }}>Загрузка профиля...</div>
@@ -384,6 +380,7 @@ const Profile = () => {
               justifyContent: 'center'
             }}
             title={t('profile.editSettings')}
+            onClick={() => navigate('/exam-settings')}
           >
             <FaEdit size={16} color="#2AABEE" />
           </button>
@@ -392,23 +389,19 @@ const Profile = () => {
 
       {/* Statistics Cards */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
-          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.totalQuestions')}</div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{total_questions}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ fontSize: 14, color: '#888', height: '25%', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 4 }}>{t('profile.totalQuestions')}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, height: '75%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{total_questions}</div>
         </div>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
-          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.answered')}</div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{answered}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ fontSize: 14, color: '#888', height: '25%', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 4 }}>{t('profile.answered')}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, height: '75%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{answered}</div>
         </div>
-        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', minHeight: 80 }}>
-          <div style={{ fontSize: 14, color: '#888', marginBottom: 8, lineHeight: '1.2' }}>{t('profile.correct')}</div>
-          <div style={{ fontSize: 22, fontWeight: 700 }}>{correct}</div>
+        <div style={{ flex: 1, background: '#f5f5f5', borderRadius: 8, padding: 16, textAlign: 'center', height: 80, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ fontSize: 14, color: '#888', height: '25%', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', paddingTop: 4 }}>{t('profile.correct')}</div>
+          <div style={{ fontSize: 22, fontWeight: 700, height: '75%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{correct}</div>
         </div>
       </div>
-
-      <section style={{ marginBottom: 24 }}>
-        <ExamSettingsComponent showTitle={true} compact={false} onSave={handleExamSettingsSave} />
-      </section>
 
       <button
         onClick={handleBack}
