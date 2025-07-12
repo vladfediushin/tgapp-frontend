@@ -2,6 +2,7 @@
   "buttons": {
     "next": "Далее",
     "back": "Назад",
+    "backToHome": "На главную",
     "topics": "Темы ({{count}})"
   },
   "authorize": {

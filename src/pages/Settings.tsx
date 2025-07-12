@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
+import HomeButton from '../components/HomeButton'
 import i18n from 'i18next'
 
 const UI_LANGUAGES = [
@@ -18,24 +19,10 @@ const Settings = () => {
   const uiLanguage = useSession(state => state.uiLanguage)
   const setUiLanguage = useSession(state => state.setUiLanguage)
 
-  const handleBack = () => navigate('/profile')
-
   return (
     <div style={{ padding: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-        <button 
-          onClick={handleBack}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            fontSize: 24, 
-            cursor: 'pointer', 
-            marginRight: 16,
-            color: '#2AABEE'
-          }}
-        >
-          ←
-        </button>
+        <HomeButton style={{ marginRight: 16, color: '#2AABEE' }} />
         <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>
           {t('settings.title')}
         </h1>

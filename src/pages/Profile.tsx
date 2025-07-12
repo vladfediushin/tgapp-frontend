@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
-
+import HomeButton from '../components/HomeButton'
 import { FaUserEdit, FaCog, FaEdit } from 'react-icons/fa'
 import { calculateDailyGoal } from '../utils/dailyGoals'
 
@@ -108,8 +108,6 @@ const Profile = () => {
     }).finally(() => setStreakLoading(false))
   }, [userId, last7Dates])
 
-  const handleBack = () => navigate('/home')
-
   if (loading) {
     return <div style={{ padding: 20 }}>Загрузка профиля...</div>
   }
@@ -166,6 +164,7 @@ const Profile = () => {
     <div style={{ padding: 20 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 24 }}>
+        <HomeButton style={{ marginRight: 16, marginTop: 16 }} />
         <img src={userAvatar} alt="avatar" style={{ width: 56, height: 56, borderRadius: '50%', marginRight: 16 }} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -402,13 +401,6 @@ const Profile = () => {
           <div style={{ fontSize: 22, fontWeight: 700, height: '75%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{correct}</div>
         </div>
       </div>
-
-      <button
-        onClick={handleBack}
-        style={{ display: 'block', width: '100%', padding: '12px', backgroundColor: '#ECECEC', border: '1px solid #CCC', borderRadius: '8px', fontSize: '16px', cursor: 'pointer' }}
-      >
-        {t('profile.back')}
-      </button>
     </div>
   )
 }

@@ -2,6 +2,7 @@
   "buttons": {
     "next": "Next",
     "back": "Back",
+    "backToHome": "Home",
     "topics": "Topics ({{count}})"
   },
   "authorize": {

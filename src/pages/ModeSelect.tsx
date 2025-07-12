@@ -3,16 +3,17 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { useTranslation } from 'react-i18next'
+import HomeButton from '../components/HomeButton'
 
-const ModeSelect: React.FC = () => {
+const ModeSelect = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const topics = useSession(state => state.topics)
 
-  const [mode, setMode] = useState<string>('interval_all')
-  const [batchSize, setBatchSize] = useState<number>(30)
+  const [mode, setMode] = useState('interval_all')
+  const [batchSize, setBatchSize] = useState(30)
   const [showTopicsModal, setShowTopicsModal] = useState(false)
-  const [selectedTopics, setSelectedTopics] = useState<string[]>([])
+  const [selectedTopics, setSelectedTopics] = useState([])
 
   const handleNext = () => {
     const realMode = selectedTopics.length > 0 ? 'topics' : mode
