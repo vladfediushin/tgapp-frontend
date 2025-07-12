@@ -191,11 +191,9 @@ const Profile = () => {
               }}
               onClick={() => setShowCountrySelect(true)}
             >
-              <span style={{ fontSize: 16, marginRight: 4 }}>
+              <span style={{ color: '#2AABEE', marginRight: 4 }}>Страна:</span>
+              <span style={{ fontSize: 16 }}>
                 {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ')[0] || '🇦🇲'}
-              </span>
-              <span style={{ color: '#2AABEE' }}>
-                {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label.split(' ').slice(1).join(' ') || 'Армения'}
               </span>
             </button>
             {/* Language button */}
@@ -213,11 +211,9 @@ const Profile = () => {
               }}
               onClick={() => setShowLanguageSelect(true)}
             >
-              <span style={{ fontSize: 16, marginRight: 4 }}>
+              <span style={{ color: '#2AABEE', marginRight: 4 }}>Язык:</span>
+              <span style={{ fontSize: 16 }}>
                 {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label === 'Русский' ? '🇷🇺' : '🇬🇧'}
-              </span>
-              <span style={{ color: '#2AABEE' }}>
-                {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label || 'Русский'}
               </span>
             </button>
           </div>
