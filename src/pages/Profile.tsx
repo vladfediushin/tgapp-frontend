@@ -1,4 +1,4 @@
-// src/pages/Profile.tsx
+// Working Profile.tsx - rebuilt from scratch
 /// <reference path="../global.d.ts" />
 import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -38,10 +38,10 @@ function getLast7LocalDates(): string[] {
   return dates
 }
 
-const Profile: React.FC = () => {
+const Profile = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-
+  
   const userId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
@@ -51,27 +51,40 @@ const Profile: React.FC = () => {
   const setExamLanguage = useSession(state => state.setExamLanguage)
   const setUiLanguage = useSession(state => state.setUiLanguage)
 
-  const [stats, setStats] = useState<UserStats | null>(null)
-  const [dueCount, setDueCount] = useState<number | null>(null)
+  const [stats, setStats] = useState(null)
+  const [dueCount, setDueCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showCountrySelect, setShowCountrySelect] = useState(false)
   const [showLanguageSelect, setShowLanguageSelect] = useState(false)
+  const [error, setError] = useState(null)
 
+  // Streak logic states
+  const [streakProgress, setStreakProgress] = useState([])
+  const [streakLoading, setStreakLoading] = useState(true)
+
+  const last7Dates = useMemo(() => getLast7LocalDates(), [])
+
+  // Main stats loading effect
   useEffect(() => {
     if (!userId) {
-      setLoading(false) // Important: set loading to false even without userId
+      setLoading(false)
       return
     }
-    setLoading(true)
 
+    setLoading(true)
     getUserStats(userId)
-      .then(res => setStats(res.data))
+      .then(res => {
+        setStats(res.data)
+        setError(null)
+      })
       .catch(err => {
         console.error('Ошибка получения статистики:', err)
+        setError('Failed to load profile data')
         setStats(null)
       })
       .finally(() => setLoading(false))
 
+    // Load due questions count
     if (examCountry && examLanguage) {
       getQuestions({
         user_id: userId,
@@ -89,41 +102,7 @@ const Profile: React.FC = () => {
     }
   }, [userId, examCountry, examLanguage])
 
-  const handleBack = () => navigate('/home')
-
-  const handleExamSettingsSave = () => {
-    console.log('Exam settings saved from profile!')
-  }
-
-  // Fix: Only block loading when stats is null, dueCount can be null legitimately
-  if (loading || stats === null) {
-    return <div style={{ padding: 20 }}>{t('profile.loading')}</div>
-  }
-
-  // Fix: Add fallback when userId is not available (for development/testing)
-  if (!userId) {
-    return (
-      <div style={{ padding: 20 }}>
-        <div style={{ color: 'red', marginBottom: 16 }}>
-          {t('profile.noUserId', 'No user ID available. This usually happens when the app is not running inside Telegram.')}
-        </div>
-        <button onClick={() => navigate('/home')}>
-          {t('profile.backToHome', 'Back to Home')}
-        </button>
-      </div>
-    )
-  }
-
-  const { total_questions, answered, correct } = stats
-  const incorrect = answered - correct
-  const unanswered = total_questions - answered
-
-  const last7Dates = useMemo(() => getLast7LocalDates(), []); // Memoize to avoid infinite loop
-
-  // --- Streak logic: fetch real data for last 7 days ---
-  const [streakProgress, setStreakProgress] = useState([])
-  const [streakLoading, setStreakLoading] = useState(true)
-
+  // Streak data loading effect
   useEffect(() => {
     if (!userId) return
     setStreakLoading(true)
@@ -134,14 +113,59 @@ const Profile: React.FC = () => {
     }).finally(() => setStreakLoading(false))
   }, [userId, last7Dates])
 
-  const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10 // fallback
+  const handleBack = () => navigate('/home')
+
+  const handleExamSettingsSave = () => {
+    console.log('Exam settings saved from profile!')
+  }
+
+  if (loading) {
+    return <div style={{ padding: 20 }}>Загрузка профиля...</div>
+  }
+
+  if (!userId) {
+    return (
+      <div style={{ padding: 20 }}>
+        <div style={{ color: 'red', marginBottom: 16 }}>
+          Не удалось получить данные пользователя
+        </div>
+        <button onClick={() => navigate('/home')}>На главную</button>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 20 }}>
+        <div style={{ color: 'red', marginBottom: 16 }}>
+          Ошибка: {error}
+        </div>
+        <button onClick={() => window.location.reload()}>Повторить</button>
+        <button onClick={() => navigate('/home')} style={{ marginLeft: 10 }}>На главную</button>
+      </div>
+    )
+  }
+
+  if (!stats) {
+    return (
+      <div style={{ padding: 20 }}>
+        <div>Данные профиля недоступны</div>
+        <button onClick={() => navigate('/home')}>На главную</button>
+      </div>
+    )
+  }
+
+  const { total_questions, answered, correct } = stats
+  const incorrect = answered - correct
+  const unanswered = total_questions - answered
+
+  const dailyGoal = stats?.total_questions ? Math.min(10, stats.total_questions) : 10
   const streak = streakProgress.map(p => p >= dailyGoal)
 
   // User info (Telegram Mini App)
-  // @ts-ignore
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
   const userName = tgUser?.first_name || 'User'
-  const userAvatar = tgUser?.photo_url || '/public/speedometer.gif'
+  const userAvatar = tgUser?.photo_url || '/speedometer.gif'
 
   return (
     <div style={{ padding: 20 }}>
@@ -156,7 +180,7 @@ const Profile: React.FC = () => {
         </button>
       </div>
 
-      {/* --- Country & Language widgets --- */}
+      {/* Country & Language widgets */}
       <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
         {/* Country Widget */}
         <div style={{ flex: 1 }}>
