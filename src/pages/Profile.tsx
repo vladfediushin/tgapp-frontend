@@ -1,5 +1,6 @@
 // src/pages/Profile.tsx
-import React, { useEffect, useState } from 'react'
+/// <reference path="../global.d.ts" />
+import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getUserStats, UserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
@@ -24,6 +25,19 @@ const UI_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
+// Move this function outside the component to avoid dependency issues
+function getLast7LocalDates(): string[] {
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const localDateString = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+  const dates: string[] = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    dates.push(localDateString(d))
+  }
+  return dates
+}
+
 const Profile: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -44,12 +58,18 @@ const Profile: React.FC = () => {
   const [showLanguageSelect, setShowLanguageSelect] = useState(false)
 
   useEffect(() => {
-    if (!userId) return
+    if (!userId) {
+      setLoading(false) // Important: set loading to false even without userId
+      return
+    }
     setLoading(true)
 
     getUserStats(userId)
       .then(res => setStats(res.data))
-      .catch(err => console.error('Ошибка получения статистики:', err))
+      .catch(err => {
+        console.error('Ошибка получения статистики:', err)
+        setStats(null)
+      })
       .finally(() => setLoading(false))
 
     if (examCountry && examLanguage) {
@@ -60,9 +80,12 @@ const Profile: React.FC = () => {
         language: examLanguage,
       })
         .then(res => setDueCount(res.data.length))
-        .catch(err => console.error('Ошибка получения повторных вопросов:', err))
+        .catch(err => {
+          console.error('Ошибка получения повторных вопросов:', err)
+          setDueCount(0)
+        })
     } else {
-      setDueCount(null)
+      setDueCount(0)
     }
   }, [userId, examCountry, examLanguage])
 
@@ -72,18 +95,33 @@ const Profile: React.FC = () => {
     console.log('Exam settings saved from profile!')
   }
 
-  if (loading || stats === null || dueCount === null) {
+  // Fix: Only block loading when stats is null, dueCount can be null legitimately
+  if (loading || stats === null) {
     return <div style={{ padding: 20 }}>{t('profile.loading')}</div>
+  }
+
+  // Fix: Add fallback when userId is not available (for development/testing)
+  if (!userId) {
+    return (
+      <div style={{ padding: 20 }}>
+        <div style={{ color: 'red', marginBottom: 16 }}>
+          {t('profile.noUserId', 'No user ID available. This usually happens when the app is not running inside Telegram.')}
+        </div>
+        <button onClick={() => navigate('/home')}>
+          {t('profile.backToHome', 'Back to Home')}
+        </button>
+      </div>
+    )
   }
 
   const { total_questions, answered, correct } = stats
   const incorrect = answered - correct
   const unanswered = total_questions - answered
 
-  const last7Dates = getLast7LocalDates(); // <-- Ensure this is available for rendering and streak logic
+  const last7Dates = useMemo(() => getLast7LocalDates(), []); // Memoize to avoid infinite loop
 
   // --- Streak logic: fetch real data for last 7 days ---
-  const [streakProgress, setStreakProgress] = useState<number[]>([])
+  const [streakProgress, setStreakProgress] = useState([])
   const [streakLoading, setStreakLoading] = useState(true)
 
   useEffect(() => {
@@ -360,18 +398,6 @@ const Profile: React.FC = () => {
       </button>
     </div>
   )
-}
-
-function getLast7LocalDates(): string[] {
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  const localDateString = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
-  const dates: string[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
-    dates.push(localDateString(d))
-  }
-  return dates
 }
 
 export default Profile

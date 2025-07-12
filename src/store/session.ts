@@ -1,6 +1,6 @@
 // frontend/src/store/ts
 import { create } from 'zustand'
-import api from '../api/api'
+import api, { DailyProgress } from '../api/api'
 
 interface Answer {
   questionId: string

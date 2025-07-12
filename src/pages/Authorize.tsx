@@ -1,4 +1,5 @@
 // src/pages/Authorize.tsx
+/// <reference path="../global.d.ts" />
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
@@ -66,7 +67,18 @@ const Authorize: React.FC = () => {
     const init = async () => {
       const tg = window.Telegram?.WebApp
       const tgUser = tg?.initDataUnsafe?.user
+      
+      // In development mode, if no Telegram data, set hardcoded user ID
       if (!tg || !tgUser) {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          console.log('Development mode: Setting hardcoded user ID')
+          setInternalId('2061624e-bcfa-4c1b-8b08-7ec13d299d43') // Real UUID for development
+          setStoreExamCountry('am')
+          setStoreExamLanguage('ru')
+          setStoreUiLanguage('ru')
+          setStep('complete')
+          return
+        }
         setStep('complete')
         return
       }

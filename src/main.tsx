@@ -6,6 +6,7 @@ import App from './App'
 import './i18n'
 import { useSession } from './store/session'
 import i18n from 'i18next'
+import './utils/telegramMock' // Import mock for development
 
 const Root: React.FC = () => {
   const uiLang = useSession(state => state.uiLanguage)
