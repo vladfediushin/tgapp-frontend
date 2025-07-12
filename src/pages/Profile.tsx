@@ -40,6 +40,8 @@ const Profile: React.FC = () => {
   const [stats, setStats] = useState<UserStats | null>(null)
   const [dueCount, setDueCount] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showCountrySelect, setShowCountrySelect] = useState(false)
+  const [showLanguageSelect, setShowLanguageSelect] = useState(false)
 
   useEffect(() => {
     if (!userId) return
