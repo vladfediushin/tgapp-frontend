@@ -35,7 +35,7 @@
     "modes": {
       "interval_all": "All questions",
       "new_only": "New only",
-      "shown_before": "Only incorrect"
+      "incorrect": "Only incorrect"
     },
     "batchSize": "Batch size",
     "next": "Next",
@@ -77,7 +77,8 @@
     "answeredCount": "You answered {{count}} questions.",
     "correctCount": "Correct answers: {{correct}}",
     "incorrectCount": "Incorrect answers: {{incorrect}}",
-    "goHome": "Go home"
+    "goHome": "Go home",
+    "noQuestions": "No questions available for this mode."
   },
   "topics": {
     "title": "Choose a topic",

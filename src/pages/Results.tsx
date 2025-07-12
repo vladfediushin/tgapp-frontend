@@ -9,8 +9,24 @@ const Results: React.FC = () => {
   const navigate = useNavigate()
   const goHome = () => navigate('/')
   const answers = useSession(state => state.answers)
+  const location = window.location
+  const state = (location as any).state || {}
 
-  const answersMap = new Map<number, typeof answers[0]>()
+  // Try to get state from react-router if available
+  let noQuestions = false
+  try {
+    // @ts-ignore
+    if (window.history.state && window.history.state.usr && window.history.state.usr.noQuestions) {
+      noQuestions = true
+    }
+  } catch {}
+
+  // Fallback for react-router v6
+  if (typeof window !== 'undefined' && window.history && window.history.state && window.history.state.usr) {
+    noQuestions = window.history.state.usr.noQuestions || false
+  }
+
+  const answersMap = new Map<string, typeof answers[0]>()
   answers.forEach(a => {
     if (!answersMap.has(a.questionId)) {
       answersMap.set(a.questionId, a)
@@ -23,10 +39,14 @@ const Results: React.FC = () => {
   return (
     <div style={{ padding: 20 }}>
       <h2>{t('results.sessionComplete')}</h2>
+      {noQuestions && (
+        <p style={{ color: 'red', fontWeight: 'bold', fontSize: 18 }}>
+          {t('results.noQuestions')}
+        </p>
+      )}
       <p>{t('results.answeredCount', { count: uniqueAnswers.length })}</p>
       <p>{t('results.correctCount', { correct })}</p>
       <p>{t('results.incorrectCount', { incorrect })}</p>
-
       <button
         onClick={goHome}
         style={{

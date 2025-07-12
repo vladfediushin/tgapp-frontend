@@ -58,7 +58,7 @@ const ModeSelect: React.FC = () => {
         </button>
       </div>
 
-      {['interval_all', 'new_only', 'shown_before'].map(m => (
+      {['interval_all', 'new_only', 'incorrect'].map(m => (
         <button
           key={m}
           onClick={() => setMode(m)}

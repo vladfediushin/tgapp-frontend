@@ -52,6 +52,10 @@ const Repeat: React.FC = () => {
     resetAnswers()
 
     if (preloadedQuestions) {
+      if (preloadedQuestions.length === 0) {
+        navigate('/results', { state: { noQuestions: true } })
+        return
+      }
       setQueue(preloadedQuestions)
       setInitialCount(preloadedQuestions.length)
       setCurrent(preloadedQuestions[0] || null)
@@ -72,6 +76,10 @@ const Repeat: React.FC = () => {
       topic: selectedTopics.length > 0 ? selectedTopics : undefined,
     })
       .then(res => {
+        if (res.data.length === 0) {
+          navigate('/results', { state: { noQuestions: true } })
+          return
+        }
         setQueue(res.data)
         setInitialCount(res.data.length)
         setCurrent(res.data[0] || null)
