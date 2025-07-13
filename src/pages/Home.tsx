@@ -246,13 +246,13 @@ const Home = () => {
                 justifyContent: 'center'
               }}>
                 <span style={{
-                  fontSize: '16px',
+                  fontSize: '13px',
                   fontWeight: 'bold',
                   color: 'white'
                 }}>
                   {!userLoaded ? '...' :
                    (!examCountry || !examLanguage) ? '?' :
-                   isProgressCurrent && finalDailyGoal !== null ? `${Math.round(goalProgress)}%` : '0%'}
+                   isProgressCurrent && finalDailyGoal !== null ? `${todayQuestionsMastered}/${finalDailyGoal}` : '0/0'}
                 </span>
               </div>
             </div>
