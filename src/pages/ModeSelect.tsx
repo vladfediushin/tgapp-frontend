@@ -72,36 +72,9 @@ const ModeSelect = () => {
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          justifyContent: 'flex-end',
           marginBottom: '32px'
         }}>
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '12px 16px',
-              backgroundColor: 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#6b7280',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f3f4f6'
-              e.target.style.color = '#111827'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent'
-              e.target.style.color = '#6b7280'
-            }}
-          >
-            <ArrowLeft size={20} />
-            <span style={{ fontWeight: '500' }}>{t('modeSelect.back')}</span>
-          </button>
-          
           <button
             onClick={() => setShowTopicsModal(true)}
             style={{
@@ -135,20 +108,6 @@ const ModeSelect = () => {
 
         {/* Title */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            backgroundColor: 'white',
-            borderRadius: '50%',
-            padding: '16px',
-            width: '64px',
-            height: '64px',
-            margin: '0 auto 16px auto',
-            boxShadow: '0 10px 25px -3px rgba(0, 0, 0, 0.1)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Settings size={32} style={{ color: '#2563eb' }} />
-          </div>
           <h1 style={{
             fontSize: '28px',
             fontWeight: 'bold',

@@ -10,7 +10,7 @@ import {
 } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
-import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, ChevronRight, Shuffle, AlertCircle } from 'lucide-react'
+import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, ChevronRight, Sparkles, AlertCircle } from 'lucide-react'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
@@ -88,6 +88,22 @@ const Home = () => {
 
   const handleStart = () => {
     navigate('/mode')
+  }
+
+  const handleNewQuestions = () => {
+    const params = new URLSearchParams({
+      mode: 'new_only',
+      batchSize: '30',
+    })
+    navigate(`/repeat?${params.toString()}`)
+  }
+
+  const handleIncorrectQuestions = () => {
+    const params = new URLSearchParams({
+      mode: 'incorrect',
+      batchSize: '30',
+    })
+    navigate(`/repeat?${params.toString()}`)
   }
 
   const dailyGoalData = stats
@@ -332,52 +348,58 @@ const Home = () => {
             gridTemplateColumns: '1fr 1fr',
             gap: '12px'
           }}>
-            <button style={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              padding: '16px',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white'
-            }}>
+            <button 
+              onClick={handleNewQuestions}
+              style={{
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                padding: '16px',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#f9fafb'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'white'
+              }}
+            >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 marginBottom: '8px'
               }}>
-                <Shuffle size={20} style={{ color: '#2563eb' }} />
-                <span style={{ fontWeight: '500', color: '#111827' }}>Случайные</span>
+                <Sparkles size={20} style={{ color: '#059669' }} />
+                <span style={{ fontWeight: '500', color: '#111827' }}>Новые</span>
               </div>
               <p style={{
                 fontSize: '12px',
                 color: '#6b7280',
                 margin: 0
               }}>
-                Микс вопросов
+                Неизученные вопросы
               </p>
             </button>
             
-            <button style={{
-              backgroundColor: 'white',
-              border: '1px solid #e5e7eb',
-              padding: '16px',
-              borderRadius: '12px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f9fafb'
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'white'
-            }}>
+            <button 
+              onClick={handleIncorrectQuestions}
+              style={{
+                backgroundColor: 'white',
+                border: '1px solid #e5e7eb',
+                padding: '16px',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#f9fafb'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'white'
+              }}
+            >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',

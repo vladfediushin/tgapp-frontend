@@ -314,22 +314,6 @@ const Profile = () => {
                 Изучающий теорию вождения
               </p>
             </div>
-            <button
-              style={{
-                backgroundColor: '#f3f4f6',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s ease'
-              }}
-              onClick={() => navigate('/exam-settings')}
-            >
-              <Settings size={20} color="#6b7280" />
-            </button>
           </div>
           
           {/* Country and Language Selection */}
