@@ -1,23 +1,14 @@
-import { FaSpinner } from 'react-icons/fa'
+import { Loader2 } from 'lucide-react'
 
-const spinnerStyle = {
-  animation: 'spin 1s linear infinite',
-  display: 'inline-block'
-}
-
-const LoadingSpinner = ({ size = 24, color = '#2AABEE' }) => (
-  <>
-    <span style={spinnerStyle}>
-      <FaSpinner size={size} color={color} />
-    </span>
-    <style>
-      {`
-        @keyframes spin {
-          100% { transform: rotate(360deg); }
-        }
-      `}
-    </style>
-  </>
+const LoadingSpinner = ({ size = 24, color = '#059669' }) => (
+  <Loader2 
+    size={size} 
+    color={color}
+    className="animate-spin"
+    style={{
+      animation: 'spin 1s linear infinite'
+    }}
+  />
 )
 
 export default LoadingSpinner

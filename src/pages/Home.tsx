@@ -10,7 +10,7 @@ import {
 } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
-import { FaCog, FaUser, FaChartBar } from 'react-icons/fa'
+import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, ChevronRight, Shuffle, AlertCircle } from 'lucide-react'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
@@ -106,218 +106,426 @@ const Home = () => {
   const strokeWidth = 12
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>{t('home.greeting', { name: userName })}</h2>
-
-      {isProgressCurrent && finalDailyGoal !== null && (
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#f8fafc', 
+      paddingBottom: '80px' 
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: 'white',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+        padding: '16px 24px'
+      }}>
         <div style={{
-          marginBottom: 20,
-          padding: 16,
-          backgroundColor: '#f5f5f5',
-          borderRadius: 8
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}>
+          <div>
+            <h1 style={{
+              fontSize: '20px',
+              fontWeight: 'bold',
+              color: '#111827',
+              margin: 0
+            }}>
+              {t('home.greeting', { name: userName })}
+            </h1>
+            <p style={{
+              color: '#6b7280',
+              margin: '4px 0 0 0',
+              fontSize: '14px'
+            }}>
+              Продолжаем подготовку к экзамену
+            </p>
+          </div>
+          <div style={{ fontSize: '32px' }}>
+            👨‍💼
+          </div>
+        </div>
+      </div>
+
+      <div style={{ padding: '24px', gap: '24px', display: 'flex', flexDirection: 'column' }}>
+        {/* Progress Card */}
+        {isProgressCurrent && finalDailyGoal !== null && (
           <div style={{
-            display: 'flex',
-            alignItems: 'stretch',
-            minHeight: 110,
-            position: 'relative',
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            borderRadius: '16px',
+            padding: '24px',
+            color: 'white'
           }}>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-              <h3 style={{ margin: '0 0 12px 0', fontSize: 18, maxWidth: '80%' }}>
-                {t('home.todayProgress')}
-              </h3>
-              <div style={{ fontSize: 18, fontWeight: 'bold' }}>
-                {todayQuestionsMastered} / {finalDailyGoal}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '16px'
+            }}>
+              <div>
+                <h2 style={{
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  margin: 0
+                }}>
+                  {t('home.todayProgress')}
+                </h2>
+                <p style={{
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  margin: '4px 0 0 0',
+                  fontSize: '14px'
+                }}>
+                  Отлично продвигаешься!
+                </p>
               </div>
-              <div style={{ fontSize: 14, color: '#666' }}>
-                {t('home.questionsMasteredToday')}
+              <div style={{
+                width: '80px',
+                height: '80px',
+                position: 'relative'
+              }}>
+                <svg width="80" height="80" style={{ transform: 'rotate(-90deg)' }}>
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="30"
+                    stroke="rgba(255, 255, 255, 0.3)"
+                    strokeWidth="8"
+                    fill="none"
+                  />
+                  <circle
+                    cx="40"
+                    cy="40"
+                    r="30"
+                    stroke="white"
+                    strokeWidth="8"
+                    fill="none"
+                    strokeDasharray={`${(goalProgress / 100) * 188.5} 188.5`}
+                    strokeLinecap="round"
+                    style={{ transition: 'stroke-dasharray 1s ease-out' }}
+                  />
+                </svg>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    color: 'white'
+                  }}>
+                    {Math.round(goalProgress)}%
+                  </span>
+                </div>
               </div>
             </div>
-            <div style={{ width: 70, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ width: 50, height: 50 }}>
-                <CircularProgressbar
-                  value={goalProgress}
-                  maxValue={100}
-                  strokeWidth={15}
-                  styles={buildStyles({
-                    pathColor: goalProgress >= 100 ? '#4CAF50' : '#FFA500',
-                    trailColor: '#e0e0e0',
-                    strokeLinecap: 'round'
-                  })}
-                />
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px',
+              marginTop: '16px'
+            }}>
+              <div style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                padding: '12px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Flame size={20} style={{ color: '#fb923c' }} />
+                  <span style={{ fontWeight: '600' }}>
+                    {/* здесь можно добавить streak, если есть */}
+                    7 дней
+                  </span>
+                </div>
+                <p style={{
+                  fontSize: '12px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  margin: '4px 0 0 0'
+                }}>
+                  Streak
+                </p>
+              </div>
+              <div style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                padding: '12px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Calendar size={20} style={{ color: '#60a5fa' }} />
+                  <span style={{ fontWeight: '600' }}>
+                    {examDate ? Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : '-'} дней
+                  </span>
+                </div>
+                <p style={{
+                  fontSize: '12px',
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  margin: '4px 0 0 0'
+                }}>
+                  До экзамена
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {stats ? (
-        <>
-          <p>
-            {t('home.stats', {
-              answered: stats.answered,
-              total: stats.total_questions,
-              correct: stats.correct
-            })}
-          </p>
-
-          <div
+        {/* Quick Actions */}
+        <div style={{ gap: '12px', display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111827',
+            margin: 0
+          }}>
+            Быстрые действия
+          </h3>
+          
+          <button 
+            onClick={handleStart}
             style={{
-              width: size,
-              height: size,
-              margin: '20px auto',
-              position: 'relative'
+              width: '100%',
+              background: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+              color: 'white',
+              padding: '16px',
+              borderRadius: '12px',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              fontSize: '16px'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = 'translateY(-1px)'
+              e.target.style.boxShadow = '0 4px 12px rgba(234, 88, 12, 0.3)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.boxShadow = 'none'
             }}
           >
-            <CircularProgressbar
-              value={stats.total_questions}
-              maxValue={stats.total_questions}
-              strokeWidth={strokeWidth}
-              styles={buildStyles({
-                pathColor: '#e0e0e0',
-                trailColor: 'transparent',
-                strokeLinecap: 'butt'
-              })}
-            />
-
             <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
             }}>
-              <CircularProgressbar
-                value={stats.answered}
-                maxValue={stats.total_questions}
-                strokeWidth={strokeWidth}
-                styles={buildStyles({
-                  pathColor: '#FFA500',
-                  trailColor: 'transparent',
-                  strokeLinecap: 'butt'
-                })}
-              />
+              <Play size={24} />
+              <span style={{ fontSize: '18px', fontWeight: '600' }}>
+                {t('home.startRevision')}
+              </span>
             </div>
+            <ChevronRight size={20} />
+          </button>
 
-            <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%'
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '12px'
+          }}>
+            <button style={{
+              backgroundColor: 'white',
+              border: '1px solid #e5e7eb',
+              padding: '16px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f9fafb'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'white'
             }}>
-              <CircularProgressbar
-                value={stats.correct}
-                maxValue={stats.total_questions}
-                strokeWidth={strokeWidth}
-                styles={buildStyles({
-                  pathColor: '#4CAF50',
-                  trailColor: 'transparent',
-                  strokeLinecap: 'butt'
-                })}
-              />
-            </div>
-
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              fontWeight: 'bold',
-              fontSize: size * 0.2
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px'
+              }}>
+                <Shuffle size={20} style={{ color: '#2563eb' }} />
+                <span style={{ fontWeight: '500', color: '#111827' }}>Случайные</span>
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                margin: 0
+              }}>
+                Микс вопросов
+              </p>
+            </button>
+            
+            <button style={{
+              backgroundColor: 'white',
+              border: '1px solid #e5e7eb',
+              padding: '16px',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f9fafb'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'white'
             }}>
-              {stats.total_questions > 0
-                ? `${Math.round((stats.correct / stats.total_questions) * 100)}%`
-                : '0%'}
-            </div>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                marginBottom: '8px'
+              }}>
+                <AlertCircle size={20} style={{ color: '#dc2626' }} />
+                <span style={{ fontWeight: '500', color: '#111827' }}>Ошибки</span>
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                margin: 0
+              }}>
+                Работа над ошибками
+              </p>
+            </button>
           </div>
-        </>
-      ) : (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 60 }}>
-          <LoadingSpinner size={28} />
         </div>
-      )}
 
-      <button
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '12px',
-          marginTop: '20px',
-          fontSize: '16px',
-          backgroundColor: '#2AABEE',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px'
-        }}
-        onClick={handleStart}
-      >
-        {t('home.startRevision')}
-      </button>
+        {/* Overall Progress */}
+        {stats ? (
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '12px'
+            }}>
+              <h3 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#111827',
+                margin: 0
+              }}>
+                Общий прогресс
+              </h3>
+              <span style={{
+                fontSize: '14px',
+                color: '#6b7280'
+              }}>
+                {stats.correct}/{stats.total_questions}
+              </span>
+            </div>
+            
+            <div style={{
+              width: '100%',
+              backgroundColor: '#e5e7eb',
+              borderRadius: '9999px',
+              height: '8px',
+              marginBottom: '8px'
+            }}>
+              <div 
+                style={{
+                  backgroundColor: '#059669',
+                  height: '8px',
+                  borderRadius: '9999px',
+                  transition: 'all 1s ease-out',
+                  width: `${stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}%`
+                }}
+              />
+            </div>
+            
+            <p style={{
+              fontSize: '14px',
+              color: '#6b7280',
+              margin: 0
+            }}>
+              {stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}% завершено
+            </p>
+          </div>
+        ) : (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            minHeight: '60px',
+            backgroundColor: 'white',
+            borderRadius: '12px',
+            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+          }}>
+            <LoadingSpinner size={28} />
+          </div>
+        )}
+      </div>
 
-      {/* Footer */}
+      {/* Bottom Navigation */}
       <div style={{
-        display: 'flex',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        marginTop: '20px',
-        padding: '16px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '12px',
-        border: '1px solid #e9ecef'
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderTop: '1px solid #e5e7eb',
+        padding: '8px 16px'
       }}>
-        <button
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-            color: '#6c757d'
-          }}
-          onClick={() => navigate('/settings')}
-          title={t('home.settings')}
-        >
-          <FaCog size={20} />
-          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.settings')}</span>
-        </button>
-
-        <button
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-            color: '#6c757d'
-          }}
-          onClick={() => navigate('/profile')}
-          title={t('home.profile')}
-        >
-          <FaUser size={20} />
-          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.profile')}</span>
-        </button>
-
-        <button
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '8px',
-            color: '#6c757d'
-          }}
-          title={t('home.statistics')}
-        >
-          <FaChartBar size={20} />
-          <span style={{ fontSize: '12px', marginTop: '4px' }}>{t('home.statistics')}</span>
-        </button>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center'
+        }}>
+          {[
+            { id: 'home', icon: HomeIcon, label: t('home.profile'), onClick: () => navigate('/') },
+            { id: 'profile', icon: User, label: t('home.profile'), onClick: () => navigate('/profile') },
+            { id: 'stats', icon: BarChart3, label: t('home.statistics'), onClick: () => {} },
+            { id: 'settings', icon: Settings, label: t('home.settings'), onClick: () => navigate('/settings') }
+          ].map(item => (
+            <button
+              key={item.id}
+              onClick={item.onClick}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '8px',
+                borderRadius: '8px',
+                transition: 'all 0.2s ease',
+                backgroundColor: item.id === 'home' ? '#ecfdf5' : 'transparent',
+                color: item.id === 'home' ? '#059669' : '#6b7280',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                if (item.id !== 'home') {
+                  e.target.style.color = '#111827'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (item.id !== 'home') {
+                  e.target.style.color = '#6b7280'
+                }
+              }}
+            >
+              <item.icon size={24} />
+              <span style={{ 
+                fontSize: '12px', 
+                marginTop: '4px',
+                fontWeight: item.id === 'home' ? '500' : '400'
+              }}>
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
