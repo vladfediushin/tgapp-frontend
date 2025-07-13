@@ -8,6 +8,7 @@ import { UserOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'  // Import the component
+import LoadingSpinner from '../components/LoadingSpinner'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -180,84 +181,180 @@ const Authorize: React.FC = () => {
     setStep('complete')
   }
 
-  if (step === 'checking') {
   return (
-    <div style={{
-      padding: 20,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '100vh',
-      backgroundColor: '#f9f9f9'
-    }}>
-      <img
-        src="/speedometer.gif"
-        alt="Loading..."
-        style={{ width: 120, height: 120, marginBottom: 16 }}
-      />
-      <p style={{ fontSize: 18, color: '#333' }}>Loading...</p>
+    <div style={{ padding: 20 }}>
+      {step === 'checking' && (
+        <div style={{
+          padding: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          backgroundColor: '#f9f9f9'
+        }}>
+          <LoadingSpinner size={64} />
+          <p style={{ fontSize: 18, color: '#333', marginTop: 16 }}>{t('authorize.checking')}</p>
+        </div>
+      )}
 
-      <p style={{
-        fontSize: 10,
-        color: '#aaa',
-        marginTop: 24,
-        textAlign: 'center',
-        maxWidth: 240
-      }}>
-        <a
-          href="https://www.flaticon.com/free-animated-icons/speedometer"
-          title="speedometer animated icons"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#aaa', textDecoration: 'none' }}
-        >
-          Speedometer animated icons created by Freepik - Flaticon
-        </a>
-      </p>
+      {step === 'form' && (
+        <>
+          <h2>{t('authorize.welcome', { userName })}</h2>
+          <p style={{ marginBottom: 20, color: '#666' }}>
+            {t('authorize.intro')}
+          </p>
+
+          {/* Форма ввода данных */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ display: 'block', marginBottom: 5 }}>
+                {t('authorize.label.examCountry')}
+              </label>
+              <select
+                value={examCountryInput}
+                onChange={e => setExamCountryInput(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 8,
+                  border: '1px solid #ccc',
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="">{t('authorize.placeholder.selectCountry')}</option>
+                {EXAM_COUNTRIES.map(country => (
+                  <option key={country.value} value={country.value}>
+                    {country.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ display: 'block', marginBottom: 5 }}>
+                {t('authorize.label.examLanguage')}
+              </label>
+              <select
+                value={examLanguageInput}
+                onChange={e => setExamLanguageInput(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 8,
+                  border: '1px solid #ccc',
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="">{t('authorize.placeholder.selectLanguage')}</option>
+                {EXAM_LANGUAGES.map(language => (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ display: 'block', marginBottom: 5 }}>
+                {t('authorize.label.uiLanguage')}
+              </label>
+              <select
+                value={uiLanguageInput}
+                onChange={e => setUiLanguageInput(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: 8,
+                  border: '1px solid #ccc',
+                  fontSize: 16,
+                  cursor: 'pointer'
+                }}
+              >
+                <option value="">{t('authorize.placeholder.selectLanguage')}</option>
+                {UI_LANGUAGES.map(language => (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {error && (
+            <p style={{ color: 'red', marginBottom: 20 }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            onClick={handleSubmit}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '10px',
+              backgroundColor: '#007bff',
+              color: '#fff',
+              border: 'none',
+              borderRadius: 8,
+              fontSize: 16,
+              cursor: 'pointer',
+              transition: 'background-color 0.3s'
+            }}
+          >
+            {t('authorize.button.next')}
+          </button>
+
+          <p style={{
+            marginTop: 20,
+            fontSize: 14,
+            color: '#666',
+            textAlign: 'center'
+          }}>
+            {t('authorize.footer.info')}
+          </p>
+        </>
+      )}
+
+      {step === 'exam_settings' && (
+        <div style={{ padding: 20 }}>
+          <h2>Почти готово, {userName}!</h2>
+          <p style={{ marginBottom: 20, color: '#666' }}>
+            Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
+            рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
+            вы можете пропустить их и добавить позже.
+          </p>
+
+          {/* Embed the ExamSettingsComponent */}
+          <ExamSettingsComponent 
+            showTitle={false} 
+            compact={true}
+            onSave={handleExamSettingsSave}
+          />
+
+          <button
+            onClick={handleSkipExamSettings}
+            style={{
+              display: 'block',
+              width: '100%',
+              padding: '10px',
+              marginTop: '15px',
+              backgroundColor: '#f5f5f5',
+              color: '#666',
+              border: '1px solid #ccc',
+              borderRadius: 8,
+              fontSize: 16,
+              cursor: 'pointer'
+            }}
+          >
+            Пропустить (настроить позже)
+          </button>
+        </div>
+      )}
     </div>
   )
-}
-
-  if (step === 'exam_settings') {
-    return (
-      <div style={{ padding: 20 }}>
-        <h2>Почти готово, {userName}!</h2>
-        <p style={{ marginBottom: 20, color: '#666' }}>
-          Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
-          рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
-          вы можете пропустить их и добавить позже.
-        </p>
-
-        {/* Embed the ExamSettingsComponent */}
-        <ExamSettingsComponent 
-          showTitle={false} 
-          compact={true}
-          onSave={handleExamSettingsSave}
-        />
-
-        <button
-          onClick={handleSkipExamSettings}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '10px',
-            marginTop: '15px',
-            backgroundColor: '#f5f5f5',
-            color: '#666',
-            border: '1px solid #ccc',
-            borderRadius: 8,
-            fontSize: 16,
-            cursor: 'pointer'
-          }}
-        >
-          Пропустить (настроить позже)
-        </button>
-      </div>
-    )
-  }
-
-  return null
 }
 
 export default Authorize
