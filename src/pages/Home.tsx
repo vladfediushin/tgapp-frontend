@@ -119,12 +119,13 @@ const Home = () => {
           borderRadius: 8
         }}>
           <h3 style={{ margin: '0 0 12px 0', fontSize: 18 }}>
-            {t('home.dailyProgress')}
+            {t('home.todayProgress')}
           </h3>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            minHeight: 70
           }}>
             <div>
               <div style={{ fontSize: 18, fontWeight: 'bold' }}>
@@ -134,7 +135,7 @@ const Home = () => {
                 {t('home.questionsMasteredToday')}
               </div>
             </div>
-            <div style={{ width: 50, height: 50 }}>
+            <div style={{ width: 50, height: 50, display: 'flex', alignItems: 'center' }}>
               <CircularProgressbar
                 value={goalProgress}
                 maxValue={100}

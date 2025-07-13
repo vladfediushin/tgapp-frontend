@@ -28,7 +28,7 @@
     "profile": "Profile",
     "settings": "Settings",
     "statistics": "Statistics",
-    "dailyProgress": "Daily progress",
+    "todayProgress": "Today's Progress",
     "questionsMasteredToday": "Questions mastered today"
   },
   "modeSelect": {

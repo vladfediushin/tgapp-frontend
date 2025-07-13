@@ -28,7 +28,7 @@
     "profile": "Профиль",
     "settings": "Настройки",
     "statistics": "Статистика",
-    "dailyProgress": "Цель на сегодня",
+    "todayProgress": "Прогресс за сегодня",
     "questionsMasteredToday": "Отвечено правильно сегодня"
   },
   "modeSelect": {
