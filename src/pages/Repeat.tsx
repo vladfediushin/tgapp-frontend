@@ -4,8 +4,10 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { getQuestions, QuestionOut, submitAnswer, getDailyProgress } from '../api/api'  // ДОБАВИЛ getDailyProgress
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft, CheckCircle, XCircle, Target, BarChart3 } from 'lucide-react'
+import LoadingSpinner from '../components/LoadingSpinner'
 
-const Repeat: React.FC = () => {
+const Repeat = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
@@ -13,14 +15,14 @@ const Repeat: React.FC = () => {
   const exam_language = useSession(state => state.examLanguage)
   const mode = new URLSearchParams(location.search).get('mode') || 'interval_all'
   const { batchSize, selectedTopics = [] } = location.state || {}
-  const preloadedQuestions: QuestionOut[] | undefined = location.state?.questions
+  const preloadedQuestions = location.state?.questions
 
-  const [queue, setQueue] = useState<QuestionOut[] | null>(null)
-  const [initialCount, setInitialCount] = useState<number | null>(null)
-  const [current, setCurrent] = useState<QuestionOut | null>(null)
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const [isAnswered, setIsAnswered] = useState<boolean>(false)
-  const [isCorrect, setIsCorrect] = useState<boolean>(false)
+  const [queue, setQueue] = useState(null)
+  const [initialCount, setInitialCount] = useState(null)
+  const [current, setCurrent] = useState(null)
+  const [selectedIndex, setSelectedIndex] = useState(null)
+  const [isAnswered, setIsAnswered] = useState(false)
+  const [isCorrect, setIsCorrect] = useState(false)
 
   const userId = useSession(state => state.userId)
   const addAnswer = useSession(state => state.addAnswer)
@@ -138,108 +140,327 @@ const Repeat: React.FC = () => {
   }
 
   if (queue === null || current === null) {
-    return <div style={{ padding: 20 }}>{t('repeat.loading')}</div>
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#f8fafc',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '24px'
+      }}>
+        <LoadingSpinner size={32} />
+        <p style={{
+          marginTop: '16px',
+          color: '#6b7280',
+          fontSize: '16px'
+        }}>
+          {t('repeat.loading')}
+        </p>
+      </div>
+    )
   }
 
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ marginBottom: 20 }}>
-        <div>{t('repeat.statsInitial', { initialCount })}</div>
-        <div>{t('repeat.statsLeft', { questionsLeft })}</div>
-        <div>{t('repeat.statsCorrect', { correctCount })}</div>
-        <div>{t('repeat.statsIncorrect', { incorrectCount })}</div>
-      </div>
-
-      <h2>{t('repeat.question')}</h2>
-      {current.data.question_image && (
-        <img
-          src={current.data.question_image}
-          alt="question"
-          style={{ maxWidth: '100%', borderRadius: '8px' }}
-        />
-      )}
-      <p style={{ fontSize: 18, margin: '12px 0' }}>{current.data.question}</p>
-
-      {current.data.options.map((opt, idx) => {
-        let backgroundColor = '#fff'
-        let color = '#000'
-        if (isAnswered) {
-          if (idx === selectedIndex) {
-            backgroundColor = isCorrect ? 'green' : 'red'
-            color = '#fff'
-          } else if (!isCorrect && idx === current.data.correct_index) {
-            backgroundColor = 'green'
-            color = '#fff'
-          }
-        }
-
-        const maybeUrl = opt.replace(/[{}]/g, '').trim()
-        const isImage = /\.(jpe?g|png|gif|webp)$/i.test(maybeUrl)
-
-        return (
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#f8fafc',
+      padding: '16px'
+    }}>
+      {/* Header */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '16px',
+        marginBottom: '16px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '12px'
+        }}>
           <button
-            key={idx}
-            onClick={() => handleAnswer(idx)}
-            disabled={isAnswered}
+            onClick={() => navigate('/results')}
             style={{
-              display: 'block',
-              width: '100%',
-              padding: '10px',
-              margin: '10px 0',
-              border: '1px solid #ccc',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 12px',
+              backgroundColor: 'transparent',
+              border: 'none',
               borderRadius: '8px',
-              backgroundColor,
-              color,
-              textAlign: 'left',
-              cursor: isAnswered ? 'default' : 'pointer',
+              color: '#6b7280',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f3f4f6'
+              e.target.style.color = '#111827'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent'
+              e.target.style.color = '#6b7280'
             }}
           >
-            {isImage ? (
-              <img
-                src={maybeUrl}
-                alt={`option ${idx + 1}`}
-                style={{ maxWidth: '100px', height: 'auto', borderRadius: '8px' }}
-              />
-            ) : (
-              <span style={{ display: 'block', textAlign: 'left' }}>{opt}</span>
-            )}
+            <ArrowLeft size={20} />
+            <span style={{ fontWeight: '500' }}>{t('repeat.back')}</span>
           </button>
-        )
-      })}
-
-      {isAnswered && !isCorrect && (
-        <button
-          onClick={() => nextQuestion(false)}
-          style={{
-            marginTop: 20,
-            padding: '10px 20px',
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <Target size={20} style={{ color: '#059669' }} />
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#059669'
+            }}>
+              {questionsLeft} {t('repeat.statsLeft').replace('{questionsLeft}', '')}
+            </span>
+          </div>
+        </div>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr 1fr',
+          gap: '12px'
+        }}>
+          <div style={{
+            backgroundColor: '#f3f4f6',
             borderRadius: '8px',
-            backgroundColor: '#007bff',
-            color: '#fff',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-        >
-          {t('repeat.next')}
-        </button>
-      )}
+            padding: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>
+              {initialCount}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+              Всего
+            </div>
+          </div>
+          <div style={{
+            backgroundColor: '#ecfdf5',
+            borderRadius: '8px',
+            padding: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#059669' }}>
+              {correctCount}
+            </div>
+            <div style={{ fontSize: '12px', color: '#059669' }}>
+              Верных
+            </div>
+          </div>
+          <div style={{
+            backgroundColor: '#fef2f2',
+            borderRadius: '8px',
+            padding: '8px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
+              {incorrectCount}
+            </div>
+            <div style={{ fontSize: '12px', color: '#dc2626' }}>
+              Ошибок
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <button
-        onClick={() => navigate('/results')}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '12px',
-          marginTop: '20px',
-          fontSize: '16px',
-          backgroundColor: '#ccc',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-        }}
-      >
-        {t('repeat.back')}
-      </button>
+      {/* Question Card */}
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '16px',
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+      }}>
+        <h2 style={{
+          fontSize: '18px',
+          fontWeight: '600',
+          color: '#111827',
+          marginBottom: '16px',
+          margin: 0
+        }}>
+          {t('repeat.question')}
+        </h2>
+        
+        {current.data.question_image && (
+          <div style={{ marginBottom: '16px' }}>
+            <img
+              src={current.data.question_image}
+              alt="question"
+              style={{ 
+                width: '100%', 
+                maxWidth: '400px',
+                height: 'auto',
+                borderRadius: '12px',
+                display: 'block',
+                margin: '0 auto'
+              }}
+            />
+          </div>
+        )}
+        
+        <p style={{ 
+          fontSize: '16px', 
+          lineHeight: '1.5',
+          color: '#374151',
+          margin: '0 0 20px 0'
+        }}>
+          {current.data.question}
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {current.data.options.map((opt, idx) => {
+            let backgroundColor = 'white'
+            let borderColor = '#d1d5db'
+            let color = '#374151'
+            
+            if (isAnswered) {
+              if (idx === selectedIndex) {
+                if (isCorrect) {
+                  backgroundColor = '#ecfdf5'
+                  borderColor = '#059669'
+                  color = '#059669'
+                } else {
+                  backgroundColor = '#fef2f2'
+                  borderColor = '#dc2626'
+                  color = '#dc2626'
+                }
+              } else if (!isCorrect && idx === current.data.correct_index) {
+                backgroundColor = '#ecfdf5'
+                borderColor = '#059669'
+                color = '#059669'
+              }
+            }
+
+            const maybeUrl = opt.replace(/[{}]/g, '').trim()
+            const isImage = /\.(jpe?g|png|gif|webp)$/i.test(maybeUrl)
+
+            return (
+              <button
+                key={idx}
+                onClick={() => handleAnswer(idx)}
+                disabled={isAnswered}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  border: `2px solid ${borderColor}`,
+                  borderRadius: '12px',
+                  backgroundColor,
+                  color,
+                  textAlign: 'left',
+                  cursor: isAnswered ? 'default' : 'pointer',
+                  transition: 'all 0.2s ease',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isAnswered) {
+                    e.target.style.borderColor = '#6b7280'
+                    e.target.style.backgroundColor = '#f9fafb'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isAnswered) {
+                    e.target.style.borderColor = '#d1d5db'
+                    e.target.style.backgroundColor = 'white'
+                  }
+                }}
+              >
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  backgroundColor: isAnswered && (idx === selectedIndex || (!isCorrect && idx === current.data.correct_index)) 
+                    ? (idx === selectedIndex && isCorrect) || (!isCorrect && idx === current.data.correct_index) 
+                      ? '#059669' 
+                      : '#dc2626'
+                    : '#e5e7eb',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  {isAnswered && (idx === selectedIndex || (!isCorrect && idx === current.data.correct_index)) ? (
+                    (idx === selectedIndex && isCorrect) || (!isCorrect && idx === current.data.correct_index) ? (
+                      <CheckCircle size={16} style={{ color: 'white' }} />
+                    ) : (
+                      <XCircle size={16} style={{ color: 'white' }} />
+                    )
+                  ) : (
+                    <span style={{ 
+                      color: '#6b7280', 
+                      fontSize: '12px', 
+                      fontWeight: 'bold' 
+                    }}>
+                      {idx + 1}
+                    </span>
+                  )}
+                </div>
+                
+                <div style={{ flex: 1 }}>
+                  {isImage ? (
+                    <img
+                      src={maybeUrl}
+                      alt={`option ${idx + 1}`}
+                      style={{ 
+                        maxWidth: '120px', 
+                        height: 'auto', 
+                        borderRadius: '8px',
+                        display: 'block'
+                      }}
+                    />
+                  ) : (
+                    <span style={{ 
+                      fontSize: '15px',
+                      lineHeight: '1.4',
+                      fontWeight: '500'
+                    }}>
+                      {opt}
+                    </span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        {isAnswered && !isCorrect && (
+          <button
+            onClick={() => nextQuestion(false)}
+            style={{
+              width: '100%',
+              marginTop: '20px',
+              padding: '16px',
+              borderRadius: '12px',
+              backgroundColor: '#2563eb',
+              color: 'white',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#1d4ed8'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#2563eb'
+            }}
+          >
+            {t('repeat.next')}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
