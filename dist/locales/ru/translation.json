@@ -2,6 +2,7 @@
   "buttons": {
     "next": "Далее",
     "back": "Назад",
+    "backToHome": "На главную",
     "topics": "Темы ({{count}})"
   },
   "authorize": {
@@ -24,8 +25,10 @@
     "stats": "Пройдено: {{answered}} из {{total}}, верных: {{correct}}",
     "loadingStats": "Загрузка статистики...",
     "startRevision": "Начать повторение",
-    "profile": "Личный кабинет",
-    "dailyProgress": "Цель на сегодня",
+    "profile": "Профиль",
+    "settings": "Настройки",
+    "statistics": "Статистика",
+    "todayProgress": "Прогресс за сегодня",
     "questionsMasteredToday": "Отвечено правильно сегодня"
   },
   "modeSelect": {
@@ -54,13 +57,20 @@
     "examLanguageLabel": "Язык экзамена",
     "uiLanguageLabel": "Язык интерфейса",
     "statsTitle": "Статистика",
-    "totalQuestions": "Всего вопросов: {{total}}",
-    "answered": "Отвечено: {{answered}}",
-    "correct": "Верных ответов: {{correct}}",
-    "incorrect": "Ошибочных ответов: {{incorrect}}",
-    "unanswered": "Неотвеченных вопросов: {{unanswered}}",
+    "totalQuestions": "Всего вопросов",
+    "answered": "Отвечено",
+    "correct": "Верных ответов",
+    "incorrect": "Ошибочных ответов",
+    "unanswered": "Неотвеченных вопросов",
     "dueCount": "Готовы к повторению: {{dueCount}}",
-    "back": "Назад"
+    "back": "Назад",
+    "dailyStreak": "Ежедневная активность",
+    "dailyGoal": "Ежедневная цель",
+    "goal": "Цель",
+    "examDate": "Дата экзамена",
+    "editProfile": "Редактировать профиль",
+    "editSettings": "Редактировать настройки",
+    "advancedSettings": "Дополнительные настройки"
   },
   "repeat": {
     "loading": "Загрузка вопросов...",
@@ -90,5 +100,12 @@
       "Парковка": "Парковка"
     },
     "goHome": "На главную"
+  },
+  "settings": {
+    "title": "Дополнительные настройки",
+    "uiLanguageLabel": "Язык интерфейса"
+  },
+  "examSettings": {
+    "title": "Настройки экзамена"
   }
 }
