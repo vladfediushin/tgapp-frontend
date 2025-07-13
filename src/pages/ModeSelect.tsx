@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft, Play, Settings, Brain, X, Check } from 'lucide-react'
+import { ArrowLeft, Play, Settings, Brain, X, Check, RefreshCw, Sparkles, AlertTriangle } from 'lucide-react'
 import BottomNavigation from '../components/BottomNavigation'
 
 const ModeSelect = () => {
@@ -38,30 +38,93 @@ const ModeSelect = () => {
   }
 
   const modeOptions = [
-    { id: 'interval_all', icon: '🔄', color: 'blue' },
-    { id: 'new_only', icon: '✨', color: 'green' },
-    { id: 'incorrect', icon: '❌', color: 'red' }
+    { 
+      id: 'interval_all', 
+      icon: RefreshCw, 
+      color: '#2563eb',
+      bgColor: '#eff6ff',
+      borderColor: '#2563eb'
+    },
+    { 
+      id: 'new_only', 
+      icon: Sparkles, 
+      color: '#059669',
+      bgColor: '#ecfdf5',
+      borderColor: '#059669'
+    },
+    { 
+      id: 'incorrect', 
+      icon: AlertTriangle, 
+      color: '#dc2626',
+      bgColor: '#fef2f2',
+      borderColor: '#dc2626'
+    }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <div className="flex-1 p-6 pb-24">
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#f8fafc', 
+      paddingBottom: '80px' 
+    }}>
+      <div style={{ padding: '24px' }}>
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '32px'
+        }}>
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              backgroundColor: 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#6b7280',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f3f4f6'
+              e.target.style.color = '#111827'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent'
+              e.target.style.color = '#6b7280'
+            }}
           >
             <ArrowLeft size={20} />
-            <span className="font-medium">{t('common.back')}</span>
+            <span style={{ fontWeight: '500' }}>{t('modeSelect.back')}</span>
           </button>
           
           <button
             onClick={() => setShowTopicsModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '12px 16px',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            }}
           >
-            <Brain size={16} className="text-blue-600" />
-            <span className="font-medium text-gray-700">
+            <Brain size={16} style={{ color: '#2563eb' }} />
+            <span style={{ fontWeight: '500', color: '#374151' }}>
               {selectedTopics.length > 0 
                 ? `${selectedTopics.length} ${t('modeSelect.topicsSelected')}`
                 : t('modeSelect.topicsAll')
@@ -71,58 +134,157 @@ const ModeSelect = () => {
         </div>
 
         {/* Title */}
-        <div className="text-center mb-8">
-          <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 shadow-lg flex items-center justify-center">
-            <Settings size={32} className="text-blue-600" />
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '50%',
+            padding: '16px',
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 16px auto',
+            boxShadow: '0 10px 25px -3px rgba(0, 0, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Settings size={32} style={{ color: '#2563eb' }} />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('modeSelect.title')}</h1>
-          <p className="text-gray-600">{t('modeSelect.subtitle')}</p>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: 'bold',
+            color: '#111827',
+            margin: '0 0 8px 0'
+          }}>
+            {t('modeSelect.title')}
+          </h1>
+          <p style={{ 
+            color: '#6b7280',
+            margin: 0,
+            fontSize: '16px'
+          }}>
+            {t('modeSelect.subtitle')}
+          </p>
         </div>
 
         {/* Mode Selection */}
-        <div className="space-y-4 mb-8">
-          {modeOptions.map(option => (
-            <button
-              key={option.id}
-              onClick={() => setMode(option.id)}
-              className={`w-full p-6 rounded-xl border-2 transition-all duration-200 ${
-                mode === option.id
-                  ? 'border-blue-500 bg-blue-50 shadow-md'
-                  : 'border-gray-200 bg-white hover:border-gray-300 shadow-sm'
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-lg ${
-                  mode === option.id ? 'bg-blue-100' : 'bg-gray-100'
-                }`}>
-                  <span className="text-xl">{option.icon}</span>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '16px', 
+          marginBottom: '32px' 
+        }}>
+          {modeOptions.map(option => {
+            const isSelected = mode === option.id
+            const IconComponent = option.icon
+            
+            return (
+              <button
+                key={option.id}
+                onClick={() => setMode(option.id)}
+                style={{
+                  width: '100%',
+                  padding: '20px',
+                  borderRadius: '16px',
+                  border: `2px solid ${isSelected ? option.borderColor : '#e5e7eb'}`,
+                  backgroundColor: isSelected ? option.bgColor : 'white',
+                  boxShadow: isSelected 
+                    ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
+                    : '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.target.style.borderColor = '#9ca3af'
+                    e.target.style.backgroundColor = '#f9fafb'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.backgroundColor = 'white'
+                  }
+                }}
+              >
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    padding: '12px',
+                    borderRadius: '12px',
+                    backgroundColor: isSelected ? option.color + '20' : '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <IconComponent 
+                      size={24} 
+                      style={{ color: isSelected ? option.color : '#6b7280' }} 
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{
+                      fontSize: '18px',
+                      fontWeight: '600',
+                      color: isSelected ? option.color : '#111827',
+                      margin: '0 0 4px 0'
+                    }}>
+                      {t(`modeSelect.modes.${option.id}`)}
+                    </h3>
+                    <p style={{
+                      fontSize: '14px',
+                      color: '#6b7280',
+                      margin: 0,
+                      lineHeight: '1.4'
+                    }}>
+                      {t(`modeSelect.modes.${option.id}_desc`)}
+                    </p>
+                  </div>
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    border: `2px solid ${isSelected ? option.color : '#d1d5db'}`,
+                    backgroundColor: isSelected ? option.color : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    {isSelected && (
+                      <div style={{
+                        width: '8px',
+                        height: '8px',
+                        backgroundColor: 'white',
+                        borderRadius: '50%'
+                      }} />
+                    )}
+                  </div>
                 </div>
-                <div className="text-left flex-1">
-                  <h3 className={`font-semibold text-lg ${
-                    mode === option.id ? 'text-blue-900' : 'text-gray-900'
-                  }`}>
-                    {t(`modeSelect.modes.${option.id}`)}
-                  </h3>
-                  <p className="text-gray-600 text-sm">{t(`modeSelect.modes.${option.id}_desc`)}</p>
-                </div>
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                  mode === option.id
-                    ? 'border-blue-500 bg-blue-500'
-                    : 'border-gray-300'
-                }`}>
-                  {mode === option.id && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  )}
-                </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            )
+          })}
         </div>
 
         {/* Batch Size */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
-          <h3 className="font-semibold text-gray-900 mb-4">
-            {t('modeSelect.batchSize')}: <span className="text-blue-600">{batchSize}</span>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          border: '1px solid #f3f4f6',
+          marginBottom: '32px'
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111827',
+            marginBottom: '16px',
+            margin: '0 0 16px 0'
+          }}>
+            {t('modeSelect.batchSize')}: <span style={{ color: '#2563eb' }}>{batchSize}</span>
           </h3>
           <input
             type="range"
@@ -130,9 +292,23 @@ const ModeSelect = () => {
             max={50}
             value={batchSize}
             onChange={e => setBatchSize(+e.target.value)}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+            style={{
+              width: '100%',
+              height: '8px',
+              backgroundColor: '#e5e7eb',
+              borderRadius: '4px',
+              appearance: 'none',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
           />
-          <div className="flex justify-between text-sm text-gray-500 mt-2">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '14px',
+            color: '#6b7280',
+            marginTop: '8px'
+          }}>
             <span>1</span>
             <span>50</span>
           </div>
@@ -141,7 +317,31 @@ const ModeSelect = () => {
         {/* Start Button */}
         <button
           onClick={handleNext}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3"
+          style={{
+            width: '100%',
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            color: 'white',
+            padding: '16px 24px',
+            borderRadius: '16px',
+            border: 'none',
+            fontSize: '18px',
+            fontWeight: '600',
+            boxShadow: '0 4px 6px -1px rgba(5, 150, 105, 0.3)',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-1px)'
+            e.target.style.boxShadow = '0 8px 15px -3px rgba(5, 150, 105, 0.4)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 6px -1px rgba(5, 150, 105, 0.3)'
+          }}
         >
           <Play size={20} />
           {t('modeSelect.next')}
@@ -150,19 +350,69 @@ const ModeSelect = () => {
 
       {/* Topics Modal */}
       {showTopicsModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-gray-900">{t('modeSelect.modal.title')}</h3>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '16px',
+          zIndex: 50
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '80vh',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#111827',
+                margin: 0
+              }}>
+                {t('modeSelect.modal.title')}
+              </h3>
               <button
                 onClick={() => setShowTopicsModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                style={{
+                  padding: '8px',
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#f3f4f6'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent'
+                }}
               >
-                <X size={20} className="text-gray-500" />
+                <X size={20} style={{ color: '#6b7280' }} />
               </button>
             </div>
             
-            <div className="flex-1 overflow-y-auto space-y-2 mb-6">
+            <div style={{
+              flex: 1,
+              overflowY: 'auto',
+              marginBottom: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}>
               {[...topics]
                 .sort((a, b) => {
                   const numA = parseInt(a.match(/\d+/)?.[0] || '', 10)
@@ -173,23 +423,67 @@ const ModeSelect = () => {
                 .map(topic => (
                   <label 
                     key={topic} 
-                    className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.target.style.backgroundColor = '#f9fafb'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.backgroundColor = 'transparent'
+                    }}
                   >
                     <input
                       type="checkbox"
                       checked={selectedTopics.includes(topic)}
                       onChange={() => toggleTopic(topic)}
-                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        accentColor: '#2563eb',
+                        borderRadius: '4px'
+                      }}
                     />
-                    <span className="text-gray-700">{topic}</span>
+                    <span style={{ 
+                      color: '#374151',
+                      fontSize: '15px'
+                    }}>
+                      {topic}
+                    </span>
                   </label>
                 ))}
             </div>
             
-            <div className="flex gap-3">
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={() => setShowTopicsModal(false)}
-                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#e5e7eb'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#f3f4f6'
+                }}
               >
                 <X size={16} />
                 {t('modeSelect.modal.cancel')}
@@ -199,7 +493,27 @@ const ModeSelect = () => {
                   setMode('topics')
                   setShowTopicsModal(false)
                 }}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  borderRadius: '12px',
+                  border: 'none',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#1d4ed8'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#2563eb'
+                }}
               >
                 <Check size={16} />
                 {t('modeSelect.modal.confirm')}
