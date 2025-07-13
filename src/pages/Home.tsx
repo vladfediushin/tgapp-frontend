@@ -123,176 +123,196 @@ const Home = () => {
   const strokeWidth = 12
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      backgroundColor: '#f8fafc', 
-      paddingBottom: '80px' 
-    }}>
-      {/* Header */}
-      <div style={{
-        backgroundColor: 'white',
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-        padding: '16px 24px'
+    <>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+      <div style={{ 
+        minHeight: '100vh', 
+        backgroundColor: '#f8fafc', 
+        paddingBottom: '80px' 
       }}>
+        {/* Header */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          backgroundColor: 'white',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          padding: '16px 24px'
         }}>
-          <div>
-            <h1 style={{
-              fontSize: '20px',
-              fontWeight: 'bold',
-              color: '#111827',
-              margin: 0
-            }}>
-              {t('home.greeting', { name: userName })}
-            </h1>
-            <p style={{
-              color: '#6b7280',
-              margin: '4px 0 0 0',
-              fontSize: '14px'
-            }}>
-              Продолжаем подготовку к экзамену
-            </p>
-          </div>
-          <div style={{ fontSize: '32px' }}>
-            👨‍💼
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <h1 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: '#111827',
+                margin: 0
+              }}>
+                {userName ? t('home.greeting', { name: userName }) : 'Привет, друг!'}
+              </h1>
+              <p style={{
+                color: '#6b7280',
+                margin: '4px 0 0 0',
+                fontSize: '14px'
+              }}>
+                {userLoaded ? 'Продолжаем подготовку к экзамену' : 'Загружаем ваши данные...'}
+              </p>
+            </div>
+            <div style={{ fontSize: '32px' }}>
+              👨‍💼
+            </div>
           </div>
         </div>
-      </div>
 
       <div style={{ padding: '24px', gap: '24px', display: 'flex', flexDirection: 'column' }}>
-        {/* Progress Card */}
-        {isProgressCurrent && finalDailyGoal !== null && (
+        {/* Progress Card - всегда показываем, но с плейсхолдерами */}
+        <div style={{
+          background: isProgressCurrent && finalDailyGoal !== null 
+            ? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+            : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+          borderRadius: '16px',
+          padding: '24px',
+          color: 'white',
+          opacity: (!userLoaded || (!examCountry || !examLanguage)) ? 0.7 : 1,
+          transition: 'all 0.3s ease'
+        }}>
           <div style={{
-            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-            borderRadius: '16px',
-            padding: '24px',
-            color: 'white'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px'
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '16px'
-            }}>
-              <div>
-                <h2 style={{
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  margin: 0
-                }}>
-                  {t('home.todayProgress')}
-                </h2>
-                <p style={{
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  margin: '4px 0 0 0',
-                  fontSize: '14px'
-                }}>
-                  Отлично продвигаешься!
-                </p>
-              </div>
-              <div style={{
-                width: '80px',
-                height: '80px',
-                position: 'relative'
+            <div>
+              <h2 style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                margin: 0
               }}>
-                <svg width="80" height="80" style={{ transform: 'rotate(-90deg)' }}>
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="30"
-                    stroke="rgba(255, 255, 255, 0.3)"
-                    strokeWidth="8"
-                    fill="none"
-                  />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="30"
-                    stroke="white"
-                    strokeWidth="8"
-                    fill="none"
-                    strokeDasharray={`${(goalProgress / 100) * 188.5} 188.5`}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dasharray 1s ease-out' }}
-                  />
-                </svg>
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <span style={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    color: 'white'
-                  }}>
-                    {Math.round(goalProgress)}%
-                  </span>
-                </div>
-              </div>
+                {!userLoaded ? 'Загрузка...' : 
+                 (!examCountry || !examLanguage) ? 'Настройте экзамен' :
+                 isProgressCurrent && finalDailyGoal !== null ? t('home.todayProgress') : 'Дневная цель не установлена'}
+              </h2>
+              <p style={{
+                color: 'rgba(255, 255, 255, 0.8)',
+                margin: '4px 0 0 0',
+                fontSize: '14px'
+              }}>
+                {!userLoaded ? 'Подготавливаем данные...' :
+                 (!examCountry || !examLanguage) ? 'Перейдите в настройки' :
+                 isProgressCurrent && finalDailyGoal !== null ? 'Отлично продвигаешься!' : 'Установите дату экзамена'}
+              </p>
             </div>
-            
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-              marginTop: '16px'
+              width: '80px',
+              height: '80px',
+              position: 'relative'
             }}>
+              <svg width="80" height="80" style={{ transform: 'rotate(-90deg)' }}>
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="30"
+                  stroke="rgba(255, 255, 255, 0.3)"
+                  strokeWidth="8"
+                  fill="none"
+                />
+                <circle
+                  cx="40"
+                  cy="40"
+                  r="30"
+                  stroke="white"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeDasharray={
+                    !userLoaded || (!examCountry || !examLanguage) ? "0 188.5" :
+                    isProgressCurrent && finalDailyGoal !== null ? `${(goalProgress / 100) * 188.5} 188.5` : "0 188.5"
+                  }
+                  strokeLinecap="round"
+                  style={{ transition: 'stroke-dasharray 1s ease-out' }}
+                />
+              </svg>
               <div style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '12px'
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
+                <span style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: 'white'
                 }}>
-                  <Flame size={20} style={{ color: '#fb923c' }} />
-                  <span style={{ fontWeight: '600' }}>
-                    {/* здесь можно добавить streak, если есть */}
-                    7 дней
-                  </span>
-                </div>
-                <p style={{
-                  fontSize: '12px',
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  margin: '4px 0 0 0'
-                }}>
-                  Streak
-                </p>
-              </div>
-              <div style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderRadius: '8px',
-                padding: '12px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px'
-                }}>
-                  <Calendar size={20} style={{ color: '#60a5fa' }} />
-                  <span style={{ fontWeight: '600' }}>
-                    {examDate ? Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : '-'} дней
-                  </span>
-                </div>
-                <p style={{
-                  fontSize: '12px',
-                  color: 'rgba(255, 255, 255, 0.8)',
-                  margin: '4px 0 0 0'
-                }}>
-                  До экзамена
-                </p>
+                  {!userLoaded ? '...' :
+                   (!examCountry || !examLanguage) ? '?' :
+                   isProgressCurrent && finalDailyGoal !== null ? `${Math.round(goalProgress)}%` : '0%'}
+                </span>
               </div>
             </div>
           </div>
-        )}
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '16px',
+            marginTop: '16px'
+          }}>
+            <div style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              padding: '12px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Flame size={20} style={{ color: '#fb923c' }} />
+                <span style={{ fontWeight: '600' }}>
+                  {!userLoaded ? '...' : '7 дней'}
+                </span>
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.8)',
+                margin: '4px 0 0 0'
+              }}>
+                Streak
+              </p>
+            </div>
+            <div style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              padding: '12px'
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <Calendar size={20} style={{ color: '#60a5fa' }} />
+                <span style={{ fontWeight: '600' }}>
+                  {!userLoaded ? '...' :
+                   examDate ? `${Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} дней` : 'Не установлено'}
+                </span>
+              </div>
+              <p style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.8)',
+                margin: '4px 0 0 0'
+              }}>
+                До экзамена
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Quick Actions */}
         <div style={{ gap: '12px', display: 'flex', flexDirection: 'column' }}>
@@ -420,79 +440,92 @@ const Home = () => {
           </div>
         </div>
 
-        {/* Overall Progress */}
-        {stats ? (
+        {/* Overall Progress - всегда показываем */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '16px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+          opacity: (!userLoaded || !stats) ? 0.7 : 1,
+          transition: 'all 0.3s ease'
+        }}>
           <div style={{
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            padding: '16px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '12px'
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: '12px'
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: 0
             }}>
-              <h3 style={{
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#111827',
-                margin: 0
-              }}>
-                Общий прогресс
-              </h3>
-              <span style={{
-                fontSize: '14px',
-                color: '#6b7280'
-              }}>
-                {stats.correct}/{stats.total_questions}
-              </span>
-            </div>
-            
-            <div style={{
-              width: '100%',
-              backgroundColor: '#e5e7eb',
-              borderRadius: '9999px',
-              height: '8px',
-              marginBottom: '8px'
+              Общий прогресс
+            </h3>
+            <span style={{
+              fontSize: '14px',
+              color: '#6b7280'
             }}>
-              <div 
-                style={{
-                  backgroundColor: '#059669',
-                  height: '8px',
-                  borderRadius: '9999px',
-                  transition: 'all 1s ease-out',
-                  width: `${stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}%`
-                }}
-              />
-            </div>
-            
+              {!userLoaded || !stats ? '.../..' : `${stats.correct}/${stats.total_questions}`}
+            </span>
+          </div>
+          
+          <div style={{
+            width: '100%',
+            backgroundColor: '#e5e7eb',
+            borderRadius: '9999px',
+            height: '8px',
+            marginBottom: '8px'
+          }}>
+            <div 
+              style={{
+                backgroundColor: '#059669',
+                height: '8px',
+                borderRadius: '9999px',
+                transition: 'all 1s ease-out',
+                width: (!userLoaded || !stats) ? '0%' : 
+                       `${stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}%`
+              }}
+            />
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
             <p style={{
               fontSize: '14px',
               color: '#6b7280',
               margin: 0
             }}>
-              {stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}% завершено
+              {(!userLoaded || !stats) ? 'Загрузка...' :
+               `${stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}% завершено`}
             </p>
+            {(!userLoaded || !stats) && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <div style={{
+                  width: '16px',
+                  height: '16px',
+                  border: '2px solid #e5e7eb',
+                  borderTop: '2px solid #059669',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+              </div>
+            )}
           </div>
-        ) : (
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            minHeight: '60px',
-            backgroundColor: 'white',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
-          }}>
-            <LoadingSpinner size={28} />
-          </div>
-        )}
-      </div>
+        </div>
+        </div>
 
-      <BottomNavigation />
-    </div>
+        <BottomNavigation />
+      </div>
+    </>
   )
 }
 
