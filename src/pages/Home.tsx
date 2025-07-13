@@ -118,16 +118,16 @@ const Home = () => {
           backgroundColor: '#f5f5f5',
           borderRadius: 8
         }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: 18 }}>
-            {t('home.todayProgress')}
-          </h3>
           <div style={{
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            minHeight: 70
+            alignItems: 'stretch',
+            minHeight: 110,
+            position: 'relative',
           }}>
-            <div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <h3 style={{ margin: '0 0 12px 0', fontSize: 18, maxWidth: '80%' }}>
+                {t('home.todayProgress')}
+              </h3>
               <div style={{ fontSize: 18, fontWeight: 'bold' }}>
                 {todayQuestionsMastered} / {finalDailyGoal}
               </div>
@@ -135,17 +135,19 @@ const Home = () => {
                 {t('home.questionsMasteredToday')}
               </div>
             </div>
-            <div style={{ width: 50, height: 50, display: 'flex', alignItems: 'center' }}>
-              <CircularProgressbar
-                value={goalProgress}
-                maxValue={100}
-                strokeWidth={15}
-                styles={buildStyles({
-                  pathColor: goalProgress >= 100 ? '#4CAF50' : '#FFA500',
-                  trailColor: '#e0e0e0',
-                  strokeLinecap: 'round'
-                })}
-              />
+            <div style={{ width: 70, height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 50, height: 50 }}>
+                <CircularProgressbar
+                  value={goalProgress}
+                  maxValue={100}
+                  strokeWidth={15}
+                  styles={buildStyles({
+                    pathColor: goalProgress >= 100 ? '#4CAF50' : '#FFA500',
+                    trailColor: '#e0e0e0',
+                    strokeLinecap: 'round'
+                  })}
+                />
+              </div>
             </div>
           </div>
         </div>
