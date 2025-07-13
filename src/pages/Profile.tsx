@@ -5,6 +5,7 @@ import { useSession } from '../store/session'
 import { getUserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
+import BottomNavigation from '../components/BottomNavigation'
 import { User, Settings, Edit3, ChevronDown, Calendar, Target, TrendingUp, Activity, BarChart3 } from 'lucide-react'
 import { calculateDailyGoal } from '../utils/dailyGoals'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -217,6 +218,40 @@ const Profile = () => {
 
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
   const userName = tgUser?.first_name || 'User'
+  const userPhotoUrl = tgUser?.photo_url
+
+  // Функция для получения аватара
+  const getUserAvatar = () => {
+    if (userPhotoUrl) {
+      return (
+        <img 
+          src={userPhotoUrl} 
+          alt={userName}
+          style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            objectFit: 'cover'
+          }}
+        />
+      )
+    }
+    
+    // Гендерно-нейтральная иконка пользователя
+    return (
+      <div style={{
+        width: '64px',
+        height: '64px',
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <User size={32} className="text-white" />
+      </div>
+    )
+  }
 
   return (
     <div style={{ 
@@ -261,18 +296,7 @@ const Profile = () => {
             gap: '16px',
             marginBottom: '20px'
           }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '28px'
-            }}>
-              👨‍💼
-            </div>
+            {getUserAvatar()}
             <div style={{ flex: 1 }}>
               <h2 style={{
                 fontSize: '24px',
@@ -757,6 +781,8 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      <BottomNavigation />
     </div>
   )
 }

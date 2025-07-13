@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { useTranslation } from 'react-i18next'
-import HomeButton from '../components/HomeButton'
+import { ArrowLeft, Play, Settings, Brain, X, Check } from 'lucide-react'
+import BottomNavigation from '../components/BottomNavigation'
 
 const ModeSelect = () => {
   const { t } = useTranslation()
@@ -36,101 +37,132 @@ const ModeSelect = () => {
     )
   }
 
+  const modeOptions = [
+    { id: 'interval_all', icon: '🔄', color: 'blue' },
+    { id: 'new_only', icon: '✨', color: 'green' },
+    { id: 'incorrect', icon: '❌', color: 'red' }
+  ]
+
   return (
-    <div style={{ padding: 20 }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-        <HomeButton style={{ marginRight: 16 }} />
-        <h2 style={{ margin: 0, flex: 1 }}>{t('modeSelect.title')}</h2>
-        <button
-          onClick={() => setShowTopicsModal(true)}
-          style={{
-            fontSize: 14,
-            backgroundColor: '#eee',
-            border: '1px solid #ccc',
-            borderRadius: '6px',
-            padding: '6px 10px',
-            cursor: 'pointer',
-          }}
-        >
-          🧠 {t('modeSelect.topics', {
-            count: selectedTopics.length > 0
-              ? selectedTopics.length
-              : t('modeSelect.topicsAll')
-          })}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <div className="flex-1 p-6 pb-24">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            <span className="font-medium">{t('common.back')}</span>
+          </button>
+          
+          <button
+            onClick={() => setShowTopicsModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all"
+          >
+            <Brain size={16} className="text-blue-600" />
+            <span className="font-medium text-gray-700">
+              {selectedTopics.length > 0 
+                ? `${selectedTopics.length} ${t('modeSelect.topicsSelected')}`
+                : t('modeSelect.topicsAll')
+              }
+            </span>
+          </button>
+        </div>
 
-      {['interval_all', 'new_only', 'incorrect'].map(m => (
-        <button
-          key={m}
-          onClick={() => setMode(m)}
-          style={{
-            display: 'block',
-            width: '100%',
-            padding: '12px',
-            marginTop: '10px',
-            fontSize: '16px',
-            backgroundColor: mode === m ? '#e0f2ff' : '#f3f3f3',
-            border: '1px solid #ccc',
-            borderRadius: '8px',
-            textAlign: 'center',
-            cursor: 'pointer',
-          }}
-        >
-          {t(`modeSelect.modes.${m}`)}
-        </button>
-      ))}
+        {/* Title */}
+        <div className="text-center mb-8">
+          <div className="bg-white rounded-full p-4 w-16 h-16 mx-auto mb-4 shadow-lg flex items-center justify-center">
+            <Settings size={32} className="text-blue-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('modeSelect.title')}</h1>
+          <p className="text-gray-600">{t('modeSelect.subtitle')}</p>
+        </div>
 
-      <div style={{ marginTop: 20 }}>
-        <label>
-          {t('modeSelect.batchSize')}: {batchSize}
+        {/* Mode Selection */}
+        <div className="space-y-4 mb-8">
+          {modeOptions.map(option => (
+            <button
+              key={option.id}
+              onClick={() => setMode(option.id)}
+              className={`w-full p-6 rounded-xl border-2 transition-all duration-200 ${
+                mode === option.id
+                  ? 'border-blue-500 bg-blue-50 shadow-md'
+                  : 'border-gray-200 bg-white hover:border-gray-300 shadow-sm'
+              }`}
+            >
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-lg ${
+                  mode === option.id ? 'bg-blue-100' : 'bg-gray-100'
+                }`}>
+                  <span className="text-xl">{option.icon}</span>
+                </div>
+                <div className="text-left flex-1">
+                  <h3 className={`font-semibold text-lg ${
+                    mode === option.id ? 'text-blue-900' : 'text-gray-900'
+                  }`}>
+                    {t(`modeSelect.modes.${option.id}`)}
+                  </h3>
+                  <p className="text-gray-600 text-sm">{t(`modeSelect.modes.${option.id}_desc`)}</p>
+                </div>
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                  mode === option.id
+                    ? 'border-blue-500 bg-blue-500'
+                    : 'border-gray-300'
+                }`}>
+                  {mode === option.id && (
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  )}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Batch Size */}
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-8">
+          <h3 className="font-semibold text-gray-900 mb-4">
+            {t('modeSelect.batchSize')}: <span className="text-blue-600">{batchSize}</span>
+          </h3>
           <input
             type="range"
             min={1}
             max={50}
             value={batchSize}
             onChange={e => setBatchSize(+e.target.value)}
-            style={{ width: '100%', marginTop: 8 }}
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
           />
-        </label>
+          <div className="flex justify-between text-sm text-gray-500 mt-2">
+            <span>1</span>
+            <span>50</span>
+          </div>
+        </div>
+
+        {/* Start Button */}
+        <button
+          onClick={handleNext}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3"
+        >
+          <Play size={20} />
+          {t('modeSelect.next')}
+        </button>
       </div>
 
-      <button
-        onClick={handleNext}
-        style={{
-          display: 'block',
-          width: '100%',
-          padding: '12px',
-          marginTop: '30px',
-          fontSize: '16px',
-          backgroundColor: '#2AABEE',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-        }}
-      >
-        {t('modeSelect.next')}
-      </button>
-
+      {/* Topics Modal */}
       {showTopicsModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0,
-          width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div style={{
-            backgroundColor: '#fff',
-            padding: '20px',
-            borderRadius: '8px',
-            width: '80%',
-            maxWidth: '400px',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
-          }}>
-            <h3>{t('modeSelect.modal.title')}</h3>
-            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-gray-900">{t('modeSelect.modal.title')}</h3>
+              <button
+                onClick={() => setShowTopicsModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X size={20} className="text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto space-y-2 mb-6">
               {[...topics]
                 .sort((a, b) => {
                   const numA = parseInt(a.match(/\d+/)?.[0] || '', 10)
@@ -139,54 +171,45 @@ const ModeSelect = () => {
                   return a.localeCompare(b, 'ru')
                 })
                 .map(topic => (
-                  <label key={topic} style={{ display: 'block', margin: '4px 0' }}>
+                  <label 
+                    key={topic} 
+                    className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                  >
                     <input
                       type="checkbox"
                       checked={selectedTopics.includes(topic)}
                       onChange={() => toggleTopic(topic)}
+                      className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    {topic}
+                    <span className="text-gray-700">{topic}</span>
                   </label>
                 ))}
             </div>
-            <div style={{ marginTop: 20, display: 'flex', gap: '10px' }}>
+            
+            <div className="flex gap-3">
               <button
-                title={t('modeSelect.modal.cancel')}
                 onClick={() => setShowTopicsModal(false)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: '18px',
-                  backgroundColor: '#f8d7da',
-                  border: '1px solid #f5c2c7',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                }}
+                className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
               >
-                🛑
+                <X size={16} />
+                {t('modeSelect.modal.cancel')}
               </button>
               <button
-                title={t('modeSelect.modal.confirm')}
                 onClick={() => {
                   setMode('topics')
                   setShowTopicsModal(false)
                 }}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  fontSize: '18px',
-                  backgroundColor: '#d1e7dd',
-                  border: '1px solid #badbcc',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                }}
+                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
               >
-                ✅
+                <Check size={16} />
+                {t('modeSelect.modal.confirm')}
               </button>
             </div>
           </div>
         </div>
       )}
+
+      <BottomNavigation />
     </div>
   )
 }

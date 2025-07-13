@@ -2,6 +2,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
+import BottomNavigation from '../components/BottomNavigation'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
 
 const ExamSettings = () => {
@@ -14,7 +15,12 @@ const ExamSettings = () => {
   }
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ 
+      padding: 20, 
+      minHeight: '100vh', 
+      backgroundColor: '#f8fafc', 
+      paddingBottom: '80px' 
+    }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
         <HomeButton style={{ marginRight: 16 }} />
@@ -29,6 +35,8 @@ const ExamSettings = () => {
         compact={false} 
         onSave={handleSave} 
       />
+
+      <BottomNavigation />
     </div>
   )
 }

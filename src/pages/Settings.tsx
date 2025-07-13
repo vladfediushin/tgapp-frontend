@@ -4,6 +4,7 @@ import { useSession } from '../store/session'
 import { updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
+import BottomNavigation from '../components/BottomNavigation'
 import { Globe, ChevronDown } from 'lucide-react'
 import i18n from 'i18next'
 
@@ -172,6 +173,8 @@ const Settings = () => {
           </p>
         </div>
       </div>
+
+      <BottomNavigation />
     </div>
   )
 }

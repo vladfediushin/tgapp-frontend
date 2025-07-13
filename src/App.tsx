@@ -9,7 +9,7 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import ExamSettings from './pages/ExamSettings'
 import Topics from './pages/Topics'
-
+import Statistics from './pages/Statistics'
 
 const App = () => {
   return (
@@ -23,6 +23,7 @@ const App = () => {
       <Route path="/settings" element={<Settings />} />
       <Route path="/exam-settings" element={<ExamSettings />} />
       <Route path="/topics" element={<Topics />} />
+      <Route path="/statistics" element={<Statistics />} />
       {/* другие страницы будут добавлены позже */}
     </Routes>
   )

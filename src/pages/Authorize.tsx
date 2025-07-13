@@ -7,8 +7,10 @@ import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
-import ExamSettingsComponent from '../components/ExamSettingsComponent'  // Import the component
+import ExamSettingsComponent from '../components/ExamSettingsComponent'
 import LoadingSpinner from '../components/LoadingSpinner'
+import BottomNavigation from '../components/BottomNavigation'
+import { UserCheck, Globe, MapPin, Languages, CheckCircle } from 'lucide-react'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -27,7 +29,7 @@ const UI_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
-const Authorize: React.FC = () => {
+const Authorize = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
@@ -44,13 +46,13 @@ const Authorize: React.FC = () => {
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
   const setTopics            = useSession(state => state.setTopics)
 
-  const [step, setStep]         = useState<'checking' | 'form' | 'exam_settings' | 'complete'>('checking')
+  const [step, setStep]         = useState('checking')
   const [userName, setUserName] = useState('друг')
 
   // локальные стейты для формы
-  const [examCountryInput, setExamCountryInput]   = useState<string>('')
-  const [examLanguageInput, setExamLanguageInput] = useState<string>('')
-  const [uiLanguageInput, setUiLanguageInput]     = useState<string>(defaultUiLang)
+  const [examCountryInput, setExamCountryInput]   = useState('')
+  const [examLanguageInput, setExamLanguageInput] = useState('')
+  const [uiLanguageInput, setUiLanguageInput]     = useState(defaultUiLang)
 
   // State to track if user is new (needs to see exam settings)
   const [isNewUser, setIsNewUser] = useState(false)
@@ -181,178 +183,158 @@ const Authorize: React.FC = () => {
     setStep('complete')
   }
 
-  return (
-    <div style={{ padding: 20 }}>
-      {step === 'checking' && (
-        <div style={{
-          padding: 20,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          backgroundColor: '#f9f9f9'
-        }}>
+  if (step === 'checking') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6">
+        <div className="text-center">
           <LoadingSpinner size={64} />
-          <p style={{ fontSize: 18, color: '#333', marginTop: 16 }}>{t('authorize.checking')}</p>
+          <p className="text-xl text-gray-700 mt-6 font-medium">{t('authorize.checking')}</p>
+          <p className="text-gray-500 mt-2">{t('authorize.checkingSubtitle')}</p>
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {step === 'form' && (
-        <>
-          <h2>{t('authorize.welcome', { userName })}</h2>
-          <p style={{ marginBottom: 20, color: '#666' }}>
-            {t('authorize.intro')}
-          </p>
-
-          {/* Форма ввода данных */}
-          <div style={{ marginBottom: 20 }}>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ display: 'block', marginBottom: 5 }}>
-                {t('authorize.label.examCountry')}
-              </label>
-              <select
-                value={examCountryInput}
-                onChange={e => setExamCountryInput(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  fontSize: 16,
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="">{t('authorize.placeholder.selectCountry')}</option>
-                {EXAM_COUNTRIES.map(country => (
-                  <option key={country.value} value={country.value}>
-                    {country.label}
-                  </option>
-                ))}
-              </select>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+      <div className="flex-1 p-6 pb-24">
+        {step === 'form' && (
+          <div className="max-w-md mx-auto">
+            {/* Welcome Header */}
+            <div className="text-center mb-8">
+              <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-lg flex items-center justify-center">
+                <UserCheck size={40} className="text-blue-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {t('authorize.welcome', { userName })}
+              </h1>
+              <p className="text-gray-600 leading-relaxed">
+                {t('authorize.intro')}
+              </p>
             </div>
 
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ display: 'block', marginBottom: 5 }}>
-                {t('authorize.label.examLanguage')}
-              </label>
-              <select
-                value={examLanguageInput}
-                onChange={e => setExamLanguageInput(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  fontSize: 16,
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="">{t('authorize.placeholder.selectLanguage')}</option>
-                {EXAM_LANGUAGES.map(language => (
-                  <option key={language.value} value={language.value}>
-                    {language.label}
-                  </option>
-                ))}
-              </select>
+            {/* Form */}
+            <div className="space-y-6">
+              {/* Exam Country */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                  <MapPin size={16} className="text-blue-600" />
+                  {t('authorize.label.examCountry')}
+                </label>
+                <select
+                  value={examCountryInput}
+                  onChange={e => setExamCountryInput(e.target.value)}
+                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">{t('authorize.placeholder.selectCountry')}</option>
+                  {EXAM_COUNTRIES.map(country => (
+                    <option key={country.value} value={country.value}>
+                      {country.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Exam Language */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                  <Languages size={16} className="text-blue-600" />
+                  {t('authorize.label.examLanguage')}
+                </label>
+                <select
+                  value={examLanguageInput}
+                  onChange={e => setExamLanguageInput(e.target.value)}
+                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">{t('authorize.placeholder.selectLanguage')}</option>
+                  {EXAM_LANGUAGES.map(language => (
+                    <option key={language.value} value={language.value}>
+                      {language.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* UI Language */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
+                  <Globe size={16} className="text-blue-600" />
+                  {t('authorize.label.uiLanguage')}
+                </label>
+                <select
+                  value={uiLanguageInput}
+                  onChange={e => setUiLanguageInput(e.target.value)}
+                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">{t('authorize.placeholder.selectLanguage')}</option>
+                  {UI_LANGUAGES.map(language => (
+                    <option key={language.value} value={language.value}>
+                      {language.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ display: 'block', marginBottom: 5 }}>
-                {t('authorize.label.uiLanguage')}
-              </label>
-              <select
-                value={uiLanguageInput}
-                onChange={e => setUiLanguageInput(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: 8,
-                  border: '1px solid #ccc',
-                  fontSize: 16,
-                  cursor: 'pointer'
-                }}
-              >
-                <option value="">{t('authorize.placeholder.selectLanguage')}</option>
-                {UI_LANGUAGES.map(language => (
-                  <option key={language.value} value={language.value}>
-                    {language.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+            {/* Error Message */}
+            {error && (
+              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
 
-          {error && (
-            <p style={{ color: 'red', marginBottom: 20 }}>
-              {error}
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              className="w-full mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              {t('authorize.button.next')}
+            </button>
+
+            {/* Footer Info */}
+            <p className="mt-6 text-sm text-gray-500 text-center leading-relaxed">
+              {t('authorize.footer.info')}
             </p>
-          )}
+          </div>
+        )}
 
-          <button
-            onClick={handleSubmit}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '10px',
-              backgroundColor: '#007bff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: 8,
-              fontSize: 16,
-              cursor: 'pointer',
-              transition: 'background-color 0.3s'
-            }}
-          >
-            {t('authorize.button.next')}
-          </button>
+        {step === 'exam_settings' && (
+          <div className="max-w-md mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-lg flex items-center justify-center">
+                <CheckCircle size={40} className="text-green-600" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Почти готово, {userName}!
+              </h1>
+              <p className="text-gray-600 leading-relaxed">
+                Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
+                рекомендовать оптимальный темп изучения.
+              </p>
+            </div>
 
-          <p style={{
-            marginTop: 20,
-            fontSize: 14,
-            color: '#666',
-            textAlign: 'center'
-          }}>
-            {t('authorize.footer.info')}
-          </p>
-        </>
-      )}
+            {/* Exam Settings Component */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+              <ExamSettingsComponent 
+                showTitle={false} 
+                compact={true}
+                onSave={handleExamSettingsSave}
+              />
+            </div>
 
-      {step === 'exam_settings' && (
-        <div style={{ padding: 20 }}>
-          <h2>Почти готово, {userName}!</h2>
-          <p style={{ marginBottom: 20, color: '#666' }}>
-            Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
-            рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
-            вы можете пропустить их и добавить позже.
-          </p>
+            {/* Skip Button */}
+            <button
+              onClick={handleSkipExamSettings}
+              className="w-full p-4 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+            >
+              Пропустить (настроить позже)
+            </button>
+          </div>
+        )}
+      </div>
 
-          {/* Embed the ExamSettingsComponent */}
-          <ExamSettingsComponent 
-            showTitle={false} 
-            compact={true}
-            onSave={handleExamSettingsSave}
-          />
-
-          <button
-            onClick={handleSkipExamSettings}
-            style={{
-              display: 'block',
-              width: '100%',
-              padding: '10px',
-              marginTop: '15px',
-              backgroundColor: '#f5f5f5',
-              color: '#666',
-              border: '1px solid #ccc',
-              borderRadius: 8,
-              fontSize: 16,
-              cursor: 'pointer'
-            }}
-          >
-            Пропустить (настроить позже)
-          </button>
-        </div>
-      )}
+      <BottomNavigation />
     </div>
   )
 }

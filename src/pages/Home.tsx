@@ -15,6 +15,7 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
 import LoadingSpinner from '../components/LoadingSpinner'
+import BottomNavigation from '../components/BottomNavigation'
 
 const Home = () => {
   const { t } = useTranslation()
@@ -468,65 +469,7 @@ const Home = () => {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: 'white',
-        borderTop: '1px solid #e5e7eb',
-        padding: '8px 16px'
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center'
-        }}>
-          {[
-            { id: 'home', icon: HomeIcon, label: t('home.profile'), onClick: () => navigate('/') },
-            { id: 'profile', icon: User, label: t('home.profile'), onClick: () => navigate('/profile') },
-            { id: 'stats', icon: BarChart3, label: t('home.statistics'), onClick: () => {} },
-            { id: 'settings', icon: Settings, label: t('home.settings'), onClick: () => navigate('/settings') }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={item.onClick}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                padding: '8px',
-                borderRadius: '8px',
-                transition: 'all 0.2s ease',
-                backgroundColor: item.id === 'home' ? '#ecfdf5' : 'transparent',
-                color: item.id === 'home' ? '#059669' : '#6b7280',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                if (item.id !== 'home') {
-                  e.target.style.color = '#111827'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (item.id !== 'home') {
-                  e.target.style.color = '#6b7280'
-                }
-              }}
-            >
-              <item.icon size={24} />
-              <span style={{ 
-                fontSize: '12px', 
-                marginTop: '4px',
-                fontWeight: item.id === 'home' ? '500' : '400'
-              }}>
-                {item.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
+      <BottomNavigation />
     </div>
   )
 }
