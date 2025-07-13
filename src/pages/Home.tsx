@@ -11,12 +11,10 @@ import {
 import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
 import { FaCog, FaUser, FaChartBar } from 'react-icons/fa'
-import {
-  CircularProgressbar,
-  buildStyles
-} from 'react-circular-progressbar'
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const Home = () => {
   const { t } = useTranslation()
@@ -235,7 +233,9 @@ const Home = () => {
           </div>
         </>
       ) : (
-        <p>{t('home.loadingStats')}</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 60 }}>
+          <LoadingSpinner size={28} />
+        </div>
       )}
 
       <button
