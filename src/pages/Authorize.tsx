@@ -183,22 +183,19 @@ const Authorize = () => {
     setStep('complete')
   }
 
-  if (step === 'checking') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-6">
-        <div className="text-center">
-          <LoadingSpinner size={64} />
-          <p className="text-xl text-gray-700 mt-6 font-medium">{t('authorize.checking')}</p>
-          <p className="text-gray-500 mt-2">{t('authorize.checkingSubtitle')}</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
-      <div className="flex-1 p-6 pb-24">
-        {step === 'form' && (
+      {step === 'checking' && (
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center">
+            <LoadingSpinner size={64} />
+            <p className="text-xl text-gray-700 mt-6 font-medium">{t('authorize.checking')}</p>
+          </div>
+        </div>
+      )}
+
+      {step === 'form' && (
+        <div className="flex-1 p-6 pb-24">
           <div className="max-w-md mx-auto">
             {/* Welcome Header */}
             <div className="text-center mb-8">
@@ -296,9 +293,11 @@ const Authorize = () => {
               {t('authorize.footer.info')}
             </p>
           </div>
-        )}
+        </div>
+      )}
 
-        {step === 'exam_settings' && (
+      {step === 'exam_settings' && (
+        <div className="flex-1 p-6 pb-24">
           <div className="max-w-md mx-auto">
             {/* Header */}
             <div className="text-center mb-8">
@@ -310,7 +309,8 @@ const Authorize = () => {
               </h1>
               <p className="text-gray-600 leading-relaxed">
                 Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
-                рекомендовать оптимальный темп изучения.
+                рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
+                вы можете пропустить их и добавить позже.
               </p>
             </div>
 
@@ -331,8 +331,8 @@ const Authorize = () => {
               Пропустить (настроить позже)
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <BottomNavigation />
     </div>
