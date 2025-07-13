@@ -184,44 +184,107 @@ const Authorize = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%)',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       {step === 'checking' && (
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="text-center">
-            <LoadingSpinner size={64} />
-            <p className="text-xl text-gray-700 mt-6 font-medium">{t('authorize.checking')}</p>
-          </div>
-        </div>
+        <LoadingSpinner 
+          size={80} 
+          text={t('authorize.checking')} 
+          fullScreen 
+        />
       )}
 
       {step === 'form' && (
-        <div className="flex-1 p-6 pb-24">
-          <div className="max-w-md mx-auto">
+        <div style={{
+          flex: 1,
+          padding: '24px',
+          paddingBottom: '96px'
+        }}>
+          <div style={{
+            maxWidth: '448px',
+            margin: '0 auto'
+          }}>
             {/* Welcome Header */}
-            <div className="text-center mb-8">
-              <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-lg flex items-center justify-center">
-                <UserCheck size={40} className="text-blue-600" />
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '32px'
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                padding: '16px',
+                width: '80px',
+                height: '80px',
+                margin: '0 auto 24px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <UserCheck size={40} style={{ color: '#2563eb' }} />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 style={{
+                fontSize: '30px',
+                fontWeight: 'bold',
+                color: '#111827',
+                marginBottom: '8px'
+              }}>
                 {t('authorize.welcome', { userName })}
               </h1>
-              <p className="text-gray-600 leading-relaxed">
+              <p style={{
+                color: '#6b7280',
+                lineHeight: '1.6'
+              }}>
                 {t('authorize.intro')}
               </p>
             </div>
 
             {/* Form */}
-            <div className="space-y-6">
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px'
+            }}>
               {/* Exam Country */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-                  <MapPin size={16} className="text-blue-600" />
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '12px'
+                }}>
+                  <MapPin size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.examCountry')}
                 </label>
                 <select
                   value={examCountryInput}
                   onChange={e => setExamCountryInput(e.target.value)}
-                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    color: '#111827',
+                    fontSize: '16px',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#3b82f6'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.boxShadow = 'none'
+                  }}
                 >
                   <option value="">{t('authorize.placeholder.selectCountry')}</option>
                   {EXAM_COUNTRIES.map(country => (
@@ -234,14 +297,40 @@ const Authorize = () => {
 
               {/* Exam Language */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-                  <Languages size={16} className="text-blue-600" />
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '12px'
+                }}>
+                  <Languages size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.examLanguage')}
                 </label>
                 <select
                   value={examLanguageInput}
                   onChange={e => setExamLanguageInput(e.target.value)}
-                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    color: '#111827',
+                    fontSize: '16px',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#3b82f6'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.boxShadow = 'none'
+                  }}
                 >
                   <option value="">{t('authorize.placeholder.selectLanguage')}</option>
                   {EXAM_LANGUAGES.map(language => (
@@ -254,14 +343,40 @@ const Authorize = () => {
 
               {/* UI Language */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-3">
-                  <Globe size={16} className="text-blue-600" />
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '12px'
+                }}>
+                  <Globe size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.uiLanguage')}
                 </label>
                 <select
                   value={uiLanguageInput}
                   onChange={e => setUiLanguageInput(e.target.value)}
-                  className="w-full p-4 bg-white border border-gray-200 rounded-xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    backgroundColor: 'white',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '12px',
+                    color: '#111827',
+                    fontSize: '16px',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#3b82f6'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.boxShadow = 'none'
+                  }}
                 >
                   <option value="">{t('authorize.placeholder.selectLanguage')}</option>
                   {UI_LANGUAGES.map(language => (
@@ -275,21 +390,58 @@ const Authorize = () => {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div style={{
+                marginTop: '24px',
+                padding: '16px',
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: '12px'
+              }}>
+                <p style={{
+                  color: '#b91c1c',
+                  fontSize: '14px',
+                  margin: 0
+                }}>{error}</p>
               </div>
             )}
 
             {/* Submit Button */}
             <button
               onClick={handleSubmit}
-              className="w-full mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200"
+              style={{
+                width: '100%',
+                marginTop: '32px',
+                background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
+                color: 'white',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                fontWeight: '600',
+                fontSize: '18px',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                e.target.style.transform = 'translateY(-1px)'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                e.target.style.transform = 'translateY(0)'
+              }}
             >
               {t('authorize.button.next')}
             </button>
 
             {/* Footer Info */}
-            <p className="mt-6 text-sm text-gray-500 text-center leading-relaxed">
+            <p style={{
+              marginTop: '24px',
+              fontSize: '14px',
+              color: '#9ca3af',
+              textAlign: 'center',
+              lineHeight: '1.6'
+            }}>
               {t('authorize.footer.info')}
             </p>
           </div>
@@ -297,17 +449,46 @@ const Authorize = () => {
       )}
 
       {step === 'exam_settings' && (
-        <div className="flex-1 p-6 pb-24">
-          <div className="max-w-md mx-auto">
+        <div style={{
+          flex: 1,
+          padding: '24px',
+          paddingBottom: '96px'
+        }}>
+          <div style={{
+            maxWidth: '448px',
+            margin: '0 auto'
+          }}>
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="bg-white rounded-full p-4 w-20 h-20 mx-auto mb-6 shadow-lg flex items-center justify-center">
-                <CheckCircle size={40} className="text-green-600" />
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '32px'
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '50%',
+                padding: '16px',
+                width: '80px',
+                height: '80px',
+                margin: '0 auto 24px',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <CheckCircle size={40} style={{ color: '#059669' }} />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 style={{
+                fontSize: '30px',
+                fontWeight: 'bold',
+                color: '#111827',
+                marginBottom: '8px'
+              }}>
                 Почти готово, {userName}!
               </h1>
-              <p className="text-gray-600 leading-relaxed">
+              <p style={{
+                color: '#6b7280',
+                lineHeight: '1.6'
+              }}>
                 Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
                 рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
                 вы можете пропустить их и добавить позже.
@@ -315,7 +496,14 @@ const Authorize = () => {
             </div>
 
             {/* Exam Settings Component */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '24px',
+              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+              border: '1px solid #f3f4f6',
+              marginBottom: '24px'
+            }}>
               <ExamSettingsComponent 
                 showTitle={false} 
                 compact={true}
@@ -326,7 +514,23 @@ const Authorize = () => {
             {/* Skip Button */}
             <button
               onClick={handleSkipExamSettings}
-              className="w-full p-4 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              style={{
+                width: '100%',
+                padding: '16px',
+                backgroundColor: '#f3f4f6',
+                color: '#6b7280',
+                borderRadius: '12px',
+                fontWeight: '500',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#e5e7eb'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#f3f4f6'
+              }}
             >
               Пропустить (настроить позже)
             </button>

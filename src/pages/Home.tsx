@@ -14,7 +14,6 @@ import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, Che
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
 import i18n from 'i18next'
-import LoadingSpinner from '../components/LoadingSpinner'
 import BottomNavigation from '../components/BottomNavigation'
 
 const Home = () => {

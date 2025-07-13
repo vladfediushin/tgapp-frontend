@@ -140,26 +140,7 @@ const Repeat = () => {
   }
 
   if (queue === null || current === null) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px'
-      }}>
-        <LoadingSpinner size={32} />
-        <p style={{
-          marginTop: '16px',
-          color: '#6b7280',
-          fontSize: '16px'
-        }}>
-          {t('repeat.loading')}
-        </p>
-      </div>
-    )
+    return <LoadingSpinner size={64} text={t('repeat.loading')} fullScreen />
   }
 
   return (

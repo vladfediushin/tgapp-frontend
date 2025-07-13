@@ -108,17 +108,7 @@ const Profile = () => {
   }, [userId, last7Dates])
 
   if (loading) {
-    return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <LoadingSpinner size={32} />
-      </div>
-    )
+    return <LoadingSpinner size={64} fullScreen />
   }
 
   if (error) {
