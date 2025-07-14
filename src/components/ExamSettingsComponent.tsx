@@ -1,7 +1,7 @@
 // src/components/ExamSettingsComponent.tsx
 import React, { useState, useEffect } from 'react'
 import { useSession } from '../store/session'
-import { getExamSettings, setExamSettings, ExamSettingsResponse, ExamSettingsUpdate } from '../api/api'
+import { getExamSettings, setExamSettings, ExamSettingsResponse, ExamSettingsUpdate, getRemainingQuestionsCount } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -18,11 +18,15 @@ function ExamSettingsComponent({
   compact = false 
 }: ExamSettingsComponentProps) {
   const userId = useSession(state => state.userId)
+  const examCountry = useSession(state => state.examCountry)
+  const examLanguage = useSession(state => state.examLanguage)
   
   // Исправляем типизацию useState для совместимости с React 19+
   const [settings, setSettingsState] = useState(null)
   const [examDate, setExamDate] = useState('')
   const [dailyGoal, setDailyGoal] = useState(10)
+  const [recommendedGoal, setRecommendedGoal] = useState(null)
+  const [remainingQuestions, setRemainingQuestions] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -30,6 +34,47 @@ function ExamSettingsComponent({
   useEffect(() => {
     loadSettings()
   }, [userId])
+
+  useEffect(() => {
+    // Пересчитываем рекомендуемое количество при изменении даты экзамена
+    if (examDate && userId && examCountry && examLanguage) {
+      calculateRecommendedGoal()
+    }
+  }, [examDate, userId, examCountry, examLanguage])
+
+  const calculateRecommendedGoal = async () => {
+    if (!examDate || !userId || !examCountry || !examLanguage) return
+
+    try {
+      // Получаем количество нерешенных вопросов
+      const response = await getRemainingQuestionsCount(userId, examCountry, examLanguage)
+      const remaining = response.data.remaining_count
+      setRemainingQuestions(remaining)
+
+      // Рассчитываем рекомендуемое количество
+      const today = new Date()
+      const examDateObj = new Date(examDate)
+      const totalDays = Math.ceil((examDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+      
+      if (totalDays <= 0) {
+        setRecommendedGoal(null)
+        return
+      }
+
+      // 80% времени на изучение, 20% на повторение
+      const studyDays = Math.floor(totalDays * 0.8)
+      const recommended = studyDays > 0 ? Math.ceil(remaining / studyDays) : remaining
+      
+      setRecommendedGoal(recommended)
+      
+      // Автоматически устанавливаем рекомендуемое значение, если пользователь еще не менял
+      if (dailyGoal === 10) { // 10 - значение по умолчанию
+        setDailyGoal(recommended)
+      }
+    } catch (err) {
+      console.error('Failed to calculate recommended goal:', err)
+    }
+  }
 
   const loadSettings = async () => {
     if (!userId) {
@@ -165,6 +210,29 @@ function ExamSettingsComponent({
         <label style={{ fontWeight: 500, fontSize: 16, marginBottom: 8, display: 'block' }}>
           Ежедневная цель: {dailyGoal} вопросов
         </label>
+        {recommendedGoal && remainingQuestions !== null && (
+          <div style={{
+            fontSize: 13,
+            color: '#666',
+            marginBottom: 8,
+            padding: 8,
+            backgroundColor: '#f0f9ff',
+            borderRadius: 6,
+            border: '1px solid #0ea5e9'
+          }}>
+            💡 Рекомендуем: <strong>{recommendedGoal} вопросов/день</strong>
+            <br />
+            Осталось изучить: {remainingQuestions} вопросов
+            <br />
+            {examDate && (() => {
+              const today = new Date()
+              const examDateObj = new Date(examDate)
+              const totalDays = Math.ceil((examDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+              const studyDays = Math.floor(totalDays * 0.8)
+              return `${studyDays} дней на изучение, ${totalDays - studyDays} дней на повторение`
+            })()}
+          </div>
+        )}
         <input
           type="range"
           min="1"

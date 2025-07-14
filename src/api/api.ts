@@ -105,6 +105,17 @@ export const getExamSettings = (userId: string) => {
   return api.get<ExamSettingsResponse>(`/users/${userId}/exam-settings`)
 }
 
+// Получить количество нерешенных вопросов для пользователя
+export const getRemainingQuestionsCount = (userId: string, country: string, language: string) => {
+  return api.get<{ remaining_count: number }>(`/questions/remaining-count`, {
+    params: {
+      user_id: userId,
+      country,
+      language
+    }
+  })
+}
+
 // -------------------------
 // Типы и функции для работы с вопросами
 // -------------------------
