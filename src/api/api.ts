@@ -3,7 +3,38 @@ import axios, { AxiosResponse } from 'axios'
 // создаём экземпляр axios с базовым URL из .env
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  timeout: 8000, // 8 секунд таймаут - разумно для мобильного приложения
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
+
+// Interceptor для обработки ошибок и retry
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Retry для network errors или 5xx ошибок
+    if (
+      (error.code === 'ECONNABORTED' || 
+       error.code === 'NETWORK_ERROR' || 
+       (error.response && error.response.status >= 500)) &&
+      !originalRequest._retry
+    ) {
+      originalRequest._retry = true;
+      console.log('Retrying failed request...', error.config.url);
+      
+      // Ждем 500мс перед повтором (быстрее для UX)
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      return api(originalRequest);
+    }
+
+    console.error('API Error:', error.config?.url, error.message);
+    return Promise.reject(error);
+  }
+)
 
 // -------------------------
 // Типы для работы с пользователем
