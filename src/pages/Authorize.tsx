@@ -216,16 +216,16 @@ const Authorize = () => {
               <div style={{
                 backgroundColor: 'white',
                 borderRadius: '50%',
-                padding: '16px',
-                width: '80px',
-                height: '80px',
+                padding: '12px',
+                width: '56px',
+                height: '56px',
                 margin: '0 auto 24px',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <UserCheck size={40} style={{ color: '#2563eb' }} />
+                <UserCheck size={28} style={{ color: '#2563eb' }} />
               </div>
               <h1 style={{
                 fontSize: '30px',
@@ -319,51 +319,61 @@ const Authorize = () => {
               </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <div style={{
-                marginTop: '24px',
-                padding: '16px',
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '12px'
-              }}>
-                <p style={{
-                  color: '#b91c1c',
-                  fontSize: '14px',
-                  margin: 0
-                }}>{error}</p>
-              </div>
-            )}
+            {/* Button Container with fixed spacing */}
+            <div style={{
+              marginTop: '48px',
+              position: 'relative'
+            }}>
+              {/* Error Message - positioned above button */}
+              {error && (
+                <div style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  left: 0,
+                  right: 0,
+                  padding: '12px 16px',
+                  backgroundColor: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  zIndex: 10
+                }}>
+                  <p style={{
+                    color: '#b91c1c',
+                    fontSize: '14px',
+                    margin: 0,
+                    textAlign: 'center'
+                  }}>{error}</p>
+                </div>
+              )}
 
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              style={{
-                width: '100%',
-                marginTop: '32px',
-                background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
-                color: 'white',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                fontWeight: '600',
-                fontSize: '18px',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-                e.target.style.transform = 'translateY(-1px)'
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-                e.target.style.transform = 'translateY(0)'
-              }}
-            >
-              {t('authorize.button.next')}
-            </button>
+              {/* Submit Button */}
+              <button
+                onClick={handleSubmit}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)',
+                  color: 'white',
+                  padding: '16px 24px',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  fontSize: '18px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+                  e.target.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+                  e.target.style.transform = 'translateY(0)'
+                }}
+              >
+                {t('authorize.button.next')}
+              </button>
+            </div>
 
             {/* Footer Info */}
             <p style={{

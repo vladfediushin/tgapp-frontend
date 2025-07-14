@@ -158,7 +158,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             borderRadius: '12px',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             maxHeight: '200px',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            // Убираем margin чтобы выпадающий список не выходил за границы родителя
+            marginLeft: 0,
+            marginRight: 0
           }}
         >
           {options.map((option, index) => (
