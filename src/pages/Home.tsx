@@ -333,12 +333,10 @@ const Home = () => {
               backgroundColor: 'rgba(255, 255, 255, 0.2)',
               borderRadius: '8px',
               padding: '12px',
-              cursor: examDate ? 'default' : 'pointer'
+              cursor: 'pointer'
             }}
             onClick={() => {
-              if (!examDate) {
-                navigate('/exam-settings')
-              }
+              navigate('/exam-settings')
             }}
             >
               <div style={{
