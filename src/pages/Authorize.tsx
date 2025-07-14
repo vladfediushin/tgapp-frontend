@@ -207,7 +207,7 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '448px', // Возвращаем обратно
+            maxWidth: '320px', // Правильно рассчитанная ширина для центрирования
             margin: '0 auto',
             flex: 1,
             display: 'flex',
@@ -253,8 +253,7 @@ const Authorize = () => {
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '24px',
-              padding: '0 24px' // Добавляем внутренние отступы к самой форме!
+              gap: '24px'
             }}>
               {/* Exam Country */}
               <div>
@@ -405,7 +404,7 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '448px', // Возвращаем обратно
+            maxWidth: '320px', // Правильно рассчитанная ширина для центрирования
             margin: '0 auto',
             flex: 1,
             display: 'flex',
