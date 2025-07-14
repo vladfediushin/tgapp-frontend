@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 // создаём экземпляр axios с базовым URL из .env
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 8000, // 8 секунд таймаут - разумно для мобильного приложения
+  timeout: 8000, // 8 секунд таймаут - должно быть достаточно
   headers: {
     'Content-Type': 'application/json',
   },
@@ -25,9 +25,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       console.log('Retrying failed request...', error.config.url);
       
-      // Ждем 500мс перед повтором (быстрее для UX)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      // Убираем задержку для более быстрого retry
       return api(originalRequest);
     }
 
