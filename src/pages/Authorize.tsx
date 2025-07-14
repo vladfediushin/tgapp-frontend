@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import ExamSettingsComponent from '../components/ExamSettingsComponent'
 import LoadingSpinner from '../components/LoadingSpinner'
-import BottomNavigation from '../components/BottomNavigation'
+import CustomSelect from '../components/CustomSelect'
 import { UserCheck, Globe, MapPin, Languages, CheckCircle } from 'lucide-react'
 
 // Список стран
@@ -127,7 +127,7 @@ const Authorize = () => {
   }, [step, navigate])
 
   const handleSubmit = async () => {
-    if (!examCountryInput || !examLanguageInput) {
+    if (!examCountryInput || !examLanguageInput || !uiLanguageInput) {
       setError(t('authorize.error.requiredFields'))
       return
     }
@@ -263,36 +263,13 @@ const Authorize = () => {
                   <MapPin size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.examCountry')}
                 </label>
-                <select
+                <CustomSelect
                   value={examCountryInput}
-                  onChange={e => setExamCountryInput(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '12px',
-                    color: '#111827',
-                    fontSize: '16px',
-                    transition: 'all 0.2s ease',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb'
-                    e.target.style.boxShadow = 'none'
-                  }}
-                >
-                  <option value="">{t('authorize.placeholder.selectCountry')}</option>
-                  {EXAM_COUNTRIES.map(country => (
-                    <option key={country.value} value={country.value}>
-                      {country.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setExamCountryInput}
+                  options={EXAM_COUNTRIES}
+                  placeholder={t('authorize.placeholder.selectCountry')}
+                  icon={<MapPin size={16} style={{ color: '#2563eb' }} />}
+                />
               </div>
 
               {/* Exam Language */}
@@ -309,36 +286,13 @@ const Authorize = () => {
                   <Languages size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.examLanguage')}
                 </label>
-                <select
+                <CustomSelect
                   value={examLanguageInput}
-                  onChange={e => setExamLanguageInput(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '12px',
-                    color: '#111827',
-                    fontSize: '16px',
-                    transition: 'all 0.2s ease',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb'
-                    e.target.style.boxShadow = 'none'
-                  }}
-                >
-                  <option value="">{t('authorize.placeholder.selectLanguage')}</option>
-                  {EXAM_LANGUAGES.map(language => (
-                    <option key={language.value} value={language.value}>
-                      {language.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setExamLanguageInput}
+                  options={EXAM_LANGUAGES}
+                  placeholder={t('authorize.placeholder.selectLanguage')}
+                  icon={<Languages size={16} style={{ color: '#2563eb' }} />}
+                />
               </div>
 
               {/* UI Language */}
@@ -355,36 +309,13 @@ const Authorize = () => {
                   <Globe size={16} style={{ color: '#2563eb' }} />
                   {t('authorize.label.uiLanguage')}
                 </label>
-                <select
+                <CustomSelect
                   value={uiLanguageInput}
-                  onChange={e => setUiLanguageInput(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    backgroundColor: 'white',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '12px',
-                    color: '#111827',
-                    fontSize: '16px',
-                    transition: 'all 0.2s ease',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#3b82f6'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb'
-                    e.target.style.boxShadow = 'none'
-                  }}
-                >
-                  <option value="">{t('authorize.placeholder.selectLanguage')}</option>
-                  {UI_LANGUAGES.map(language => (
-                    <option key={language.value} value={language.value}>
-                      {language.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setUiLanguageInput}
+                  options={UI_LANGUAGES}
+                  placeholder={t('authorize.placeholder.selectLanguage')}
+                  icon={<Globe size={16} style={{ color: '#2563eb' }} />}
+                />
               </div>
             </div>
 
@@ -483,15 +414,13 @@ const Authorize = () => {
                 color: '#111827',
                 marginBottom: '8px'
               }}>
-                Почти готово, {userName}!
+                {t('authorize.examSettings.title', { userName })}
               </h1>
               <p style={{
                 color: '#6b7280',
                 lineHeight: '1.6'
               }}>
-                Хотите настроить дату экзамена и ежедневную цель? Это поможет приложению 
-                рекомендовать оптимальный темп изучения. Эти настройки необязательны — 
-                вы можете пропустить их и добавить позже.
+                {t('authorize.examSettings.description')}
               </p>
             </div>
 
@@ -532,13 +461,11 @@ const Authorize = () => {
                 e.target.style.backgroundColor = '#f3f4f6'
               }}
             >
-              Пропустить (настроить позже)
+              {t('authorize.examSettings.skip')}
             </button>
           </div>
         </div>
       )}
-
-      <BottomNavigation />
     </div>
   )
 }
