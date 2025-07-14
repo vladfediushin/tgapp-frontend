@@ -150,7 +150,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             position: 'absolute',
             top: '100%',
             left: 0,
-            right: 0,
+            width: '100%', // Используем width вместо left/right
             zIndex: 50,
             marginTop: '4px',
             backgroundColor: 'white',
