@@ -202,11 +202,17 @@ const Authorize = () => {
         <div style={{
           flex: 1,
           padding: '24px',
-          paddingBottom: '96px'
+          paddingBottom: '24px',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           <div style={{
             maxWidth: '448px',
-            margin: '0 auto'
+            margin: '0 auto',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
           }}>
             {/* Welcome Header */}
             <div style={{
@@ -393,11 +399,17 @@ const Authorize = () => {
         <div style={{
           flex: 1,
           padding: '24px',
-          paddingBottom: '96px'
+          paddingBottom: '24px',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           <div style={{
             maxWidth: '448px',
-            margin: '0 auto'
+            margin: '0 auto',
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
           }}>
             {/* Header */}
             <div style={{
