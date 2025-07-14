@@ -5,7 +5,8 @@ import { updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
 import BottomNavigation from '../components/BottomNavigation'
-import { Globe, ChevronDown } from 'lucide-react'
+import ExamSettingsComponent from '../components/ExamSettingsComponent'
+import { Globe, ChevronDown, Calendar } from 'lucide-react'
 import i18n from 'i18next'
 
 const UI_LANGUAGES = [
@@ -148,29 +149,44 @@ const Settings = () => {
           </p>
         </div>
 
-        {/* Additional Settings Placeholder */}
+        {/* Exam Settings Card */}
         <div style={{
           backgroundColor: 'white',
           borderRadius: '16px',
           padding: '24px',
-          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-          textAlign: 'center'
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
         }}>
-          <h3 style={{
-            fontSize: '16px',
-            fontWeight: '600',
-            color: '#6b7280',
-            margin: 0
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '20px'
           }}>
-            Дополнительные настройки
-          </h3>
-          <p style={{
-            fontSize: '14px',
-            color: '#9ca3af',
-            margin: '8px 0 0 0'
-          }}>
-            Скоро будут добавлены новые опции
-          </p>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              backgroundColor: '#fef3c7',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Calendar size={20} color="#d97706" />
+            </div>
+            <h2 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: 0
+            }}>
+              Настройки экзамена
+            </h2>
+          </div>
+
+          <ExamSettingsComponent 
+            showTitle={false} 
+            compact={true}
+          />
         </div>
       </div>
 

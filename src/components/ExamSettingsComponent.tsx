@@ -140,36 +140,35 @@ function ExamSettingsComponent({
   // Преобразуем examDate к Date для DatePicker
   const examDateObj = examDate ? new Date(examDate) : null
 
-  const containerStyle = {
-    marginBottom: compact ? 16 : 24,
-    padding: compact ? 12 : 0,
-    backgroundColor: compact ? '#f8f9fa' : 'transparent',
-    borderRadius: compact ? 8 : 0,
-    border: compact ? '1px solid #e0e0e0' : 'none'
-  }
-
   if (loading) {
     return (
-      <div style={containerStyle}>
-        <p style={{ textAlign: 'center', color: '#666' }}>Загрузка настроек...</p>
+      <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+        Загрузка настроек...
       </div>
     )
   }
 
+  const containerStyle = compact ? {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '16px',
+    width: '100%'
+  } : {
+    margin: '0 auto',
+    maxWidth: 340,
+    background: '#fff',
+    borderRadius: 18,
+    boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
+    padding: 24,
+    border: '1px solid #e5e7eb',
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    gap: 20,
+  }
+
   return (
-    <div style={{
-      margin: '0 auto',
-      maxWidth: 340,
-      background: '#fff',
-      borderRadius: 18,
-      boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
-      padding: 24,
-      border: '1px solid #e5e7eb',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 20,
-    }}>
+    <div style={containerStyle}>
       {showTitle && (
         <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, textAlign: 'center' }}>
           Настройки экзамена
