@@ -29,7 +29,12 @@
     "settings": "Settings",
     "statistics": "Statistics",
     "todayProgress": "Today's Progress",
-    "questionsMasteredToday": "Questions mastered today"
+    "questionsMasteredToday": "Questions mastered today",
+    "streak": {
+      "days_0": "{{count}} days",
+      "days_1": "{{count}} day",
+      "days_other": "{{count}} days"
+    }
   },
   "modeSelect": {
     "title": "Select revision mode",

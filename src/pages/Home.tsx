@@ -10,6 +10,8 @@ import {
 } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
+import { getLast7LocalDates, calculateCurrentStreak } from '../utils/streakUtils'
+import { getStreakText } from '../utils/pluralUtils'
 import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, ChevronRight, Sparkles, AlertCircle } from 'lucide-react'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
@@ -23,6 +25,8 @@ const Home = () => {
   const [userName, setUserName] = useState(null)
   const [stats, setStats] = useState(null)
   const [userLoaded, setUserLoaded] = useState(false) // <- флаг загрузки user
+  const [streakProgress, setStreakProgress] = useState([])
+  const [streakLoading, setStreakLoading] = useState(true)
 
   const internalId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
@@ -85,6 +89,27 @@ const Home = () => {
       .catch(err => console.error('Ошибка получения данных', err))
   }, [internalId, userLoaded, examCountry, examLanguage, setDailyProgress])
 
+  // Загружаем данные streak за последние 7 дней
+  useEffect(() => {
+    if (!internalId) return
+    if (!userLoaded) return
+
+    setStreakLoading(true)
+    const last7Dates = getLast7LocalDates()
+    
+    Promise.all(
+      last7Dates.map(date => getDailyProgress(internalId, date))
+    )
+      .then(responses => {
+        setStreakProgress(responses.map(res => res.data.questions_mastered_today || 0))
+      })
+      .catch(err => {
+        console.error('Ошибка загрузки streak данных:', err)
+        setStreakProgress(new Array(7).fill(0))
+      })
+      .finally(() => setStreakLoading(false))
+  }, [internalId, userLoaded])
+
   const handleStart = () => {
     navigate('/mode')
   }
@@ -113,6 +138,11 @@ const Home = () => {
   const todayQuestionsMastered = dailyProgress || 0
   const goalProgress = finalDailyGoal && finalDailyGoal > 0
     ? Math.min((todayQuestionsMastered / finalDailyGoal) * 100, 100)
+    : 0
+
+  // Вычисляем streak
+  const currentStreak = finalDailyGoal && finalDailyGoal > 0 && !streakLoading
+    ? calculateCurrentStreak(streakProgress, finalDailyGoal)
     : 0
 
   const today = new Date().toISOString().split('T')[0]
@@ -275,7 +305,9 @@ const Home = () => {
               }}>
                 <Flame size={20} style={{ color: '#fb923c' }} />
                 <span style={{ fontWeight: '600' }}>
-                  {!userLoaded ? '...' : '7 дней'}
+                  {!userLoaded || streakLoading ? '...' : 
+                   (!examCountry || !examLanguage || !finalDailyGoal) ? getStreakText(0, t) :
+                   getStreakText(currentStreak, t)}
                 </span>
               </div>
               <p style={{

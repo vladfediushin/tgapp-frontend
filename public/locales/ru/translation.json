@@ -29,7 +29,13 @@
     "settings": "Настройки",
     "statistics": "Статистика",
     "todayProgress": "Прогресс за сегодня",
-    "questionsMasteredToday": "Отвечено правильно сегодня"
+    "questionsMasteredToday": "Отвечено правильно сегодня",
+    "streak": {
+      "days_0": "{{count}} дней",
+      "days_1": "{{count}} день", 
+      "days_2": "{{count}} дня",
+      "days_5": "{{count}} дней"
+    }
   },
   "modeSelect": {
     "title": "Выбери режим повторения",
