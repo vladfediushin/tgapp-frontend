@@ -7,10 +7,9 @@ import { AxiosError } from 'axios'
 import { UserOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
-import ExamSettingsComponent from '../components/ExamSettingsComponent'
 import LoadingSpinner from '../components/LoadingSpinner'
 import CustomSelect from '../components/CustomSelect'
-import { UserCheck, Globe, MapPin, Languages, CheckCircle } from 'lucide-react'
+import { UserCheck, Globe, MapPin, Languages } from 'lucide-react'
 
 // Список стран
 const EXAM_COUNTRIES = [
@@ -53,9 +52,6 @@ const Authorize = () => {
   const [examCountryInput, setExamCountryInput]   = useState('')
   const [examLanguageInput, setExamLanguageInput] = useState('')
   const [uiLanguageInput, setUiLanguageInput]     = useState(defaultUiLang)
-
-  // State to track if user is new (needs to see exam settings)
-  const [isNewUser, setIsNewUser] = useState(false)
 
   const [error, setError] = useState('')
 
@@ -101,7 +97,6 @@ const Authorize = () => {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
           // New user - show form
-          setIsNewUser(true)
           setStep('form')
         } else {
           setError(t('authorize.error.checkUser'))
@@ -165,23 +160,15 @@ const Authorize = () => {
       )
       setTopics(topicsRes.data.topics)
 
-      // Show exam settings step for new users
-      setStep('exam_settings')
+      // Новый пользователь создан - переходим сразу на домашнюю страницу
+      setStep('complete')
     } catch {
       setError(t('authorize.error.createUser'))
       setStep('form')
     }
   }
 
-  const handleExamSettingsSave = () => {
-    // User saved exam settings, move to complete
-    setStep('complete')
-  }
 
-  const handleSkipExamSettings = () => {
-    // User skipped exam settings, move to complete
-    setStep('complete')
-  }
 
   return (
     <div style={{
@@ -397,100 +384,12 @@ const Authorize = () => {
         </div>
       )}
 
-      {step === 'exam_settings' && (
-        <div style={{
-          flex: 1,
-          padding: '24px',
-          paddingBottom: '24px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            maxWidth: '352px',
-            width: '100%',
-            margin: '0 auto',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            boxSizing: 'border-box',
-          }}>
-            {/* Header */}
-            <div style={{
-              textAlign: 'center',
-              marginBottom: '32px'
-            }}>
-              <div style={{
-                backgroundColor: 'white',
-                borderRadius: '50%',
-                padding: '16px',
-                width: '80px',
-                height: '80px',
-                margin: '0 auto 24px',
-                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <CheckCircle size={40} style={{ color: '#059669' }} />
-              </div>
-              <h1 style={{
-                fontSize: '30px',
-                fontWeight: 'bold',
-                color: '#111827',
-                marginBottom: '8px'
-              }}>
-                {t('authorize.examSettings.title', { userName })}
-              </h1>
-              <p style={{
-                color: '#6b7280',
-                lineHeight: '1.6'
-              }}>
-                {t('authorize.examSettings.description')}
-              </p>
-            </div>
-
-            {/* Exam Settings Component */}
-            <div style={{
-              backgroundColor: 'white',
-              borderRadius: '12px',
-              padding: '24px',
-              boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-              border: '1px solid #f3f4f6',
-              marginBottom: '24px'
-            }}>
-              <ExamSettingsComponent 
-                showTitle={false} 
-                compact={true}
-                onSave={handleExamSettingsSave}
-              />
-            </div>
-
-            {/* Skip Button */}
-            <button
-              onClick={handleSkipExamSettings}
-              style={{
-                width: '100%',
-                padding: '16px',
-                backgroundColor: '#f3f4f6',
-                color: '#6b7280',
-                borderRadius: '12px',
-                fontWeight: '500',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#e5e7eb'
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#f3f4f6'
-              }}
-            >
-              {t('authorize.examSettings.skip')}
-            </button>
-          </div>
-        </div>
+      {step === 'complete' && (
+        <LoadingSpinner 
+          size={80} 
+          text={t('authorize.checking')} 
+          fullScreen 
+        />
       )}
     </div>
   )

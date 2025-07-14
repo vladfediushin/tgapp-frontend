@@ -332,8 +332,15 @@ const Home = () => {
             <div style={{
               backgroundColor: 'rgba(255, 255, 255, 0.2)',
               borderRadius: '8px',
-              padding: '12px'
-            }}>
+              padding: '12px',
+              cursor: examDate ? 'default' : 'pointer'
+            }}
+            onClick={() => {
+              if (!examDate) {
+                navigate('/exam-settings')
+              }
+            }}
+            >
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -344,6 +351,9 @@ const Home = () => {
                   {!userLoaded ? '...' :
                    examDate ? `${Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} дней` : 'Не установлено'}
                 </span>
+                {!examDate && (
+                  <ChevronRight size={16} style={{ color: 'rgba(255, 255, 255, 0.8)', marginLeft: 'auto' }} />
+                )}
               </div>
               <p style={{
                 fontSize: '12px',
