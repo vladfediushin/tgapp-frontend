@@ -87,7 +87,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       ref={selectRef}
       style={{
         position: 'relative',
-        width: '100%'
+        width: '100%',
+        paddingLeft: 36, // под иконку
+        paddingRight: 36, // симметричный отступ под стрелку
+        boxSizing: 'border-box',
       }}
     >
       <div

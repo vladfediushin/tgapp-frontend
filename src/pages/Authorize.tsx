@@ -207,12 +207,14 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '320px', // Правильно рассчитанная ширина для центрирования
+            maxWidth: '352px', // 375 - 24*2 = 327, но 352px для чуть большего экрана
+            width: '100%',
             margin: '0 auto',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            boxSizing: 'border-box',
           }}>
             {/* Welcome Header */}
             <div style={{
@@ -404,12 +406,14 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '320px', // Правильно рассчитанная ширина для центрирования
+            maxWidth: '352px',
+            width: '100%',
             margin: '0 auto',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            boxSizing: 'border-box',
           }}>
             {/* Header */}
             <div style={{
