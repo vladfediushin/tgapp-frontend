@@ -79,7 +79,9 @@ const Authorize = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
+        console.log('Checking user with Telegram ID:', tgUser.id)
         const res = await getUserByTelegramId(tgUser.id)
+        console.log('User data received:', res.data)
         const user: UserOut = res.data
 
         // сохраняем в стор
@@ -98,12 +100,18 @@ const Authorize = () => {
         // переходим на Home - existing user
         setStep('complete')
       } catch (err) {
+        console.error('Error in user check:', err)
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
           // New user - show form
           setIsNewUser(true)
           setStep('form')
         } else {
+          console.error('Non-404 error details:', {
+            status: axiosErr.response?.status,
+            message: axiosErr.message,
+            code: axiosErr.code
+          })
           setError(t('authorize.error.checkUser'))
           setStep('form')
         }
