@@ -67,10 +67,8 @@ function ExamSettingsComponent({
       
       setRecommendedGoal(recommended)
       
-      // Автоматически устанавливаем рекомендуемое значение, если пользователь еще не менял
-      if (dailyGoal === 10) { // 10 - значение по умолчанию
-        setDailyGoal(recommended)
-      }
+      // Всегда устанавливаем рекомендуемое значение по умолчанию
+      setDailyGoal(recommended)
     } catch (err) {
       console.error('Failed to calculate recommended goal:', err)
     }
@@ -235,7 +233,7 @@ function ExamSettingsComponent({
         <input
           type="range"
           min="1"
-          max="50"
+          max="100"
           value={dailyGoal}
           onChange={e => setDailyGoal(Number(e.target.value))}
           style={{ width: '100%' }}
