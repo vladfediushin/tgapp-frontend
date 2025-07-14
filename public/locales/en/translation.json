@@ -30,6 +30,11 @@
     "statistics": "Statistics",
     "todayProgress": "Today's Progress",
     "questionsMasteredToday": "Questions mastered today",
+    "progressMessage": {
+      "start": "Time to start practicing!",
+      "keepGoing": "Good work, keep it up!",
+      "excellent": "Excellent progress!"
+    },
     "streak": {
       "days_0": "{{count}} days",
       "days_1": "{{count}} day",

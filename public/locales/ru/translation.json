@@ -30,6 +30,11 @@
     "statistics": "Статистика",
     "todayProgress": "Прогресс за сегодня",
     "questionsMasteredToday": "Отвечено правильно сегодня",
+    "progressMessage": {
+      "start": "Пора начать повторение!",
+      "keepGoing": "Молодец, поднажми!",
+      "excellent": "Отлично продвигаешься!"
+    },
     "streak": {
       "days_0": "{{count}} дней",
       "days_1": "{{count}} день", 

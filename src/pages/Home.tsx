@@ -22,6 +22,17 @@ const Home = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
 
+  // Функция для получения правильного сообщения прогресса
+  const getProgressMessage = (questionsToday: number, dailyGoal: number) => {
+    if (questionsToday === 0) {
+      return t('home.progressMessage.start') // 'Пора начать повторение'
+    } else if (questionsToday > 0 && questionsToday < dailyGoal) {
+      return t('home.progressMessage.keepGoing') // 'Молодец, поднажми!'
+    } else {
+      return t('home.progressMessage.excellent') // 'Отлично продвигаешься!'
+    }
+  }
+
   const [userName, setUserName] = useState(null)
   const [stats, setStats] = useState(null)
   const [userLoaded, setUserLoaded] = useState(false) // <- флаг загрузки user
@@ -235,7 +246,7 @@ const Home = () => {
               }}>
                 {!userLoaded ? 'Подготавливаем данные...' :
                  (!examCountry || !examLanguage) ? 'Перейдите в настройки' :
-                 isProgressCurrent && finalDailyGoal !== null ? 'Отлично продвигаешься!' : 'Установите дату экзамена'}
+                 isProgressCurrent && finalDailyGoal !== null ? getProgressMessage(dailyProgress || 0, finalDailyGoal) : 'Установите дату экзамена'}
               </p>
             </div>
             <div style={{
