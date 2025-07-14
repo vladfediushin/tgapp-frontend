@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react'
 import { useSession } from '../store/session'
 import { getExamSettings, setExamSettings, ExamSettingsResponse, ExamSettingsUpdate } from '../api/api'
+import ReactDatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 
 interface ExamSettingsComponentProps {
   showTitle?: boolean  // Whether to show the "Exam Settings" title
@@ -9,19 +11,21 @@ interface ExamSettingsComponentProps {
   compact?: boolean    // Whether to use compact layout
 }
 
-const ExamSettingsComponent: React.FC<ExamSettingsComponentProps> = ({ 
+// Вместо React.FC используем обычную функцию
+function ExamSettingsComponent({ 
   showTitle = true, 
   onSave,
   compact = false 
-}) => {
+}: ExamSettingsComponentProps) {
   const userId = useSession(state => state.userId)
   
-  const [settings, setSettingsState] = useState<ExamSettingsResponse | null>(null)
+  // Исправляем типизацию useState для совместимости с React 19+
+  const [settings, setSettingsState] = useState(null)
   const [examDate, setExamDate] = useState('')
   const [dailyGoal, setDailyGoal] = useState(10)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     loadSettings()
@@ -88,11 +92,8 @@ const ExamSettingsComponent: React.FC<ExamSettingsComponentProps> = ({
     }
   }
 
-  const getTodayDate = () => {
-    const today = new Date()
-    today.setDate(today.getDate() + 1) // Tomorrow as minimum
-    return today.toISOString().split('T')[0]
-  }
+  // Преобразуем examDate к Date для DatePicker
+  const examDateObj = examDate ? new Date(examDate) : null
 
   const containerStyle = {
     marginBottom: compact ? 16 : 24,
@@ -111,62 +112,57 @@ const ExamSettingsComponent: React.FC<ExamSettingsComponentProps> = ({
   }
 
   return (
-    <div style={containerStyle}>
+    <div style={{
+      margin: '0 auto',
+      maxWidth: 340,
+      background: '#fff',
+      borderRadius: 18,
+      boxShadow: '0 4px 24px 0 rgba(0,0,0,0.08)',
+      padding: 24,
+      border: '1px solid #e5e7eb',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 20,
+    }}>
       {showTitle && (
-        <h3 style={{ margin: `0 0 ${compact ? 12 : 16}px 0`, fontSize: compact ? 16 : 18 }}>
-          Настройки экзамена (необязательно)
+        <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, textAlign: 'center' }}>
+          Настройки экзамена
         </h3>
       )}
-      
       {error && (
         <div style={{ 
           color: 'red', 
           backgroundColor: '#ffebee', 
           padding: 8, 
-          borderRadius: 4, 
-          marginBottom: 12,
-          fontSize: compact ? 12 : 14
+          borderRadius: 8, 
+          marginBottom: 8,
+          fontSize: 14,
+          width: '100%',
+          textAlign: 'center',
         }}>
           {error}
         </div>
       )}
-
-      <div style={{ marginBottom: compact ? 12 : 16 }}>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: compact ? 4 : 8, 
-          fontWeight: '500',
-          fontSize: compact ? 14 : 16
-        }}>
+      <div style={{ width: '100%' }}>
+        <label style={{ fontWeight: 500, fontSize: 16, marginBottom: 8, display: 'block' }}>
           Дата экзамена:
         </label>
-        <input
-          type="date"
-          value={examDate}
-          onChange={(e) => setExamDate(e.target.value)}
-          min={getTodayDate()}
-          style={{
-            width: '100%',
-            padding: compact ? 8 : 12,
-            borderRadius: 4,
-            border: '1px solid #ccc',
-            fontSize: compact ? 14 : 16
-          }}
+        <ReactDatePicker
+          selected={examDateObj}
+          onChange={date => setExamDate(date ? date.toISOString().split('T')[0] : '')}
+          minDate={new Date()}
+          dateFormat="dd/MM/yyyy"
+          placeholderText="Выберите дату"
+          className="custom-datepicker-input"
+          popperPlacement="bottom"
+          showPopperArrow={false}
+          wrapperClassName="custom-datepicker-wrapper"
+          style={{ width: '100%' }}
         />
-        {settings?.days_until_exam !== null && settings?.days_until_exam !== undefined && examDate && (
-          <small style={{ color: '#666', marginTop: 4, display: 'block', fontSize: 12 }}>
-            До экзамена: {settings.days_until_exam} дней
-          </small>
-        )}
       </div>
-
-      <div style={{ marginBottom: compact ? 12 : 16 }}>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: compact ? 4 : 8, 
-          fontWeight: '500',
-          fontSize: compact ? 14 : 16
-        }}>
+      <div style={{ width: '100%' }}>
+        <label style={{ fontWeight: 500, fontSize: 16, marginBottom: 8, display: 'block' }}>
           Ежедневная цель: {dailyGoal} вопросов
         </label>
         <input
@@ -174,54 +170,28 @@ const ExamSettingsComponent: React.FC<ExamSettingsComponentProps> = ({
           min="1"
           max="50"
           value={dailyGoal}
-          onChange={(e) => setDailyGoal(Number(e.target.value))}
+          onChange={e => setDailyGoal(Number(e.target.value))}
           style={{ width: '100%' }}
         />
-        {settings?.recommended_daily_goal && examDate && (
-          <small style={{ color: '#666', marginTop: 4, display: 'block', fontSize: 12 }}>
-            Рекомендуется: {settings.recommended_daily_goal} вопросов в день
-          </small>
-        )}
       </div>
-
       <button
         onClick={handleSave}
         disabled={saving}
         style={{
           width: '100%',
-          padding: compact ? 8 : 12,
-          backgroundColor: saving ? '#ccc' : '#2AABEE',
+          padding: 14,
+          background: saving ? '#ccc' : 'linear-gradient(90deg,#2AABEE 0%,#4F8EF7 100%)',
           color: 'white',
           border: 'none',
-          borderRadius: 6,
-          fontSize: compact ? 14 : 16,
-          cursor: saving ? 'not-allowed' : 'pointer'
+          borderRadius: 10,
+          fontSize: 17,
+          fontWeight: 600,
+          cursor: saving ? 'not-allowed' : 'pointer',
+          boxShadow: '0 2px 8px 0 rgba(42,171,238,0.08)'
         }}
       >
         {saving ? 'Сохранение...' : 'Сохранить настройки'}
       </button>
-
-      {settings?.exam_date && !compact && (
-        <div style={{ 
-          marginTop: 16, 
-          padding: 12, 
-          backgroundColor: '#f0f8ff', 
-          borderRadius: 6,
-          border: '1px solid #e1f5fe'
-        }}>
-          <p style={{ margin: '4px 0', fontSize: 14 }}>
-            📅 Дата экзамена: {new Date(settings.exam_date).toLocaleDateString('ru-RU')}
-          </p>
-          <p style={{ margin: '4px 0', fontSize: 14 }}>
-            🎯 Ежедневная цель: {settings.daily_goal} вопросов
-          </p>
-          {settings.days_until_exam !== null && (
-            <p style={{ margin: '4px 0', fontSize: 14 }}>
-              ⏰ До экзамена: {settings.days_until_exam} дней
-            </p>
-          )}
-        </div>
-      )}
     </div>
   )
 }
