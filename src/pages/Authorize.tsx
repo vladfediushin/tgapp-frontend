@@ -207,7 +207,7 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '448px',
+            maxWidth: '400px', // Уменьшаем с 448px до 400px чтобы учесть внешние отступы 24px*2
             margin: '0 auto',
             flex: 1,
             display: 'flex',
@@ -404,7 +404,7 @@ const Authorize = () => {
           flexDirection: 'column'
         }}>
           <div style={{
-            maxWidth: '448px',
+            maxWidth: '400px', // Уменьшаем с 448px до 400px чтобы учесть внешние отступы 24px*2
             margin: '0 auto',
             flex: 1,
             display: 'flex',
