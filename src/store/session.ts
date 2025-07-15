@@ -21,22 +21,19 @@ interface SessionState {
 
   // User data caching
   cachedUser: UserOut | null;
-  userCacheTimestamp: number;
   setCachedUser: (user: UserOut) => void;
-  isUserCacheFresh: (maxAgeMinutes?: number) => boolean;
+  clearCachedUser: () => void;
 
   // Exam settings caching
   cachedExamSettings: ExamSettingsResponse | null;
-  examSettingsTimestamp: number;
   setCachedExamSettings: (settings: ExamSettingsResponse) => void;
-  isExamSettingsFresh: (maxAgeMinutes?: number) => boolean;
+  clearCachedExamSettings: () => void;
 
   // Remaining questions count caching
   cachedRemainingCount: number | null;
-  remainingCountTimestamp: number;
   remainingCountKey: string | null; // userId-country-language for cache invalidation
   setCachedRemainingCount: (count: number, userId: string, country: string, language: string) => void;
-  isRemainingCountFresh: (userId: string, country: string, language: string, maxAgeMinutes?: number) => boolean;
+  clearCachedRemainingCount: () => void;
 
   examCountry: string
   setExamCountry: (c: string) => void
@@ -72,64 +69,37 @@ export const useSession = create<SessionState>((set, get) => ({
   userId: null,
   setUserId: (id) => set({ userId: id }),
 
-  // User caching
+  // User caching - simple cache without TTL
   cachedUser: null,
-  userCacheTimestamp: 0,
-  setCachedUser: (user) => set({ 
-    cachedUser: user, 
-    userCacheTimestamp: Date.now() 
-  }),
-  isUserCacheFresh: (maxAgeMinutes = 10) => {
-    const { userCacheTimestamp } = get();
-    const maxAge = maxAgeMinutes * 60 * 1000;
-    return Date.now() - userCacheTimestamp < maxAge;
-  },
+  setCachedUser: (user) => set({ cachedUser: user }),
+  clearCachedUser: () => set({ cachedUser: null }),
 
-  // Exam settings caching
+  // Exam settings caching - simple cache without TTL
   cachedExamSettings: null,
-  examSettingsTimestamp: 0,
-  setCachedExamSettings: (settings) => set({
-    cachedExamSettings: settings,
-    examSettingsTimestamp: Date.now()
-  }),
-  isExamSettingsFresh: (maxAgeMinutes = 10) => {
-    const { examSettingsTimestamp } = get();
-    const maxAge = maxAgeMinutes * 60 * 1000;
-    return Date.now() - examSettingsTimestamp < maxAge;
-  },
+  setCachedExamSettings: (settings) => set({ cachedExamSettings: settings }),
+  clearCachedExamSettings: () => set({ cachedExamSettings: null }),
 
-  // Remaining count caching
+  // Remaining count caching - simple cache with key validation
   cachedRemainingCount: null,
-  remainingCountTimestamp: 0,
   remainingCountKey: null,
   setCachedRemainingCount: (count, userId, country, language) => {
     const key = `${userId}-${country}-${language}`;
     set({
       cachedRemainingCount: count,
-      remainingCountTimestamp: Date.now(),
       remainingCountKey: key
     });
   },
-  isRemainingCountFresh: (userId, country, language, maxAgeMinutes = 10) => {
-    const { remainingCountTimestamp, remainingCountKey } = get();
-    const expectedKey = `${userId}-${country}-${language}`;
-    
-    // Check if key matches (same user/country/language combination)
-    if (remainingCountKey !== expectedKey) {
-      return false;
-    }
-    
-    const maxAge = maxAgeMinutes * 60 * 1000;
-    return Date.now() - remainingCountTimestamp < maxAge;
-  },
+  clearCachedRemainingCount: () => set({
+    cachedRemainingCount: null,
+    remainingCountKey: null
+  }),
 
   examCountry: 'am',
   setExamCountry: (c) => {
     set({ examCountry: c });
-    // Invalidate remaining count cache when country changes
+    // Clear remaining count cache when country changes
     set({
       cachedRemainingCount: null,
-      remainingCountTimestamp: 0,
       remainingCountKey: null
     });
   },
@@ -137,10 +107,9 @@ export const useSession = create<SessionState>((set, get) => ({
   examLanguage: 'ru',
   setExamLanguage: (l) => {
     set({ examLanguage: l });
-    // Invalidate remaining count cache when language changes
+    // Clear remaining count cache when language changes
     set({
       cachedRemainingCount: null,
-      remainingCountTimestamp: 0,
       remainingCountKey: null
     });
   },
@@ -185,11 +154,11 @@ export const getDailyProgress = (userId: string, targetDate?: string) => {
 
 // Helper function to load user with caching
 export const loadUserWithCache = async (telegramId: number): Promise<UserOut> => {
-  const { cachedUser, isUserCacheFresh, setCachedUser } = useSession.getState();
+  const { cachedUser, setCachedUser } = useSession.getState();
   
-  // Return cached user if fresh (30 minutes)
-  if (cachedUser && isUserCacheFresh(30)) {
-    console.log('🎯 Using cached user data (30min TTL)');
+  // Return cached user if exists
+  if (cachedUser) {
+    console.log('🎯 Using cached user data');
     return cachedUser;
   }
   
@@ -211,16 +180,13 @@ export const updateUserAndCache = async (userId: string, updates: any): Promise<
   const updatedUser = response.data;
   
   // Update the cache with fresh data
-  const { setCachedUser } = useSession.getState();
+  const { setCachedUser, clearCachedExamSettings } = useSession.getState();
   setCachedUser(updatedUser);
   
   // If exam settings changed, invalidate exam settings cache
   if (updates.exam_country || updates.exam_language || updates.exam_date || updates.daily_goal) {
-    useSession.setState({
-      cachedExamSettings: null,
-      examSettingsTimestamp: 0
-    });
-    console.log('♻️ Exam settings cache invalidated due to user update');
+    clearCachedExamSettings();
+    console.log('♻️ Exam settings cache cleared due to user update');
   }
   
   console.log('✅ User updated and cache refreshed');
@@ -260,11 +226,11 @@ export const setExamSettingsAndCache = async (userId: string, settings: any) => 
 
 // Helper function to load exam settings with caching
 export const loadExamSettingsWithCache = async (userId: string): Promise<ExamSettingsResponse> => {
-  const { cachedExamSettings, isExamSettingsFresh, setCachedExamSettings } = useSession.getState();
+  const { cachedExamSettings, setCachedExamSettings } = useSession.getState();
   
-  // Return cached settings if fresh (10 minutes)
-  if (cachedExamSettings && isExamSettingsFresh(10)) {
-    console.log('🎯 Using cached exam settings (10min TTL)');
+  // Return cached settings if exists
+  if (cachedExamSettings) {
+    console.log('🎯 Using cached exam settings');
     return cachedExamSettings;
   }
   
@@ -287,13 +253,15 @@ export const loadRemainingCountWithCache = async (
 ): Promise<number> => {
   const { 
     cachedRemainingCount, 
-    isRemainingCountFresh, 
+    remainingCountKey,
     setCachedRemainingCount 
   } = useSession.getState();
   
-  // Return cached count if fresh (10 minutes) and for same parameters
-  if (cachedRemainingCount !== null && isRemainingCountFresh(userId, country, language, 10)) {
-    console.log('🎯 Using cached remaining count (10min TTL)');
+  const expectedKey = `${userId}-${country}-${language}`;
+  
+  // Return cached count if exists and key matches (same user/country/language)
+  if (cachedRemainingCount !== null && remainingCountKey === expectedKey) {
+    console.log('🎯 Using cached remaining count');
     return cachedRemainingCount;
   }
   
@@ -316,12 +284,7 @@ export const loadRemainingCountWithCache = async (
 
 // Helper function to invalidate remaining count cache (call when user answers correctly)
 export const invalidateRemainingCountCache = () => {
-  const { setCachedRemainingCount } = useSession.getState();
-  // Reset cache by setting count to null and timestamp to 0
-  useSession.setState({
-    cachedRemainingCount: null,
-    remainingCountTimestamp: 0,
-    remainingCountKey: null
-  });
-  console.log('♻️ Remaining count cache invalidated');
+  const { clearCachedRemainingCount } = useSession.getState();
+  clearCachedRemainingCount();
+  console.log('♻️ Remaining count cache cleared');
 };
