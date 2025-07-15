@@ -1,5 +1,6 @@
 // frontend/src/store/ts
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import api, { DailyProgress, UserOut, ExamSettingsResponse } from '../api/api'
 
 interface Answer {
@@ -71,32 +72,34 @@ interface SessionState {
   setStreakDays: (days: AnswersByDay[]) => void;
 }
 
-export const useSession = create<SessionState>((set, get) => ({
-  userId: null,
-  setUserId: (id) => set({ userId: id }),
+export const useSession = create<SessionState>()(
+  persist(
+    (set, get) => ({
+      userId: null,
+      setUserId: (id) => set({ userId: id }),
 
-  // User caching - simple cache without TTL
-  cachedUser: null,
-  setCachedUser: (user) => set({ cachedUser: user }),
-  clearCachedUser: () => set({ cachedUser: null }),
+      // User caching - simple cache without TTL
+      cachedUser: null,
+      setCachedUser: (user) => set({ cachedUser: user }),
+      clearCachedUser: () => set({ cachedUser: null }),
 
-  // Exam settings caching - simple cache without TTL
-  cachedExamSettings: null,
-  setCachedExamSettings: (settings) => set({ cachedExamSettings: settings }),
-  clearCachedExamSettings: () => set({ cachedExamSettings: null }),
+      // Exam settings caching - simple cache without TTL
+      cachedExamSettings: null,
+      setCachedExamSettings: (settings) => set({ cachedExamSettings: settings }),
+      clearCachedExamSettings: () => set({ cachedExamSettings: null }),
 
-  // Remaining count caching - simple cache with key validation
-  cachedRemainingCount: null,
-  remainingCountKey: null,
-  setCachedRemainingCount: (count, userId, country, language) => {
-    const key = `${userId}-${country}-${language}`;
-    set({
-      cachedRemainingCount: count,
-      remainingCountKey: key
-    });
-  },
-  clearCachedRemainingCount: () => set({
-    cachedRemainingCount: null,
+      // Remaining count caching - simple cache with key validation
+      cachedRemainingCount: null,
+      remainingCountKey: null,
+      setCachedRemainingCount: (count, userId, country, language) => {
+        const key = `${userId}-${country}-${language}`;
+        set({
+          cachedRemainingCount: count,
+          remainingCountKey: key
+        });
+      },
+      clearCachedRemainingCount: () => set({
+        cachedRemainingCount: null,
     remainingCountKey: null
   }),
 
@@ -176,7 +179,21 @@ export const useSession = create<SessionState>((set, get) => ({
 
   streakDays: [],
   setStreakDays: (days) => set({ streakDays: days }),
-}))
+}),
+{
+  name: 'session-storage', // localStorage key
+  partialize: (state) => ({
+    // Сохраняем только критичные данные для кеширования
+    cachedUser: state.cachedUser,
+    userId: state.userId,
+    examCountry: state.examCountry,
+    examLanguage: state.examLanguage,
+    uiLanguage: state.uiLanguage,
+    cachedTopics: state.cachedTopics,
+    topicsKey: state.topicsKey,
+  }),
+}
+))
 
 export const getDailyProgress = (userId: string, targetDate?: string) => {
   const params = targetDate ? `?target_date=${targetDate}` : ''
@@ -185,11 +202,13 @@ export const getDailyProgress = (userId: string, targetDate?: string) => {
 
 // Helper function to load user with caching
 export const loadUserWithCache = async (telegramId: number): Promise<UserOut> => {
-  const { cachedUser, setCachedUser } = useSession.getState();
+  const { cachedUser, setCachedUser, setUserId } = useSession.getState();
   
-  // Return cached user if exists
-  if (cachedUser) {
+  // Return cached user if exists and still valid
+  if (cachedUser && cachedUser.id) {
     console.log('🎯 Using cached user data');
+    // Ensure userId is set from cache
+    setUserId(cachedUser.id);
     return cachedUser;
   }
   
@@ -198,7 +217,8 @@ export const loadUserWithCache = async (telegramId: number): Promise<UserOut> =>
   const response = await api.get<UserOut>(`/users/by-telegram-id/${telegramId}`);
   const userData = response.data;
   
-  // Cache the result
+  // Set userId and cache the result
+  setUserId(userData.id);
   setCachedUser(userData);
   
   return userData;
