@@ -1,7 +1,7 @@
 // src/pages/Repeat.tsx
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useSession } from '../store/session'
+import { useSession, invalidateRemainingCountCache } from '../store/session'
 import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart3 } from 'lucide-react'
@@ -123,6 +123,8 @@ const Repeat = () => {
     // Optimistic update for immediate UI feedback
     if (wasCorrect) {
       updateStatsOptimistically(1, 1)
+      // Invalidate remaining count cache when user answers correctly
+      invalidateRemainingCountCache()
     }
 
     if (userId) {

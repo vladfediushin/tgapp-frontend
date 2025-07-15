@@ -1,7 +1,7 @@
 // src/components/ExamSettingsComponent.tsx
 import React, { useState, useEffect } from 'react'
-import { useSession, setExamSettingsAndCache } from '../store/session'
-import { getExamSettings, setExamSettings, ExamSettingsResponse, ExamSettingsUpdate, getRemainingQuestionsCount } from '../api/api'
+import { useSession, setExamSettingsAndCache, loadExamSettingsWithCache, loadRemainingCountWithCache } from '../store/session'
+import { ExamSettingsResponse, ExamSettingsUpdate } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -63,9 +63,8 @@ function ExamSettingsComponent({
     if (!examDate || !userId || !examCountry || !examLanguage) return
 
     try {
-      // Получаем количество нерешенных вопросов
-      const response = await getRemainingQuestionsCount(userId, examCountry, examLanguage)
-      const remaining = response.data.remaining_count
+      // Получаем количество нерешенных вопросов с кешированием
+      const remaining = await loadRemainingCountWithCache(userId, examCountry, examLanguage)
       setRemainingQuestions(remaining)
 
       // Рассчитываем рекомендуемое количество
@@ -99,14 +98,14 @@ function ExamSettingsComponent({
     
     try {
       setLoading(true)
-      const response = await getExamSettings(userId)
-      setSettingsState(response.data)
+      const settingsData = await loadExamSettingsWithCache(userId)
+      setSettingsState(settingsData)
       
-      if (response.data.exam_date) {
-        setExamDate(response.data.exam_date)
+      if (settingsData.exam_date) {
+        setExamDate(settingsData.exam_date)
       }
-      if (response.data.daily_goal) {
-        setDailyGoal(response.data.daily_goal)
+      if (settingsData.daily_goal) {
+        setDailyGoal(settingsData.daily_goal)
       }
     } catch (err) {
       console.error('Failed to load exam settings:', err)
