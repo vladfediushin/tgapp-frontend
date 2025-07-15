@@ -2,9 +2,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
+import { useStatsStore } from '../store/stats'
 import {
-  getUserStats,
-  getDailyProgress,
   getUserByTelegramId,
   getAnswersByDay,
   UserStats
@@ -13,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { calculateDailyGoal } from '../utils/dailyGoals'
 import { getLast7LocalDates, calculateCurrentStreak } from '../utils/streakUtils'
 import { getStreakText } from '../utils/pluralUtils'
+import { loadStatsWithCache } from '../utils/statsSync'
 import { Home as HomeIcon, User, BarChart3, Settings, Play, Flame, Calendar, ChevronRight, Sparkles, AlertCircle } from 'lucide-react'
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar'
 import 'react-circular-progressbar/dist/styles.css'
@@ -56,6 +56,10 @@ const Home = () => {
   const setManualDailyGoal = useSession(state => state.setManualDailyGoal)
   const setStreakDays = useSession(state => state.setStreakDays)
 
+  // Stats store hooks
+  const isStatsLoading = useStatsStore(state => state.isStatsLoading)
+  const isProgressLoading = useStatsStore(state => state.isProgressLoading)
+
   // Получаем имя пользователя и загружаем его настройки
   useEffect(() => {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
@@ -85,21 +89,24 @@ const Home = () => {
       })
   }, [])
 
-  // Загружаем статистику и дневной прогресс только после загрузки пользователя и когда есть нужные параметры
+  // Load stats and daily progress from cache or API
   useEffect(() => {
-    if (!internalId) return
-    if (!userLoaded) return
-    if (!examCountry || !examLanguage) return
+    if (!internalId || !userLoaded || !examCountry || !examLanguage) return
 
-    Promise.all([
-      getUserStats(internalId),
-      getDailyProgress(internalId)
-    ])
-      .then(([statsRes, progressRes]) => {
-        setStats(statsRes.data)
-        setDailyProgress(progressRes.data.questions_mastered_today, progressRes.data.date)
+    loadStatsWithCache(internalId)
+      .then(({ userStats, dailyProgress, fromCache }) => {
+        setStats(userStats)
+        setDailyProgress(dailyProgress.questions_mastered_today, dailyProgress.date)
+        
+        if (fromCache) {
+          console.log('📦 Using cached stats data')
+        } else {
+          console.log('🔄 Loaded fresh stats data')
+        }
       })
-      .catch(err => console.error('Ошибка получения данных', err))
+      .catch(err => {
+        console.error('Error loading stats:', err)
+      })
   }, [internalId, userLoaded, examCountry, examLanguage, setDailyProgress])
 
   // Загружаем streakDays только если их нет

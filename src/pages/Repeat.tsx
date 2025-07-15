@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getQuestions, QuestionOut, submitAnswer, getDailyProgress } from '../api/api'  // ДОБАВИЛ getDailyProgress
+import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart3 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { updateStatsOptimistically } from '../utils/statsSync'
 
 const Repeat = () => {
   const { t } = useTranslation()
@@ -108,7 +109,7 @@ const Repeat = () => {
     setIsAnswered(false)
   }
 
-  const handleAnswer = async (index: number) => {  // ДОБАВИЛ async
+  const handleAnswer = async (index: number) => {
     if (!current || isAnswered) return
     const questionId = current.id
     const correctIndex = current.data.correct_index
@@ -119,16 +120,15 @@ const Repeat = () => {
     setIsCorrect(wasCorrect)
     addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
 
+    // Optimistic update for immediate UI feedback
+    if (wasCorrect) {
+      updateStatsOptimistically(1, 1)
+    }
+
     if (userId) {
       try {
         await submitAnswer({ user_id: userId, question_id: questionId, is_correct: wasCorrect })
         console.log('submitAnswer success')
-        
-        // ДОБАВИЛ: Обновляем daily progress если ответ правильный
-        if (wasCorrect) {
-          const progressRes = await getDailyProgress(userId)
-          setDailyProgress(progressRes.data.questions_mastered_today, progressRes.data.date)
-        }
       } catch (err) {
         console.error('Ошибка при отправке ответа на бэк:', err)
       }

@@ -1,17 +1,35 @@
 // frontend/src/pages/Results.tsx
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
 import { useTranslation } from 'react-i18next'
 import { Trophy, CheckCircle, XCircle, ArrowLeft, RotateCcw, Home } from 'lucide-react'
 import BottomNavigation from '../components/BottomNavigation'
+import { backgroundSyncStats } from '../utils/statsSync'
 
 const Results = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const answers = useSession(state => state.answers)
+  const userId = useSession(state => state.userId)
   const location = window.location
   const state = (location as any).state || {}
+
+  // Background sync stats after quiz completion
+  useEffect(() => {
+    if (userId && answers.length > 0) {
+      // Run background sync without blocking UI
+      backgroundSyncStats(userId)
+        .then(result => {
+          if (result.success) {
+            console.log('📊 Stats synced successfully in background')
+          }
+        })
+        .catch(error => {
+          console.error('Background sync error:', error)
+        })
+    }
+  }, [userId]) // Only run once when component mounts
 
   // Try to get state from react-router if available
   let noQuestions = false

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats } from '../api/api'
+import { useStatsStore } from '../store/stats'
+import { loadStatsWithCache } from '../utils/statsSync'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
 import BottomNavigation from '../components/BottomNavigation'
@@ -26,6 +27,10 @@ const Statistics = () => {
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
 
+  // Stats store hooks
+  const userStats = useStatsStore(state => state.userStats)
+  const isStatsLoading = useStatsStore(state => state.isStatsLoading)
+
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -36,14 +41,19 @@ const Statistics = () => {
       return
     }
 
-    setLoading(true)
-    getUserStats(userId)
-      .then(res => {
-        setStats(res.data)
+    // Load from cache or API
+    loadStatsWithCache(userId)
+      .then(({ userStats, fromCache }) => {
+        setStats(userStats)
         setError(null)
+        if (fromCache) {
+          console.log('📦 Using cached stats in Statistics')
+        } else {
+          console.log('🔄 Loaded fresh stats in Statistics')
+        }
       })
       .catch(err => {
-        console.error('Ошибка получения статистики:', err)
+        console.error('Error loading statistics:', err)
         setError('Failed to load statistics')
         setStats(null)
       })

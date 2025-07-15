@@ -2,8 +2,10 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession } from '../store/session'
-import { getUserStats, getQuestions, updateUser, getDailyProgress } from '../api/api'
+import { useStatsStore } from '../store/stats'
+import { getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
+import { loadStatsWithCache } from '../utils/statsSync'
 import HomeButton from '../components/HomeButton'
 import BottomNavigation from '../components/BottomNavigation'
 import { User, Settings, Edit3, ChevronDown, Calendar, Target, TrendingUp, Activity, BarChart3 } from 'lucide-react'
@@ -21,10 +23,10 @@ const EXAM_LANGUAGES = [
   { value: 'en', label: 'English' },
 ]
 
-function getLast7LocalDates() {
-  const pad = (n) => n.toString().padStart(2, '0')
-  const localDateString = (d) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
-  const dates = []
+function getLast7LocalDates(): string[] {
+  const pad = (n: number) => n.toString().padStart(2, '0')
+  const localDateString = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
+  const dates: string[] = []
   for (let i = 6; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
@@ -46,6 +48,10 @@ const Profile = () => {
   const setExamCountry = useSession(state => state.setExamCountry)
   const setExamLanguage = useSession(state => state.setExamLanguage)
 
+  // Stats store hooks
+  const userStats = useStatsStore(state => state.userStats)
+  const isStatsLoading = useStatsStore(state => state.isStatsLoading)
+
   const [stats, setStats] = useState(null)
   const [dueCount, setDueCount] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -63,14 +69,19 @@ const Profile = () => {
       return
     }
 
-    setLoading(true)
-    getUserStats(userId)
-      .then(res => {
-        setStats(res.data)
+    // Try to load from cache first, then from API
+    loadStatsWithCache(userId)
+      .then(({ userStats, fromCache }) => {
+        setStats(userStats)
         setError(null)
+        if (fromCache) {
+          console.log('📦 Using cached stats in Profile')
+        } else {
+          console.log('🔄 Loaded fresh stats in Profile')
+        }
       })
       .catch(err => {
-        console.error('Ошибка получения статистики:', err)
+        console.error('Error loading profile stats:', err)
         setError('Failed to load profile data')
         setStats(null)
       })
