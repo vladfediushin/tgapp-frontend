@@ -117,6 +117,7 @@ export const useSession = create<SessionState>()(
 
   examCountry: 'am',
   setExamCountry: (c) => {
+    console.log(`🌍 setExamCountry called:`, c, `Stack:`, new Error().stack);
     set({ examCountry: c });
     // Clear remaining count cache when country changes
     set({
@@ -132,6 +133,7 @@ export const useSession = create<SessionState>()(
 
   examLanguage: 'ru',
   setExamLanguage: (l) => {
+    console.log(`🗣️ setExamLanguage called:`, l, `Stack:`, new Error().stack);
     set({ examLanguage: l });
     // Clear remaining count cache when language changes
     set({
@@ -353,7 +355,8 @@ export const loadTopicsWithCache = async (
   const expectedKey = `${country}-${language}`;
   
   console.log(`📋 loadTopicsWithCache called for: ${expectedKey}`);
-  console.log(`🗂️ Current cachedTopics:`, cachedTopics ? `exists (${cachedTopics.length} topics)` : 'null');
+  console.log(`� Call stack:`, new Error().stack);
+  console.log(`�🗂️ Current cachedTopics:`, cachedTopics ? `exists (${cachedTopics.length} topics)` : 'null');
   console.log(`🔑 Current topicsKey:`, topicsKey, `expected:`, expectedKey);
   
   // Return cached topics if exists and key matches (same country/language)
