@@ -105,14 +105,19 @@ const Home = () => {
   // Загружаем streakDays только если их нет
   useEffect(() => {
     if (!internalId || !userLoaded) return
-    if (streakDays && streakDays.length > 0) return
+    if (streakDays && streakDays.length > 0) {
+      setStreakLoading(false)
+      return
+    }
     getAnswersByDay(internalId, 7)
       .then(res => {
         setStreakDays(res.data)
+        setStreakLoading(false)
       })
       .catch(err => {
         console.error('Ошибка загрузки streakDays:', err)
         setStreakDays([])
+        setStreakLoading(false)
       })
   }, [internalId, userLoaded, streakDays, setStreakDays])
 
