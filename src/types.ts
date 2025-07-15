@@ -42,6 +42,8 @@ export interface TelegramUser {
   exam_country: string
   exam_language: string
   ui_language: string
+  exam_date?: string     // ISO date string
+  daily_goal?: number
 }
 
 export type ApiResponse<T> = AxiosResponse<T>

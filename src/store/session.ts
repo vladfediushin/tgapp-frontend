@@ -157,15 +157,25 @@ export const setExamSettingsAndCache = async (userId: string, settings: any) => 
   // Make the API call to update exam settings
   const response = await api.post(`/users/${userId}/exam-settings`, settings);
   
-  // Get current cached user to refresh with telegram_id
-  const { cachedUser } = useSession.getState();
+  // Get session store functions
+  const { cachedUser, setExamDate, setManualDailyGoal } = useSession.getState();
+  
+  // Update session store with the new settings that were just saved
+  if (settings.exam_date !== undefined) {
+    setExamDate(settings.exam_date);
+  }
+  if (settings.daily_goal !== undefined) {
+    setManualDailyGoal(settings.daily_goal);
+  }
+  
+  // Also refresh user cache if possible
   if (cachedUser?.telegram_id) {
     // Refresh user cache by fetching updated user data via telegram_id
     const userResponse = await api.get<UserOut>(`/users/by-telegram-id/${cachedUser.telegram_id}`);
     const { setCachedUser } = useSession.getState();
     setCachedUser(userResponse.data);
-    console.log('✅ Exam settings updated and user cache refreshed');
   }
   
+  console.log('✅ Exam settings updated, session store and user cache refreshed');
   return response.data;
 };

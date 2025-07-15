@@ -21,15 +21,32 @@ function ExamSettingsComponent({
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   
+  // Get initial values from session store
+  const sessionExamDate = useSession(state => state.examDate)
+  const sessionDailyGoal = useSession(state => state.manualDailyGoal)
+  
   // Исправляем типизацию useState для совместимости с React 19+
   const [settings, setSettingsState] = useState(null)
-  const [examDate, setExamDate] = useState('')
-  const [dailyGoal, setDailyGoal] = useState(10)
+  const [examDate, setExamDate] = useState(sessionExamDate || '')
+  const [dailyGoal, setDailyGoal] = useState(sessionDailyGoal || 10)
   const [recommendedGoal, setRecommendedGoal] = useState(null)
   const [remainingQuestions, setRemainingQuestions] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+
+  // Update local state when session store values change
+  useEffect(() => {
+    if (sessionExamDate !== null) {
+      setExamDate(sessionExamDate || '')
+    }
+  }, [sessionExamDate])
+  
+  useEffect(() => {
+    if (sessionDailyGoal !== null) {
+      setDailyGoal(sessionDailyGoal || 10)
+    }
+  }, [sessionDailyGoal])
 
   useEffect(() => {
     loadSettings()
