@@ -71,8 +71,17 @@ const Home = () => {
     // Если у нас есть кэш пользователя, используем его
     if (cachedUser) {
       console.log('🎯 Using cached user data in Home')
-      if (cachedUser.exam_country) setExamCountry(cachedUser.exam_country)
-      if (cachedUser.exam_language) setExamLanguage(cachedUser.exam_language)
+      
+      // Обновляем только если значения изменились (чтобы не очищать кеш topics)
+      if (cachedUser.exam_country && cachedUser.exam_country !== examCountry) {
+        console.log(`🔄 Updating examCountry: ${examCountry} → ${cachedUser.exam_country}`)
+        setExamCountry(cachedUser.exam_country)
+      }
+      if (cachedUser.exam_language && cachedUser.exam_language !== examLanguage) {
+        console.log(`🔄 Updating examLanguage: ${examLanguage} → ${cachedUser.exam_language}`)
+        setExamLanguage(cachedUser.exam_language)
+      }
+      
       if (cachedUser.ui_language) {
         setUiLanguage(cachedUser.ui_language)
         i18n.changeLanguage(cachedUser.ui_language)
@@ -87,8 +96,16 @@ const Home = () => {
       console.log('🔄 No cached user data, loading with cache in Home')
       loadUserWithCache(tgUser.id)
         .then(user => {
-          if (user.exam_country) setExamCountry(user.exam_country)
-          if (user.exam_language) setExamLanguage(user.exam_language)
+          // Обновляем только если значения изменились (чтобы не очищать кеш topics)
+          if (user.exam_country && user.exam_country !== examCountry) {
+            console.log(`🔄 Fallback: Updating examCountry: ${examCountry} → ${user.exam_country}`)
+            setExamCountry(user.exam_country)
+          }
+          if (user.exam_language && user.exam_language !== examLanguage) {
+            console.log(`🔄 Fallback: Updating examLanguage: ${examLanguage} → ${user.exam_language}`)
+            setExamLanguage(user.exam_language)
+          }
+          
           if (user.ui_language) {
             setUiLanguage(user.ui_language)
             i18n.changeLanguage(user.ui_language)
@@ -106,7 +123,7 @@ const Home = () => {
     } else {
       setUserLoaded(true)
     }
-  }, [cachedUser])
+  }, [cachedUser, examCountry, examLanguage])
 
   // Load stats and daily progress from cache or API
   useEffect(() => {
