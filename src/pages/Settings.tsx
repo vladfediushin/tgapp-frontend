@@ -1,6 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession } from '../store/session'
+import { useSession, updateUserAndCache } from '../store/session'
 import { updateUser } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import HomeButton from '../components/HomeButton'
@@ -96,7 +96,7 @@ const Settings = () => {
                 setUiLanguage(newUi)
                 i18n.changeLanguage(newUi)
                 if (userId) {
-                  updateUser(userId, { ui_language: newUi }).catch(err =>
+                  updateUserAndCache(userId, { ui_language: newUi }).catch(err =>
                     console.error('Ошибка обновления языка интерфейса:', err)
                   )
                 }

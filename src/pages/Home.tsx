@@ -1,10 +1,9 @@
 // src/pages/Home.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession } from '../store/session'
+import { useSession, loadUserWithCache } from '../store/session'
 import { useStatsStore } from '../store/stats'
 import {
-  getUserByTelegramId,
   getAnswersByDay,
   UserStats
 } from '../api/api'
@@ -67,10 +66,8 @@ const Home = () => {
 
     if (!tgUser?.id) return
 
-    getUserByTelegramId(tgUser.id)
-      .then(res => {
-        const user = res.data
-
+    loadUserWithCache(tgUser.id)
+      .then(user => {
         if (user.exam_country) setExamCountry(user.exam_country)
         if (user.exam_language) setExamLanguage(user.exam_language)
         if (user.ui_language) {

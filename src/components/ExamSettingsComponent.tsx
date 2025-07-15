@@ -1,6 +1,6 @@
 // src/components/ExamSettingsComponent.tsx
 import React, { useState, useEffect } from 'react'
-import { useSession } from '../store/session'
+import { useSession, setExamSettingsAndCache } from '../store/session'
 import { getExamSettings, setExamSettings, ExamSettingsResponse, ExamSettingsUpdate, getRemainingQuestionsCount } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -118,12 +118,12 @@ function ExamSettingsComponent({
         ...(dailyGoal !== undefined && dailyGoal !== null ? { daily_goal: dailyGoal } : {})
       }
       
-      const response = await setExamSettings(userId, updateData)
-      setSettingsState(response.data)
+      const response = await setExamSettingsAndCache(userId, updateData)
+      setSettingsState(response)
       
       // Call the callback if provided
       if (onSave) {
-        onSave(response.data)
+        onSave(response)
       }
       
     } catch (err: any) {

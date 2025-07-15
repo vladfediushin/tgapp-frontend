@@ -1,7 +1,7 @@
 // Modern Profile.tsx with redesigned UI
 import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession } from '../store/session'
+import { useSession, updateUserAndCache } from '../store/session'
 import { useStatsStore } from '../store/stats'
 import { getQuestions, updateUser, getDailyProgress } from '../api/api'
 import { useTranslation } from 'react-i18next'
@@ -690,7 +690,7 @@ const Profile = () => {
                   onClick={() => {
                     setExamCountry(c.value)
                     setShowCountrySelect(false)
-                    if (userId) updateUser(userId, { exam_country: c.value }).catch(console.error)
+                    if (userId) updateUserAndCache(userId, { exam_country: c.value }).catch(console.error)
                   }}
                 >
                   {c.label}
@@ -756,7 +756,7 @@ const Profile = () => {
                   onClick={() => {
                     setExamLanguage(l.value)
                     setShowLanguageSelect(false)
-                    if (userId) updateUser(userId, { exam_language: l.value }).catch(console.error)
+                    if (userId) updateUserAndCache(userId, { exam_language: l.value }).catch(console.error)
                   }}
                 >
                   {l.label}
