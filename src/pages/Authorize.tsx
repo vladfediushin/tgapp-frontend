@@ -43,7 +43,6 @@ const Authorize = () => {
   const setStoreExamCountry  = useSession(state => state.setExamCountry)
   const setStoreExamLanguage = useSession(state => state.setExamLanguage)
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
-  const setTopics            = useSession(state => state.setTopics)
 
   const [step, setStep]         = useState('checking')
   const [userName, setUserName] = useState('друг')
@@ -83,12 +82,11 @@ const Authorize = () => {
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')
 
-        // загружаем темы с кешированием
-        const topics = await loadTopicsWithCache(
+        // загружаем темы с кешированием (уже сохраняется в кеш автоматически)
+        await loadTopicsWithCache(
           user.exam_country  ?? '',
           user.exam_language ?? ''
         )
-        setTopics(topics)
 
         // переходим на Home - existing user
         setStep('complete')
@@ -110,7 +108,6 @@ const Authorize = () => {
     setStoreExamCountry,
     setStoreExamLanguage,
     setStoreUiLanguage,
-    setTopics,
   ])
 
   // Когда step становится complete — делаем navigate
@@ -152,12 +149,11 @@ const Authorize = () => {
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
 
-      // подтягиваем темы с кешированием
-      const topics = await loadTopicsWithCache(
+      // подтягиваем темы с кешированием (уже сохраняется в кеш автоматически)
+      await loadTopicsWithCache(
         res.data.exam_country  ?? '',
         res.data.exam_language ?? ''
       )
-      setTopics(topics)
 
       // Новый пользователь создан - переходим сразу на домашнюю страницу
       setStep('complete')

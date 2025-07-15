@@ -9,7 +9,7 @@ import BottomNavigation from '../components/BottomNavigation'
 const ModeSelect = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const topics = useSession(state => state.topics)
+  const topics = useSession(state => state.cachedTopics || [])
 
   const [mode, setMode] = useState('interval_all')
   const [batchSize, setBatchSize] = useState(30)

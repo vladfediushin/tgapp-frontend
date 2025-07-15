@@ -51,9 +51,6 @@ interface SessionState {
   uiLanguage: string 
   setUiLanguage: (l: string) => void
 
-  topics: string[]
-  setTopics: (topics: string[]) => void
-
   examDate: string | null
   setExamDate: (date: string | null) => void
 
@@ -150,9 +147,6 @@ export const useSession = create<SessionState>()(
   
   uiLanguage: 'ru',
   setUiLanguage: (l) => set({ uiLanguage: l }),
-
-  topics: [],
-  setTopics: (topics) => set({ topics }),
 
   examDate: null,
   setExamDate: (date) => set({ examDate: date }),
