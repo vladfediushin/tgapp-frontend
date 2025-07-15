@@ -117,34 +117,50 @@ export const useSession = create<SessionState>()(
 
   examCountry: 'am',
   setExamCountry: (c) => {
-    console.log(`🌍 setExamCountry called:`, c, `Stack:`, new Error().stack);
-    set({ examCountry: c });
-    // Clear remaining count cache when country changes
-    set({
-      cachedRemainingCount: null,
-      remainingCountKey: null
-    });
-    // Clear topics cache when country changes
-    set({
-      cachedTopics: null,
-      topicsKey: null
-    });
+    const currentState = get();
+    console.log(`🌍 setExamCountry called:`, c, `current:`, currentState.examCountry);
+    
+    // Only clear caches if country actually changed
+    if (currentState.examCountry !== c) {
+      console.log(`🔄 Country changed, clearing caches`);
+      set({ examCountry: c });
+      // Clear remaining count cache when country changes
+      set({
+        cachedRemainingCount: null,
+        remainingCountKey: null
+      });
+      // Clear topics cache when country changes
+      set({
+        cachedTopics: null,
+        topicsKey: null
+      });
+    } else {
+      console.log(`✅ Country unchanged, keeping caches`);
+    }
   },
 
   examLanguage: 'ru',
   setExamLanguage: (l) => {
-    console.log(`🗣️ setExamLanguage called:`, l, `Stack:`, new Error().stack);
-    set({ examLanguage: l });
-    // Clear remaining count cache when language changes
-    set({
-      cachedRemainingCount: null,
-      remainingCountKey: null
-    });
-    // Clear topics cache when language changes
-    set({
-      cachedTopics: null,
-      topicsKey: null
-    });
+    const currentState = get();
+    console.log(`🗣️ setExamLanguage called:`, l, `current:`, currentState.examLanguage);
+    
+    // Only clear caches if language actually changed
+    if (currentState.examLanguage !== l) {
+      console.log(`🔄 Language changed, clearing caches`);
+      set({ examLanguage: l });
+      // Clear remaining count cache when language changes
+      set({
+        cachedRemainingCount: null,
+        remainingCountKey: null
+      });
+      // Clear topics cache when language changes
+      set({
+        cachedTopics: null,
+        topicsKey: null
+      });
+    } else {
+      console.log(`✅ Language unchanged, keeping caches`);
+    }
   },
   
   uiLanguage: 'ru',
