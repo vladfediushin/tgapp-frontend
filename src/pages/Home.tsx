@@ -39,6 +39,8 @@ const Home = () => {
   const [streakLoading, setStreakLoading] = useState(true)
 
   const internalId = useSession(state => state.userId)
+  const cachedUser = useSession(state => state.cachedUser)
+  const isUserCacheFresh = useSession(state => state.isUserCacheFresh)
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   const examDate = useSession(state => state.examDate)
@@ -59,32 +61,50 @@ const Home = () => {
   const isStatsLoading = useStatsStore(state => state.isStatsLoading)
   const isProgressLoading = useStatsStore(state => state.isProgressLoading)
 
-  // Получаем имя пользователя и загружаем его настройки
+  // Получаем имя пользователя и проверяем кэш
   useEffect(() => {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
     setUserName(tgUser?.first_name || 'друг')
 
-    if (!tgUser?.id) return
+    // Если у нас есть свежий кэш пользователя, используем его
+    if (cachedUser && isUserCacheFresh(30)) {
+      console.log('🎯 Using cached user data in Home')
+      if (cachedUser.exam_country) setExamCountry(cachedUser.exam_country)
+      if (cachedUser.exam_language) setExamLanguage(cachedUser.exam_language)
+      if (cachedUser.ui_language) {
+        setUiLanguage(cachedUser.ui_language)
+        i18n.changeLanguage(cachedUser.ui_language)
+      }
+      if (cachedUser.exam_date) setExamDate(cachedUser.exam_date)
+      if (cachedUser.daily_goal !== undefined && cachedUser.daily_goal !== null)
+        setManualDailyGoal(cachedUser.daily_goal)
 
-    loadUserWithCache(tgUser.id)
-      .then(user => {
-        if (user.exam_country) setExamCountry(user.exam_country)
-        if (user.exam_language) setExamLanguage(user.exam_language)
-        if (user.ui_language) {
-          setUiLanguage(user.ui_language)
-          i18n.changeLanguage(user.ui_language)
-        }
-        if (user.exam_date) setExamDate(user.exam_date)
-        if (user.daily_goal !== undefined && user.daily_goal !== null)
-          setManualDailyGoal(user.daily_goal)
+      setUserLoaded(true)
+    } else if (tgUser?.id) {
+      // Fallback: если нет свежего кэша, загружаем данные
+      console.log('🔄 No cached user data, loading fresh data in Home')
+      loadUserWithCache(tgUser.id)
+        .then(user => {
+          if (user.exam_country) setExamCountry(user.exam_country)
+          if (user.exam_language) setExamLanguage(user.exam_language)
+          if (user.ui_language) {
+            setUiLanguage(user.ui_language)
+            i18n.changeLanguage(user.ui_language)
+          }
+          if (user.exam_date) setExamDate(user.exam_date)
+          if (user.daily_goal !== undefined && user.daily_goal !== null)
+            setManualDailyGoal(user.daily_goal)
 
-        setUserLoaded(true) // отметим, что загрузили user и установили данные
-      })
-      .catch(err => {
-        console.error('Ошибка при получении пользователя:', err)
-        setUserLoaded(true) // чтобы не блокировать навсегда
-      })
-  }, [])
+          setUserLoaded(true)
+        })
+        .catch(err => {
+          console.error('Ошибка при получении пользователя:', err)
+          setUserLoaded(true)
+        })
+    } else {
+      setUserLoaded(true)
+    }
+  }, [cachedUser, isUserCacheFresh])
 
   // Load stats and daily progress from cache or API
   useEffect(() => {

@@ -3,7 +3,6 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession, updateUserAndCache } from '../store/session'
 import { useStatsStore } from '../store/stats'
-import { getQuestions } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { loadStatsWithCache } from '../utils/statsSync'
 import HomeButton from '../components/HomeButton'
@@ -41,7 +40,6 @@ const Profile = () => {
   const isStatsLoading = useStatsStore(state => state.isStatsLoading)
 
   const [stats, setStats] = useState(null)
-  const [dueCount, setDueCount] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showCountrySelect, setShowCountrySelect] = useState(false)
   const [showLanguageSelect, setShowLanguageSelect] = useState(false)
@@ -70,22 +68,6 @@ const Profile = () => {
         setStats(null)
       })
       .finally(() => setLoading(false))
-
-    if (examCountry && examLanguage) {
-      getQuestions({
-        user_id: userId,
-        mode: 'interval_all',
-        country: examCountry,
-        language: examLanguage,
-      })
-        .then(res => setDueCount(res.data.length))
-        .catch(err => {
-          console.error('Ошибка получения повторных вопросов:', err)
-          setDueCount(0)
-        })
-    } else {
-      setDueCount(0)
-    }
   }, [userId, examCountry, examLanguage])
 
   if (loading) {

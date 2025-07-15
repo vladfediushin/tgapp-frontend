@@ -1,7 +1,6 @@
 // frontend/src/store/ts
 import { create } from 'zustand'
-import api, { DailyProgress } from '../api/api'
-import { UserOut } from '../types'
+import api, { DailyProgress, UserOut } from '../api/api'
 
 interface Answer {
   questionId: string
@@ -169,9 +168,9 @@ export const setExamSettingsAndCache = async (userId: string, settings: any) => 
   }
   
   // Also refresh user cache if possible
-  if (cachedUser?.telegram_id) {
-    // Refresh user cache by fetching updated user data via telegram_id
-    const userResponse = await api.get<UserOut>(`/users/by-telegram-id/${cachedUser.telegram_id}`);
+  if (userId) {
+    // Refresh user cache by fetching updated user data
+    const userResponse = await api.get<UserOut>(`/users/${userId}`);
     const { setCachedUser } = useSession.getState();
     setCachedUser(userResponse.data);
   }

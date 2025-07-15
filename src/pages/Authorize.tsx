@@ -1,10 +1,9 @@
 // src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession } from '../store/session'
-import { createUser, getUserByTelegramId, getTopics } from '../api/api'
+import { useSession, updateUserAndCache } from '../store/session'
+import { createUser, getUserByTelegramId, getTopics, UserOut as ApiUserOut } from '../api/api'
 import { AxiosError } from 'axios'
-import { UserOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -40,6 +39,7 @@ const Authorize = () => {
 
   // экшены стора
   const setInternalId        = useSession(state => state.setUserId)
+  const setCachedUser        = useSession(state => state.setCachedUser)
   const setStoreExamCountry  = useSession(state => state.setExamCountry)
   const setStoreExamLanguage = useSession(state => state.setExamLanguage)
   const setStoreUiLanguage   = useSession(state => state.setUiLanguage)
@@ -76,9 +76,10 @@ const Authorize = () => {
 
       try {
         const res = await getUserByTelegramId(tgUser.id)
-        const user: UserOut = res.data
+        const user: ApiUserOut = res.data
 
-        // сохраняем в стор
+        // сохраняем ПОЛНЫЕ данные пользователя в Zustand кэш
+        setCachedUser(user)
         setInternalId(user.id)
         setStoreExamCountry(user.exam_country  ?? '')
         setStoreExamLanguage(user.exam_language ?? '')
