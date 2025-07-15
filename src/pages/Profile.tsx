@@ -3,7 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession, updateUserAndCache } from '../store/session'
 import { useStatsStore } from '../store/stats'
-import { getQuestions, updateUser, getDailyProgress } from '../api/api'
+import { getQuestions } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { loadStatsWithCache } from '../utils/statsSync'
 import HomeButton from '../components/HomeButton'
@@ -22,18 +22,6 @@ const EXAM_LANGUAGES = [
   { value: 'ru', label: 'Русский' },
   { value: 'en', label: 'English' },
 ]
-
-function getLast7LocalDates(): string[] {
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  const localDateString = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
-  const dates: string[] = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date()
-    d.setDate(d.getDate() - i)
-    dates.push(localDateString(d))
-  }
-  return dates
-}
 
 const Profile = () => {
   const { t } = useTranslation()
@@ -58,10 +46,6 @@ const Profile = () => {
   const [showCountrySelect, setShowCountrySelect] = useState(false)
   const [showLanguageSelect, setShowLanguageSelect] = useState(false)
   const [error, setError] = useState(null)
-  const [streakProgress, setStreakProgress] = useState([])
-  const [streakLoading, setStreakLoading] = useState(true)
-
-  const last7Dates = useMemo(() => getLast7LocalDates(), [])
 
   useEffect(() => {
     if (!userId) {
@@ -103,20 +87,6 @@ const Profile = () => {
       setDueCount(0)
     }
   }, [userId, examCountry, examLanguage])
-
-  useEffect(() => {
-    if (!userId) return
-
-    setStreakLoading(true)
-    Promise.all(
-      last7Dates.map(date => getDailyProgress(userId, date))
-    ).then(responses => {
-      setStreakProgress(responses.map(res => res.data.questions_mastered_today || 0))
-    }).catch(err => {
-      console.error('Ошибка загрузки streak данных:', err)
-      setStreakProgress(new Array(7).fill(0))
-    }).finally(() => setStreakLoading(false))
-  }, [userId, last7Dates])
 
   if (loading) {
     return <LoadingSpinner size={64} fullScreen />
