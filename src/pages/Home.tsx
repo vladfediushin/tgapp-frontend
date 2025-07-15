@@ -40,7 +40,6 @@ const Home = () => {
 
   const internalId = useSession(state => state.userId)
   const cachedUser = useSession(state => state.cachedUser)
-  const isUserCacheFresh = useSession(state => state.isUserCacheFresh)
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   const examDate = useSession(state => state.examDate)
@@ -66,8 +65,8 @@ const Home = () => {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
     setUserName(tgUser?.first_name || 'друг')
 
-    // Если у нас есть свежий кэш пользователя, используем его
-    if (cachedUser && isUserCacheFresh(30)) {
+    // Если у нас есть кэш пользователя, используем его
+    if (cachedUser) {
       console.log('🎯 Using cached user data in Home')
       if (cachedUser.exam_country) setExamCountry(cachedUser.exam_country)
       if (cachedUser.exam_language) setExamLanguage(cachedUser.exam_language)
@@ -104,7 +103,7 @@ const Home = () => {
     } else {
       setUserLoaded(true)
     }
-  }, [cachedUser, isUserCacheFresh])
+  }, [cachedUser])
 
   // Load stats and daily progress from cache or API
   useEffect(() => {
