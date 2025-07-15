@@ -35,6 +35,12 @@ interface SessionState {
   setCachedRemainingCount: (count: number, userId: string, country: string, language: string) => void;
   clearCachedRemainingCount: () => void;
 
+  // Topics caching
+  cachedTopics: string[] | null;
+  topicsKey: string | null; // country-language for cache validation
+  setCachedTopics: (topics: string[], country: string, language: string) => void;
+  clearCachedTopics: () => void;
+
   examCountry: string
   setExamCountry: (c: string) => void
 
@@ -94,6 +100,21 @@ export const useSession = create<SessionState>((set, get) => ({
     remainingCountKey: null
   }),
 
+  // Topics caching - simple cache with key validation
+  cachedTopics: null,
+  topicsKey: null,
+  setCachedTopics: (topics, country, language) => {
+    const key = `${country}-${language}`;
+    set({
+      cachedTopics: topics,
+      topicsKey: key
+    });
+  },
+  clearCachedTopics: () => set({
+    cachedTopics: null,
+    topicsKey: null
+  }),
+
   examCountry: 'am',
   setExamCountry: (c) => {
     set({ examCountry: c });
@@ -101,6 +122,11 @@ export const useSession = create<SessionState>((set, get) => ({
     set({
       cachedRemainingCount: null,
       remainingCountKey: null
+    });
+    // Clear topics cache when country changes
+    set({
+      cachedTopics: null,
+      topicsKey: null
     });
   },
 
@@ -111,6 +137,11 @@ export const useSession = create<SessionState>((set, get) => ({
     set({
       cachedRemainingCount: null,
       remainingCountKey: null
+    });
+    // Clear topics cache when language changes
+    set({
+      cachedTopics: null,
+      topicsKey: null
     });
   },
   
@@ -287,4 +318,39 @@ export const invalidateRemainingCountCache = () => {
   const { clearCachedRemainingCount } = useSession.getState();
   clearCachedRemainingCount();
   console.log('♻️ Remaining count cache cleared');
+};
+
+// Helper function to load topics with caching
+export const loadTopicsWithCache = async (
+  country: string,
+  language: string
+): Promise<string[]> => {
+  const {
+    cachedTopics,
+    topicsKey,
+    setCachedTopics
+  } = useSession.getState();
+  
+  const expectedKey = `${country}-${language}`;
+  
+  // Return cached topics if exists and key matches (same country/language)
+  if (cachedTopics && topicsKey === expectedKey) {
+    console.log('🎯 Using cached topics');
+    return cachedTopics;
+  }
+  
+  // Load fresh data
+  console.log('🔄 Loading fresh topics...');
+  const response = await api.get<{ topics: string[] }>(`/topics`, {
+    params: {
+      country,
+      language
+    }
+  });
+  const topics = response.data.topics;
+  
+  // Cache the result
+  setCachedTopics(topics, country, language);
+  
+  return topics;
 };

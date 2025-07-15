@@ -80,8 +80,8 @@ const Home = () => {
 
       setUserLoaded(true)
     } else if (tgUser?.id) {
-      // Fallback: если нет свежего кэша, загружаем данные
-      console.log('🔄 No cached user data, loading fresh data in Home')
+      // Fallback: если нет кэша, загружаем данные с кешированием
+      console.log('🔄 No cached user data, loading with cache in Home')
       loadUserWithCache(tgUser.id)
         .then(user => {
           if (user.exam_country) setExamCountry(user.exam_country)

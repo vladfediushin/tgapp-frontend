@@ -1,8 +1,8 @@
 // src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useSession, updateUserAndCache } from '../store/session'
-import { createUser, getUserByTelegramId, getTopics, UserOut as ApiUserOut } from '../api/api'
+import { createUser, getUserByTelegramId, UserOut as ApiUserOut } from '../api/api'
+import { useSession, updateUserAndCache, loadTopicsWithCache } from '../store/session'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
@@ -85,12 +85,12 @@ const Authorize = () => {
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')
 
-        // загружаем темы
-        const topicsRes = await getTopics(
+        // загружаем темы с кешированием
+        const topics = await loadTopicsWithCache(
           user.exam_country  ?? '',
           user.exam_language ?? ''
         )
-        setTopics(topicsRes.data.topics)
+        setTopics(topics)
 
         // переходим на Home - existing user
         setStep('complete')
@@ -154,12 +154,12 @@ const Authorize = () => {
       setStoreExamLanguage(res.data.exam_language ?? '')
       setStoreUiLanguage(res.data.ui_language     ?? '')
 
-      // подтягиваем темы
-      const topicsRes = await getTopics(
+      // подтягиваем темы с кешированием
+      const topics = await loadTopicsWithCache(
         res.data.exam_country  ?? '',
         res.data.exam_language ?? ''
       )
-      setTopics(topicsRes.data.topics)
+      setTopics(topics)
 
       // Новый пользователь создан - переходим сразу на домашнюю страницу
       setStep('complete')
