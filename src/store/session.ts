@@ -204,6 +204,9 @@ export const getDailyProgress = (userId: string, targetDate?: string) => {
 export const loadUserWithCache = async (telegramId: number): Promise<UserOut> => {
   const { cachedUser, setCachedUser, setUserId } = useSession.getState();
   
+  console.log(`📋 loadUserWithCache called for telegramId: ${telegramId}`);
+  console.log(`🗂️ Current cachedUser:`, cachedUser ? `exists (id: ${cachedUser.id})` : 'null');
+  
   // Return cached user if exists and still valid
   if (cachedUser && cachedUser.id) {
     console.log('🎯 Using cached user data');
@@ -216,6 +219,8 @@ export const loadUserWithCache = async (telegramId: number): Promise<UserOut> =>
   console.log('🔄 Loading fresh user data...');
   const response = await api.get<UserOut>(`/users/by-telegram-id/${telegramId}`);
   const userData = response.data;
+  
+  console.log(`✅ Fresh user data loaded (id: ${userData.id}), caching now...`);
   
   // Set userId and cache the result
   setUserId(userData.id);
@@ -353,6 +358,10 @@ export const loadTopicsWithCache = async (
   
   const expectedKey = `${country}-${language}`;
   
+  console.log(`📋 loadTopicsWithCache called for: ${expectedKey}`);
+  console.log(`🗂️ Current cachedTopics:`, cachedTopics ? `exists (${cachedTopics.length} topics)` : 'null');
+  console.log(`🔑 Current topicsKey:`, topicsKey, `expected:`, expectedKey);
+  
   // Return cached topics if exists and key matches (same country/language)
   if (cachedTopics && topicsKey === expectedKey) {
     console.log('🎯 Using cached topics');
@@ -368,6 +377,8 @@ export const loadTopicsWithCache = async (
     }
   });
   const topics = response.data.topics;
+  
+  console.log(`✅ Fresh topics loaded (${topics.length} topics), caching now...`);
   
   // Cache the result
   setCachedTopics(topics, country, language);

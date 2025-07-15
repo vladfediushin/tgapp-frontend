@@ -65,6 +65,9 @@ const Home = () => {
     const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
     setUserName(tgUser?.first_name || 'друг')
 
+    console.log('🏠 Home component mounting, telegramId:', tgUser?.id);
+    console.log('🗂️ cachedUser in Home:', cachedUser ? `exists (id: ${cachedUser.id})` : 'null');
+
     // Если у нас есть кэш пользователя, используем его
     if (cachedUser) {
       console.log('🎯 Using cached user data in Home')

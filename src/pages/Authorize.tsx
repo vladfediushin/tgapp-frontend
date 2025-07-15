@@ -1,8 +1,8 @@
 // src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createUser, getUserByTelegramId, UserOut as ApiUserOut } from '../api/api'
-import { useSession, updateUserAndCache, loadTopicsWithCache } from '../store/session'
+import { createUser, UserOut as ApiUserOut } from '../api/api'
+import { useSession, updateUserAndCache, loadTopicsWithCache, loadUserWithCache } from '../store/session'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
 import i18n from 'i18next'
@@ -75,11 +75,9 @@ const Authorize = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
-        const res = await getUserByTelegramId(tgUser.id)
-        const user: ApiUserOut = res.data
+        const user = await loadUserWithCache(tgUser.id)
 
-        // сохраняем ПОЛНЫЕ данные пользователя в Zustand кэш
-        setCachedUser(user)
+        // Данные уже кешированы в loadUserWithCache, просто обновляем локальные стейты
         setInternalId(user.id)
         setStoreExamCountry(user.exam_country  ?? '')
         setStoreExamLanguage(user.exam_language ?? '')
