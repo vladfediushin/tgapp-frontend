@@ -8,6 +8,13 @@ interface Answer {
   isCorrect: boolean
 }
 
+interface AnswersByDay {
+  date: string;
+  total_answers: number;
+  correct_answers: number;
+  incorrect_answers: number;
+}
+
 interface SessionState {
   userId: string | null;
   setUserId: (id: string) => void
@@ -37,6 +44,9 @@ interface SessionState {
   answers: Answer[]
   addAnswer: (answer: Answer) => void
   resetAnswers: () => void
+
+  streakDays: AnswersByDay[];
+  setStreakDays: (days: AnswersByDay[]) => void;
 }
 
 export const useSession = create<SessionState>((set) => ({
@@ -77,6 +87,9 @@ export const useSession = create<SessionState>((set) => ({
     }),
 
   resetAnswers: () => set({ answers: [] }),
+
+  streakDays: [],
+  setStreakDays: (days) => set({ streakDays: days }),
 }))
 
 export const getDailyProgress = (userId: string, targetDate?: string) => {

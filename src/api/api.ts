@@ -208,5 +208,22 @@ export const getDailyProgress = (userId: string, targetDate?: string) => {
   return api.get<DailyProgress>(`/users/${userId}/daily-progress${params}`)
 }
 
+// -------------------------
+// NEW: Answers by Day
+// -------------------------
+
+export interface AnswersByDay {
+  date: string;
+  total_answers: number;
+  correct_answers: number;
+  incorrect_answers: number;
+}
+
+export const getAnswersByDay = (userId: string, days: number = 7) => {
+  return api.get<AnswersByDay[]>(`/users/${userId}/answers-by-day`, {
+    params: { days }
+  })
+}
+
 
 export default api

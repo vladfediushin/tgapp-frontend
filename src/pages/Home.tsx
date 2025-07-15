@@ -6,6 +6,7 @@ import {
   getUserStats,
   getDailyProgress,
   getUserByTelegramId,
+  getAnswersByDay,
   UserStats
 } from '../api/api'
 import { useTranslation } from 'react-i18next'
@@ -36,7 +37,6 @@ const Home = () => {
   const [userName, setUserName] = useState(null)
   const [stats, setStats] = useState(null)
   const [userLoaded, setUserLoaded] = useState(false) // <- флаг загрузки user
-  const [streakProgress, setStreakProgress] = useState([])
   const [streakLoading, setStreakLoading] = useState(true)
 
   const internalId = useSession(state => state.userId)
@@ -46,6 +46,7 @@ const Home = () => {
   const manualDailyGoal = useSession(state => state.manualDailyGoal)
   const dailyProgress = useSession(state => state.dailyProgress)
   const dailyProgressDate = useSession(state => state.dailyProgressDate)
+  const streakDays = useSession(state => state.streakDays)
 
   const setDailyProgress = useSession(state => state.setDailyProgress)
   const setExamCountry = useSession(state => state.setExamCountry)
@@ -53,6 +54,7 @@ const Home = () => {
   const setUiLanguage = useSession(state => state.setUiLanguage)
   const setExamDate = useSession(state => state.setExamDate)
   const setManualDailyGoal = useSession(state => state.setManualDailyGoal)
+  const setStreakDays = useSession(state => state.setStreakDays)
 
   // Получаем имя пользователя и загружаем его настройки
   useEffect(() => {
@@ -100,26 +102,19 @@ const Home = () => {
       .catch(err => console.error('Ошибка получения данных', err))
   }, [internalId, userLoaded, examCountry, examLanguage, setDailyProgress])
 
-  // Загружаем данные streak за последние 7 дней
+  // Загружаем streakDays только если их нет
   useEffect(() => {
-    if (!internalId) return
-    if (!userLoaded) return
-
-    setStreakLoading(true)
-    const last7Dates = getLast7LocalDates()
-    
-    Promise.all(
-      last7Dates.map(date => getDailyProgress(internalId, date))
-    )
-      .then(responses => {
-        setStreakProgress(responses.map(res => res.data.questions_mastered_today || 0))
+    if (!internalId || !userLoaded) return
+    if (streakDays && streakDays.length > 0) return
+    getAnswersByDay(internalId, 7)
+      .then(res => {
+        setStreakDays(res.data)
       })
       .catch(err => {
-        console.error('Ошибка загрузки streak данных:', err)
-        setStreakProgress(new Array(7).fill(0))
+        console.error('Ошибка загрузки streakDays:', err)
+        setStreakDays([])
       })
-      .finally(() => setStreakLoading(false))
-  }, [internalId, userLoaded])
+  }, [internalId, userLoaded, streakDays, setStreakDays])
 
   const handleStart = () => {
     navigate('/mode')
@@ -152,7 +147,8 @@ const Home = () => {
     : 0
 
   // Вычисляем streak
-  const currentStreak = finalDailyGoal && finalDailyGoal > 0 && !streakLoading
+  const streakProgress = streakDays.map(day => day.correct_answers)
+  const currentStreak = finalDailyGoal && finalDailyGoal > 0
     ? calculateCurrentStreak(streakProgress, finalDailyGoal)
     : 0
 
