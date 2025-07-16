@@ -427,8 +427,24 @@ export const submitAnswers = async (userId: string): Promise<void> => {
     // Инвалидируем кеш remaining count, так как ответы могли изменить статистику
     invalidateRemainingCountCache();
     
+    // Обновляем дневной прогресс после отправки ответов
+    await refreshDailyProgress(userId);
+    
   } catch (error) {
     console.error('❌ Error submitting answers:', error);
     throw error; // Пробрасываем ошибку для обработки в UI
+  }
+};
+
+// Helper function to refresh daily progress
+export const refreshDailyProgress = async (userId: string): Promise<void> => {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await getDailyProgress(userId, today);
+    const { setDailyProgress } = useSession.getState();
+    setDailyProgress(response.data.questions_mastered_today, response.data.date);
+    console.log(`📊 Daily progress updated: ${response.data.questions_mastered_today} questions`);
+  } catch (error) {
+    console.error('❌ Error refreshing daily progress:', error);
   }
 };
