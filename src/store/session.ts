@@ -7,6 +7,7 @@ interface Answer {
   questionId: string
   selectedIndex: number
   isCorrect: boolean
+  timestamp: number  // Добавляем timestamp для дедупликации
 }
 
 interface AnswersByDay {
@@ -397,4 +398,37 @@ export const loadTopicsWithCache = async (
   setCachedTopics(topics, country, language);
   
   return topics;
+};
+
+// Helper function to submit all accumulated answers
+export const submitAnswers = async (userId: string): Promise<void> => {
+  const { answers, resetAnswers } = useSession.getState();
+  
+  if (answers.length === 0) {
+    console.log('📭 No answers to submit');
+    return;
+  }
+  
+  console.log(`📤 Submitting ${answers.length} answers for user ${userId}`);
+  
+  try {
+    await api.post(`/users/${userId}/submit_answers`, {
+      answers: answers.map(a => ({
+        question_id: a.questionId,
+        is_correct: a.isCorrect,
+        timestamp: a.timestamp
+      }))
+    });
+    
+    // Очищаем ответы после успешной отправки
+    resetAnswers();
+    console.log(`✅ ${answers.length} answers submitted successfully`);
+    
+    // Инвалидируем кеш remaining count, так как ответы могли изменить статистику
+    invalidateRemainingCountCache();
+    
+  } catch (error) {
+    console.error('❌ Error submitting answers:', error);
+    throw error; // Пробрасываем ошибку для обработки в UI
+  }
 };

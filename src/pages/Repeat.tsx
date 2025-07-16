@@ -1,8 +1,8 @@
 // src/pages/Repeat.tsx
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useSession, invalidateRemainingCountCache } from '../store/session'
-import { getQuestions, QuestionOut, submitAnswer } from '../api/api'
+import { useSession, invalidateRemainingCountCache, submitAnswers } from '../store/session'
+import { getQuestions, QuestionOut } from '../api/api'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart3 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -18,10 +18,10 @@ const Repeat = () => {
   const { batchSize, selectedTopics = [] } = location.state || {}
   const preloadedQuestions = location.state?.questions
 
-  const [queue, setQueue] = useState(null)
-  const [initialCount, setInitialCount] = useState(null)
-  const [current, setCurrent] = useState(null)
-  const [selectedIndex, setSelectedIndex] = useState(null)
+  const [queue, setQueue] = useState<QuestionOut[] | null>(null)
+  const [initialCount, setInitialCount] = useState<number | null>(null)
+  const [current, setCurrent] = useState<QuestionOut | null>(null)
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
 
@@ -33,7 +33,21 @@ const Repeat = () => {
 
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
-  const incorrectCount = answers.filter(a => !a.isCorrect).length
+
+  // Функция для завершения теста с отправкой ответов
+  const finishTest = async () => {
+    if (userId && answers.length > 0) {
+      try {
+        console.log(`🏁 Finishing test, submitting ${answers.length} answers`);
+        await submitAnswers(userId);
+        console.log('✅ Test completed successfully');
+      } catch (error) {
+        console.error('❌ Error submitting answers on test finish:', error);
+        // Не блокируем переход к результатам даже при ошибке
+      }
+    }
+    navigate('/results');
+  };
 
   // Предзагрузка изображений следующего вопроса
   useEffect(() => {
@@ -102,7 +116,7 @@ const Repeat = () => {
       const newQueue = wasCorrect ? rest : [...rest, first]
       const next = newQueue[0] || null
       setCurrent(next)
-      if (!next) navigate('/results')
+      if (!next) finishTest()
       return newQueue
     })
     setSelectedIndex(null)
@@ -118,7 +132,13 @@ const Repeat = () => {
     setSelectedIndex(index)
     setIsAnswered(true)
     setIsCorrect(wasCorrect)
-    addAnswer({ questionId, selectedIndex: index, isCorrect: wasCorrect })
+    // Добавляем ответ с timestamp для дедупликации
+    addAnswer({ 
+      questionId, 
+      selectedIndex: index, 
+      isCorrect: wasCorrect,
+      timestamp: Date.now()
+    })
 
     // Optimistic update for immediate UI feedback
     if (wasCorrect) {
@@ -127,14 +147,7 @@ const Repeat = () => {
       invalidateRemainingCountCache()
     }
 
-    if (userId) {
-      try {
-        await submitAnswer({ user_id: userId, question_id: questionId, is_correct: wasCorrect })
-        console.log('submitAnswer success')
-      } catch (err) {
-        console.error('Ошибка при отправке ответа на бэк:', err)
-      }
-    }
+    // Убираем немедленную отправку - будем отправлять batch в конце теста
 
     if (wasCorrect) {
       setTimeout(() => nextQuestion(true), 500)
@@ -166,7 +179,7 @@ const Repeat = () => {
           marginBottom: '12px'
         }}>
           <button
-            onClick={() => navigate('/results')}
+            onClick={finishTest}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -246,7 +259,7 @@ const Repeat = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-              {incorrectCount}
+              {initialCount !== null && correctCount !== null ? initialCount - correctCount : 0}
             </div>
             <div style={{ fontSize: '12px', color: '#dc2626' }}>
               Ошибок
