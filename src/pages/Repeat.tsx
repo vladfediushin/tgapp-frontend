@@ -36,16 +36,18 @@ const Repeat = () => {
   const errorCount = answers.filter(a => !a.isCorrect).length
 
   // Функция для завершения теста с отправкой ответов
+  const [isFinishing, setIsFinishing] = useState(false);
   const finishTest = async () => {
-    if (userId && answers.length > 0) {
-      try {
+    setIsFinishing(true);
+    try {
+      if (userId && answers.length > 0) {
         console.log(`🏁 Finishing test, submitting ${answers.length} answers`);
         await submitAnswers(userId);
         console.log('✅ Test completed successfully');
-      } catch (error) {
-        console.error('❌ Error submitting answers on test finish:', error);
-        // Не блокируем переход к результатам даже при ошибке
       }
+    } catch (error) {
+      console.error('❌ Error submitting answers on test finish:', error);
+      // Не блокируем переход к результатам даже при ошибке
     }
     navigate('/results');
   };
@@ -155,7 +157,7 @@ const Repeat = () => {
     }
   }
 
-  if (queue === null || current === null) {
+  if (queue === null || current === null || isFinishing) {
     return <LoadingSpinner size={64} text={t('repeat.loading')} fullScreen />
   }
 
