@@ -112,7 +112,7 @@
     "advancedSettings": "Дополнительные настройки"
   },
   "repeat": {
-    "loading": "Загрузка вопросов...",
+    "loading": "Загрузка...",
     "statsInitial": "Всего вопросов в очереди (изначально): {{initialCount}}",
     "statsLeft": "Осталось вопросов в очереди: {{questionsLeft}}",
     "statsCorrect": "Правильно отвечено: {{correctCount}}",
