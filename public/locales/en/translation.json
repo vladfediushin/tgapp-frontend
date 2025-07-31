@@ -47,6 +47,7 @@
     "stats": "Completed: {{answered}} of {{total}}, correct: {{correct}}",
     "loadingStats": "Loading stats...",
     "startRevision": "Start revision",
+    "home": "Home",
     "profile": "Profile",
     "settings": "Settings",
     "statistics": "Statistics",

@@ -47,6 +47,7 @@
     "stats": "Пройдено: {{answered}} из {{total}}, верных: {{correct}}",
     "loadingStats": "Загрузка статистики...",
     "startRevision": "Начать повторение",
+    "home": "Главная",
     "profile": "Профиль",
     "settings": "Настройки",
     "statistics": "Статистика",

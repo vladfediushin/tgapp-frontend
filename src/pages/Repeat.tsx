@@ -205,20 +205,21 @@ const Repeat = () => {
             <span style={{ fontWeight: '500' }}>{t('repeat.back')}</span>
           </button>
           
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px'
-          }}>
-            <Target size={20} style={{ color: '#059669' }} />
-            <span style={{
-              fontSize: '14px',
-              fontWeight: '600',
-              color: '#059669'
-            }}>
-              {questionsLeft} {t('repeat.statsLeft').replace('{questionsLeft}', '')}
-            </span>
-          </div>
+        <div style={{
+          fontSize: '16px',
+          fontWeight: 'bold',
+          marginTop: '8px',
+          marginBottom: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <span style={{ color: '#059669' }}>{correctCount}</span>
+          {' / '}
+          <span style={{ color: '#ef4444' }}>{answers.length - correctCount}</span>
+          {' из '}
+          <span style={{ color: '#111827' }}>{initialCount}</span>
+        </div>
         </div>
         
         <div style={{
