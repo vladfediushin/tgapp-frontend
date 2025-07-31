@@ -33,6 +33,7 @@ const Repeat = () => {
 
   const questionsLeft = queue !== null ? queue.length : 0
   const correctCount = answers.filter(a => a.isCorrect).length
+  const errorCount = answers.filter(a => !a.isCorrect).length
 
   // Функция для завершения теста с отправкой ответов
   const finishTest = async () => {
@@ -205,21 +206,7 @@ const Repeat = () => {
             <span style={{ fontWeight: '500' }}>{t('repeat.back')}</span>
           </button>
           
-        <div style={{
-          fontSize: '16px',
-          fontWeight: 'bold',
-          marginTop: '8px',
-          marginBottom: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
-          <span style={{ color: '#059669' }}>{correctCount}</span>
-          {' / '}
-          <span style={{ color: '#ef4444' }}>{answers.length - correctCount}</span>
-          {' из '}
-          <span style={{ color: '#111827' }}>{initialCount}</span>
-        </div>
+        {/* Строка статистики убрана по просьбе пользователя */}
         </div>
         
         <div style={{
@@ -260,7 +247,7 @@ const Repeat = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-              {initialCount !== null && correctCount !== null ? initialCount - correctCount : 0}
+              {errorCount}
             </div>
             <div style={{ fontSize: '12px', color: '#dc2626' }}>
               Ошибок
