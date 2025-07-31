@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createUser, UserOut as ApiUserOut } from '../api/api'
+import api from '../api/api'
 import { useSession, updateUserAndCache, loadTopicsWithCache, loadUserWithCache } from '../store/session'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
@@ -74,10 +75,15 @@ const Authorize = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
-        const user = await loadUserWithCache(tgUser.id)
-
-        // Данные уже кешированы в loadUserWithCache, просто обновляем локальные стейты
+        // Принудительно загружаем свежие данные с сервера, игнорируя кэш
+        const response = await api.get<ApiUserOut>(`/users/by-telegram-id/${tgUser.id}`)
+        const user = response.data
+        
+        // Обновляем кэш свежими данными
+        setCachedUser(user)
         setInternalId(user.id)
+        
+        // Обновляем локальные стейты
         setStoreExamCountry(user.exam_country  ?? '')
         setStoreExamLanguage(user.exam_language ?? '')
         setStoreUiLanguage(user.ui_language     ?? '')

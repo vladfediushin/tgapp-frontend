@@ -119,7 +119,7 @@
     "statsIncorrect": "Неправильно отвечено: {{incorrectCount}}",
     "question": "Вопрос",
     "next": "Далее",
-    "back": "Назад"
+    "back": "Закончить"
   },
   "results": {
     "sessionComplete": "Сессия завершена ✅",
