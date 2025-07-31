@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from 'axios'
 // создаём экземпляр axios с базовым URL из .env
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 8000, // 8 секунд таймаут - должно быть достаточно
+  timeout: 20000, // 20 секунд таймаут - увеличен для медленных операций с БД
   headers: {
     'Content-Type': 'application/json',
   },
@@ -224,6 +224,5 @@ export const getAnswersByDay = (userId: string, days: number = 7) => {
     params: { days }
   })
 }
-
 
 export default api

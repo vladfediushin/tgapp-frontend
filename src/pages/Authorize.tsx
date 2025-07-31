@@ -1,8 +1,7 @@
 // src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createUser, UserOut as ApiUserOut } from '../api/api'
-import api from '../api/api'
+import { createUser, UserOut as ApiUserOut, api } from '../api/api'
 import { useSession, updateUserAndCache, loadTopicsWithCache, loadUserWithCache } from '../store/session'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
