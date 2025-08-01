@@ -1,7 +1,7 @@
 // src/components/ExamSettingsComponent.tsx
 import React, { useState, useEffect } from 'react'
-import { useSession, setExamSettingsAndCache, loadExamSettingsWithCache, loadRemainingCountWithCache } from '../store/session'
-import { ExamSettingsResponse, ExamSettingsUpdate } from '../api/api'
+import { useSession, setExamSettingsAndCache, loadRemainingCountWithCache } from '../store/session'
+import { ExamSettingsResponse, ExamSettingsUpdate, api } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
@@ -35,22 +35,25 @@ function ExamSettingsComponent({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
-  // Update local state when session store values change
   useEffect(() => {
-    if (sessionExamDate !== null) {
+    loadSettings()
+  }, [userId])
+
+  // Дополнительное обновление при изменении session store
+  // Это обеспечивает мгновенное отражение изменений из других частей приложения
+  useEffect(() => {
+    if (sessionExamDate !== null && sessionExamDate !== examDate) {
+      console.log('🔄 Session store exam date changed, updating component')
       setExamDate(sessionExamDate || '')
     }
   }, [sessionExamDate])
   
   useEffect(() => {
-    if (sessionDailyGoal !== null) {
+    if (sessionDailyGoal !== null && sessionDailyGoal !== dailyGoal) {
+      console.log('🔄 Session store daily goal changed, updating component')
       setDailyGoal(sessionDailyGoal || 10)
     }
   }, [sessionDailyGoal])
-
-  useEffect(() => {
-    loadSettings()
-  }, [userId])
 
   useEffect(() => {
     // Пересчитываем рекомендуемое количество при изменении даты экзамена
@@ -96,9 +99,27 @@ function ExamSettingsComponent({
       return
     }
     
+    setLoading(true)
+    
+    // Сначала пробуем использовать данные из Session Store
+    if (sessionExamDate || sessionDailyGoal) {
+      console.log('🎯 Using session store data for exam settings')
+      if (sessionExamDate) {
+        setExamDate(sessionExamDate)
+      }
+      if (sessionDailyGoal) {
+        setDailyGoal(sessionDailyGoal)
+      }
+      setLoading(false)
+      return
+    }
+    
+    // Fallback: загружаем с API, если Session Store пустой
     try {
-      setLoading(true)
-      const settingsData = await loadExamSettingsWithCache(userId)
+      console.log('🔄 Session store empty, loading exam settings from API...')
+      const response = await api.get<ExamSettingsResponse>(`/users/${userId}/exam-settings`)
+      const settingsData = response.data
+      
       setSettingsState(settingsData)
       
       if (settingsData.exam_date) {
@@ -107,7 +128,7 @@ function ExamSettingsComponent({
       if (settingsData.daily_goal) {
         setDailyGoal(settingsData.daily_goal)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to load exam settings:', err)
       // Don't show error for missing settings (user hasn't set them yet)
       if (err.response?.status !== 404) {
