@@ -21,14 +21,19 @@ function ExamSettingsComponent({
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
   
-  // Get initial values from session store
+  // Get initial values from session store - prioritize cachedUser, fallback to separate fields
+  const cachedUser = useSession(state => state.cachedUser)
   const sessionExamDate = useSession(state => state.examDate)
   const sessionDailyGoal = useSession(state => state.manualDailyGoal)
   
+  // Use cachedUser as primary source, fallback to session fields
+  const primaryExamDate = cachedUser?.exam_date || sessionExamDate
+  const primaryDailyGoal = cachedUser?.daily_goal || sessionDailyGoal
+  
   // Исправляем типизацию useState для совместимости с React 19+
   const [settings, setSettingsState] = useState(null)
-  const [examDate, setExamDate] = useState(sessionExamDate || '')
-  const [dailyGoal, setDailyGoal] = useState(sessionDailyGoal || 10)
+  const [examDate, setExamDate] = useState(primaryExamDate || '')
+  const [dailyGoal, setDailyGoal] = useState(primaryDailyGoal || 10)
   const [recommendedGoal, setRecommendedGoal] = useState(null)
   const [remainingQuestions, setRemainingQuestions] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -42,29 +47,36 @@ function ExamSettingsComponent({
   // Дополнительное обновление при изменении session store
   // Это обеспечивает мгновенное отражение изменений из других частей приложения
   useEffect(() => {
-    if (sessionExamDate !== null && sessionExamDate !== examDate) {
-      console.log('🔄 Session store exam date changed, updating component:', sessionExamDate)
-      setExamDate(sessionExamDate || '')
+    if (primaryExamDate !== null && primaryExamDate !== examDate) {
+      console.log('🔄 Primary exam date changed, updating component:', primaryExamDate)
+      setExamDate(primaryExamDate || '')
     }
-  }, [sessionExamDate])
+  }, [primaryExamDate])
   
   useEffect(() => {
-    if (sessionDailyGoal !== null && sessionDailyGoal !== dailyGoal) {
-      console.log('🔄 Session store daily goal changed, updating component:', sessionDailyGoal, 'current:', dailyGoal)
-      setDailyGoal(sessionDailyGoal)
+    if (primaryDailyGoal !== null && primaryDailyGoal !== dailyGoal) {
+      console.log('🔄 Primary daily goal changed, updating component:', primaryDailyGoal, 'current:', dailyGoal)
+      setDailyGoal(primaryDailyGoal)
     }
-  }, [sessionDailyGoal])
+  }, [primaryDailyGoal])
   
   // Дополнительная синхронизация: обновляем состояние если данные из Session Store изменились
   useEffect(() => {
-    console.log('📊 Session Store values changed:', { sessionExamDate, sessionDailyGoal })
-    if (sessionExamDate !== null) {
-      setExamDate(sessionExamDate || '')
+    console.log('📊 Session Store values changed:', { 
+      cachedUserExamDate: cachedUser?.exam_date,
+      cachedUserDailyGoal: cachedUser?.daily_goal,
+      sessionExamDate, 
+      sessionDailyGoal,
+      primaryExamDate,
+      primaryDailyGoal
+    })
+    if (primaryExamDate !== null) {
+      setExamDate(primaryExamDate || '')
     }
-    if (sessionDailyGoal !== null) {
-      setDailyGoal(sessionDailyGoal)
+    if (primaryDailyGoal !== null) {
+      setDailyGoal(primaryDailyGoal)
     }
-  }, [sessionExamDate, sessionDailyGoal])
+  }, [cachedUser?.exam_date, cachedUser?.daily_goal, sessionExamDate, sessionDailyGoal, primaryExamDate, primaryDailyGoal])
 
   useEffect(() => {
     // Пересчитываем рекомендуемое количество при изменении даты экзамена
@@ -112,14 +124,14 @@ function ExamSettingsComponent({
     
     setLoading(true)
     
-    // Сначала пробуем использовать данные из Session Store
-    if (sessionExamDate || sessionDailyGoal) {
-      console.log('🎯 Using session store data for exam settings')
-      if (sessionExamDate) {
-        setExamDate(sessionExamDate)
+    // Сначала пробуем использовать данные из Session Store (приоритет cachedUser)
+    if (primaryExamDate || primaryDailyGoal) {
+      console.log('🎯 Using session store data for exam settings (cachedUser priority)')
+      if (primaryExamDate) {
+        setExamDate(primaryExamDate)
       }
-      if (sessionDailyGoal) {
-        setDailyGoal(sessionDailyGoal)
+      if (primaryDailyGoal) {
+        setDailyGoal(primaryDailyGoal)
       }
       setLoading(false)
       return
