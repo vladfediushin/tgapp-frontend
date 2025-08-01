@@ -43,17 +43,28 @@ function ExamSettingsComponent({
   // Это обеспечивает мгновенное отражение изменений из других частей приложения
   useEffect(() => {
     if (sessionExamDate !== null && sessionExamDate !== examDate) {
-      console.log('🔄 Session store exam date changed, updating component')
+      console.log('🔄 Session store exam date changed, updating component:', sessionExamDate)
       setExamDate(sessionExamDate || '')
     }
   }, [sessionExamDate])
   
   useEffect(() => {
     if (sessionDailyGoal !== null && sessionDailyGoal !== dailyGoal) {
-      console.log('🔄 Session store daily goal changed, updating component')
-      setDailyGoal(sessionDailyGoal || 10)
+      console.log('🔄 Session store daily goal changed, updating component:', sessionDailyGoal, 'current:', dailyGoal)
+      setDailyGoal(sessionDailyGoal)
     }
   }, [sessionDailyGoal])
+  
+  // Дополнительная синхронизация: обновляем состояние если данные из Session Store изменились
+  useEffect(() => {
+    console.log('📊 Session Store values changed:', { sessionExamDate, sessionDailyGoal })
+    if (sessionExamDate !== null) {
+      setExamDate(sessionExamDate || '')
+    }
+    if (sessionDailyGoal !== null) {
+      setDailyGoal(sessionDailyGoal)
+    }
+  }, [sessionExamDate, sessionDailyGoal])
 
   useEffect(() => {
     // Пересчитываем рекомендуемое количество при изменении даты экзамена

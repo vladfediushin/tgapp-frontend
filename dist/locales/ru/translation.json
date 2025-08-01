@@ -47,6 +47,7 @@
     "stats": "Пройдено: {{answered}} из {{total}}, верных: {{correct}}",
     "loadingStats": "Загрузка статистики...",
     "startRevision": "Начать повторение",
+    "home": "Главная",
     "profile": "Профиль",
     "settings": "Настройки",
     "statistics": "Статистика",
@@ -111,7 +112,7 @@
     "advancedSettings": "Дополнительные настройки"
   },
   "repeat": {
-    "loading": "Загрузка вопросов...",
+    "loading": "Загрузка...",
     "statsInitial": "Всего вопросов в очереди (изначально): {{initialCount}}",
     "statsLeft": "Осталось вопросов в очереди: {{questionsLeft}}",
     "statsCorrect": "Правильно отвечено: {{correctCount}}",

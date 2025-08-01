@@ -47,6 +47,7 @@
     "stats": "Completed: {{answered}} of {{total}}, correct: {{correct}}",
     "loadingStats": "Loading stats...",
     "startRevision": "Start revision",
+    "home": "Home",
     "profile": "Profile",
     "settings": "Settings",
     "statistics": "Statistics",
@@ -105,14 +106,14 @@
     "advancedSettings": "Advanced Settings"
   },
   "repeat": {
-    "loading": "Loading questions...",
+    "loading": "Loading...",
     "statsInitial": "Total in queue (initial): {{initialCount}}",
     "statsLeft": "Remaining in queue: {{questionsLeft}}",
     "statsCorrect": "Correct answers: {{correctCount}}",
     "statsIncorrect": "Incorrect answers: {{incorrectCount}}",
     "question": "Question",
     "next": "Next",
-    "back": "Back"
+    "back": "Finish"
   },
   "results": {
     "sessionComplete": "Session complete ✅",
