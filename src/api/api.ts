@@ -182,11 +182,45 @@ export const submitAnswer = (payload: AnswerSubmit) => {
 /**Получить юзера по Telegram ID */
 /**
  * Возвращает объект пользователя по его telegram_id
+ * С встроенным retry для технических ошибок
  */
 export const getUserByTelegramId = async (
-  telegramId: number
+  telegramId: number,
+  retries: number = 2
 ): Promise<AxiosResponse<UserOut>> => {
-  return api.get<UserOut>(`/users/by-telegram-id/${telegramId}`)
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      console.log(`>>> GET /users/by-telegram-id/${telegramId} (attempt ${attempt + 1})`);
+      const response = await api.get<UserOut>(`/users/by-telegram-id/${telegramId}`);
+      console.log(`<<< Response ${response.status} for GET /users/by-telegram-id/${telegramId}`);
+      return response;
+    } catch (error: any) {
+      console.error(`Error fetching user by telegram ID (attempt ${attempt + 1}):`, error);
+      
+      // Если 404 - пользователь не найден, не retry
+      if (error.response?.status === 404) {
+        throw error;
+      }
+      
+      // Retry для технических ошибок (5xx или network) и не на последней попытке
+      if (attempt < retries && (
+        error.response?.status >= 500 || 
+        error.code === 'NETWORK_ERROR' || 
+        error.code === 'ECONNABORTED' ||
+        !error.response
+      )) {
+        const backoffDelay = 1000 * (attempt + 1); // 1s, 2s backoff
+        console.log(`Retrying in ${backoffDelay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        continue;
+      }
+      
+      throw error;
+    }
+  }
+  
+  // Этого никогда не должно произойти, но для TypeScript
+  throw new Error('Max retries exceeded');
 }
 
 /** Получить список тем для юзера */

@@ -1,7 +1,7 @@
 // frontend/src/store/ts
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import api, { DailyProgress, UserOut, ExamSettingsResponse } from '../api/api'
+import api, { DailyProgress, UserOut, ExamSettingsResponse, getUserByTelegramId } from '../api/api'
 
 interface Answer {
   questionId: string
@@ -230,7 +230,7 @@ export const loadUserWithCache = async (telegramId: number): Promise<UserOut> =>
   
   // Load fresh data
   console.log('🔄 Loading fresh user data...');
-  const response = await api.get<UserOut>(`/users/by-telegram-id/${telegramId}`);
+  const response = await getUserByTelegramId(telegramId); // Теперь с встроенным retry
   const userData = response.data;
   
   console.log(`✅ Fresh user data loaded (id: ${userData.id}), caching now...`);
