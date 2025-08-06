@@ -186,7 +186,7 @@ export const submitAnswer = (payload: AnswerSubmit) => {
  */
 export const getUserByTelegramId = async (
   telegramId: number,
-  retries: number = 2
+  retries: number = 10
 ): Promise<AxiosResponse<UserOut>> => {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -209,7 +209,7 @@ export const getUserByTelegramId = async (
         error.code === 'ECONNABORTED' ||
         !error.response
       )) {
-        const backoffDelay = 1000 * (attempt + 1); // 1s, 2s backoff
+        const backoffDelay = 1000; // Фиксированная задержка 1 секунда
         console.log(`Retrying in ${backoffDelay}ms...`);
         await new Promise(resolve => setTimeout(resolve, backoffDelay));
         continue;

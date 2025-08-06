@@ -1,7 +1,7 @@
 // src/pages/Authorize.tsx
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { createUser, UserOut as ApiUserOut, api } from '../api/api'
+import { createUser, UserOut as ApiUserOut, getUserByTelegramId } from '../api/api'
 import { useSession, updateUserAndCache, loadTopicsWithCache, loadUserWithCache } from '../store/session'
 import { AxiosError } from 'axios'
 import { useTranslation } from 'react-i18next'
@@ -74,8 +74,8 @@ const Authorize = () => {
       setUserName(tgUser.first_name || 'друг')
 
       try {
-        // Принудительно загружаем свежие данные с сервера, игнорируя кэш
-        const response = await api.get<ApiUserOut>(`/users/by-telegram-id/${tgUser.id}`)
+        // Принудительно загружаем свежие данные с сервера с retry логикой
+        const response = await getUserByTelegramId(tgUser.id)
         const user = response.data
         
         // Обновляем кэш свежими данными
@@ -98,10 +98,12 @@ const Authorize = () => {
       } catch (err) {
         const axiosErr = err as AxiosError
         if (axiosErr.response?.status === 404) {
-          // New user - show form
+          // Только при 404 показываем регистрацию
           setStep('form')
         } else {
-          setError(t('authorize.error.checkUser'))
+          // После 10 неудачных попыток показываем техническую ошибку
+          console.error('Technical error after all retries:', err)
+          setError('Ошибка подключения к серверу. Попробуйте позже.')
           setStep('form')
         }
       }
