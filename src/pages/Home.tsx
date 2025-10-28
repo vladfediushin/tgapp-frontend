@@ -59,11 +59,18 @@ const Home = () => {
   // Stats store hooks
   const isStatsLoading = useStatsStore(state => state.isStatsLoading)
   const isProgressLoading = useStatsStore(state => state.isProgressLoading)
+  const formatDays = (value: number) => t('common.dayCount', { count: Math.max(value, 0) })
+  const daysUntilExamValue = examDate
+    ? Math.max(
+        Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+        0
+      )
+    : null
 
   // Получаем имя пользователя и проверяем кэш
   useEffect(() => {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
-    setUserName(tgUser?.first_name || 'друг')
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    setUserName(tgUser?.first_name || t('common.friend'))
 
     console.log('🏠 Home component mounting, telegramId:', tgUser?.id);
     console.log('🗂️ cachedUser in Home:', cachedUser ? `exists (id: ${cachedUser.id})` : 'null');
@@ -117,13 +124,13 @@ const Home = () => {
           setUserLoaded(true)
         })
         .catch(err => {
-          console.error('Ошибка при получении пользователя:', err)
+          console.error('Failed to fetch user:', err)
           setUserLoaded(true)
         })
     } else {
       setUserLoaded(true)
     }
-  }, [cachedUser, examCountry, examLanguage])
+  }, [cachedUser, examCountry, examLanguage, t])
 
   // Load stats and daily progress from cache or API
   useEffect(() => {
@@ -158,7 +165,7 @@ const Home = () => {
         setStreakLoading(false)
       })
       .catch(err => {
-        console.error('Ошибка загрузки streakDays:', err)
+    console.error('Failed to load streakDays:', err)
         setStreakDays([])
         setStreakLoading(false)
       })
@@ -239,14 +246,14 @@ const Home = () => {
                 color: '#111827',
                 margin: 0
               }}>
-                {userName ? t('home.greeting', { name: userName }) : 'Привет, друг!'}
+        {userName ? t('home.greeting', { name: userName }) : t('home.welcomeFallback')}
               </h1>
               <p style={{
                 color: '#6b7280',
                 margin: '4px 0 0 0',
                 fontSize: '14px'
               }}>
-                {userLoaded ? 'Продолжаем подготовку к экзамену' : 'Загружаем ваши данные...'}
+        {userLoaded ? t('home.subtitle') : t('home.loadingUser')}
               </p>
             </div>
             <div style={{ fontSize: '32px' }}>
@@ -279,18 +286,18 @@ const Home = () => {
                 fontWeight: '600',
                 margin: 0
               }}>
-                {!userLoaded ? 'Загрузка...' : 
-                 (!examCountry || !examLanguage) ? 'Настройте экзамен' :
-                 isProgressCurrent && finalDailyGoal !== null ? t('home.todayProgress') : 'Дневная цель не установлена'}
+        {!userLoaded ? t('common.loading') :
+        (!examCountry || !examLanguage) ? t('home.setupExam') :
+        isProgressCurrent && finalDailyGoal !== null ? t('home.todayProgress') : t('home.goalNotSet')}
               </h2>
               <p style={{
                 color: 'rgba(255, 255, 255, 0.8)',
                 margin: '4px 0 0 0',
                 fontSize: '14px'
               }}>
-                {!userLoaded ? 'Подготавливаем данные...' :
-                 (!examCountry || !examLanguage) ? 'Перейдите в настройки' :
-                 isProgressCurrent && finalDailyGoal !== null ? getProgressMessage(dailyProgress || 0, finalDailyGoal) : 'Установите дату экзамена'}
+        {!userLoaded ? t('home.preparingData') :
+        (!examCountry || !examLanguage) ? t('home.goToSettings') :
+        isProgressCurrent && finalDailyGoal !== null ? getProgressMessage(dailyProgress || 0, finalDailyGoal) : t('home.setExamDate')}
               </p>
             </div>
             <div style={{
@@ -391,7 +398,7 @@ const Home = () => {
                 <Calendar size={20} style={{ color: '#60a5fa' }} />
                 <span style={{ fontWeight: '600' }}>
                   {!userLoaded ? '...' :
-                   examDate ? `${Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} дней` : 'Не установлено'}
+                   daysUntilExamValue !== null ? formatDays(daysUntilExamValue) : t('common.notSet')}
                 </span>
                 <ChevronRight size={16} style={{ color: 'rgba(255, 255, 255, 0.8)', marginLeft: 'auto' }} />
               </div>
@@ -400,7 +407,7 @@ const Home = () => {
                 color: 'rgba(255, 255, 255, 0.8)',
                 margin: '4px 0 0 0'
               }}>
-                До экзамена
+                {t('home.daysUntilExam')}
               </p>
             </div>
           </div>
@@ -414,7 +421,7 @@ const Home = () => {
             color: '#111827',
             margin: 0
           }}>
-            Быстрые действия
+            {t('home.quickActions')}
           </h3>
           
           <button 
@@ -484,14 +491,14 @@ const Home = () => {
                 marginBottom: '8px'
               }}>
                 <Sparkles size={20} style={{ color: '#059669' }} />
-                <span style={{ fontWeight: '500', color: '#111827' }}>Новые</span>
+                <span style={{ fontWeight: '500', color: '#111827' }}>{t('home.newLabel')}</span>
               </div>
               <p style={{
                 fontSize: '12px',
                 color: '#6b7280',
                 margin: 0
               }}>
-                Неизученные вопросы
+                {t('home.newDescription')}
               </p>
             </button>
             
@@ -519,14 +526,14 @@ const Home = () => {
                 marginBottom: '8px'
               }}>
                 <AlertCircle size={20} style={{ color: '#dc2626' }} />
-                <span style={{ fontWeight: '500', color: '#111827' }}>Ошибки</span>
+                <span style={{ fontWeight: '500', color: '#111827' }}>{t('home.errorsLabel')}</span>
               </div>
               <p style={{
                 fontSize: '12px',
                 color: '#6b7280',
                 margin: 0
               }}>
-                Работа над ошибками
+                {t('home.errorsDescription')}
               </p>
             </button>
           </div>
@@ -553,7 +560,7 @@ const Home = () => {
               color: '#111827',
               margin: 0
             }}>
-              Общий прогресс
+              {t('home.overallProgress')}
             </h3>
             <span style={{
               fontSize: '14px',
@@ -592,8 +599,10 @@ const Home = () => {
               color: '#6b7280',
               margin: 0
             }}>
-              {(!userLoaded || !stats) ? 'Загрузка...' :
-               `${stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0}% завершено`}
+        {(!userLoaded || !stats) ? t('common.loading') :
+        t('home.completionStatus', {
+          percent: stats.total_questions > 0 ? Math.round((stats.correct / stats.total_questions) * 100) : 0
+        })}
             </p>
             {(!userLoaded || !stats) && (
               <div style={{

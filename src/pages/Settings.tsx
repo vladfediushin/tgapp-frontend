@@ -10,8 +10,8 @@ import { Globe, ChevronDown, Calendar } from 'lucide-react'
 import i18n from 'i18next'
 
 const UI_LANGUAGES = [
-  { value: 'ru', label: '🇷🇺 Русский' },
-  { value: 'en', label: '🇺🇸 English' },
+  { value: 'ru', labelKey: 'languages.ru' },
+  { value: 'en', labelKey: 'languages.en' },
 ]
 
 const Settings = () => {
@@ -82,7 +82,7 @@ const Settings = () => {
               color: '#111827',
               margin: 0
             }}>
-              Язык интерфейса
+              {t('settings.uiLanguageCardTitle')}
             </h2>
           </div>
 
@@ -97,7 +97,7 @@ const Settings = () => {
                 i18n.changeLanguage(newUi)
                 if (userId) {
                   updateUserAndCache(userId, { ui_language: newUi }).catch(err =>
-                    console.error('Ошибка обновления языка интерфейса:', err)
+                    console.error('Failed to update UI language:', err)
                   )
                 }
               }}
@@ -125,7 +125,7 @@ const Settings = () => {
             >
               {UI_LANGUAGES.map(l => (
                 <option key={l.value} value={l.value}>
-                  {l.label}
+                  {t(l.labelKey)}
                 </option>
               ))}
             </select>
@@ -145,7 +145,7 @@ const Settings = () => {
             color: '#6b7280',
             margin: '12px 0 0 0'
           }}>
-            Выберите предпочитаемый язык для интерфейса приложения
+            {t('settings.uiLanguageDescription')}
           </p>
         </div>
 
@@ -179,7 +179,7 @@ const Settings = () => {
               color: '#111827',
               margin: 0
             }}>
-              Настройки экзамена
+              {t('settings.examSettingsCardTitle')}
             </h2>
           </div>
 

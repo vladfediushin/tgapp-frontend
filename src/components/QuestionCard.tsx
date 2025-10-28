@@ -1,6 +1,7 @@
 // QuestionCard.tsx - Modern question card component
 import React from 'react'
 import { CheckCircle, XCircle } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 interface QuestionCardProps {
   question: string
@@ -21,6 +22,8 @@ const QuestionCard = ({
   isAnswered,
   onAnswerSelect
 }: QuestionCardProps) => {
+  const { t } = useTranslation()
+
   return (
     <div style={{
       backgroundColor: 'white',
@@ -35,7 +38,7 @@ const QuestionCard = ({
         marginBottom: '16px',
         margin: 0
       }}>
-        Вопрос
+        {t('common.question')}
       </h2>
       
       {questionImage && (
@@ -113,14 +116,16 @@ const QuestionCard = ({
               }}
               onMouseEnter={(e) => {
                 if (!isAnswered) {
-                  e.target.style.borderColor = '#6b7280'
-                  e.target.style.backgroundColor = '#f9fafb'
+                  const button = e.currentTarget
+                  button.style.borderColor = '#6b7280'
+                  button.style.backgroundColor = '#f9fafb'
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isAnswered) {
-                  e.target.style.borderColor = '#d1d5db'
-                  e.target.style.backgroundColor = 'white'
+                  const button = e.currentTarget
+                  button.style.borderColor = '#d1d5db'
+                  button.style.backgroundColor = 'white'
                 }
               }}
             >

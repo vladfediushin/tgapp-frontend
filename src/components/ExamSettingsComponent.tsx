@@ -4,6 +4,7 @@ import { useSession, setExamSettingsAndCache, loadRemainingCountWithCache } from
 import { ExamSettingsResponse, ExamSettingsUpdate, api } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { useTranslation } from 'react-i18next'
 
 interface ExamSettingsComponentProps {
   showTitle?: boolean  // Whether to show the "Exam Settings" title
@@ -17,6 +18,7 @@ function ExamSettingsComponent({
   onSave,
   compact = false 
 }: ExamSettingsComponentProps) {
+  const { t } = useTranslation()
   const userId = useSession(state => state.userId)
   const examCountry = useSession(state => state.examCountry)
   const examLanguage = useSession(state => state.examLanguage)
@@ -39,6 +41,7 @@ function ExamSettingsComponent({
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const formatDays = (value: number) => t('common.dayCount', { count: Math.max(value, 0) })
 
   useEffect(() => {
     loadSettings()
@@ -155,7 +158,7 @@ function ExamSettingsComponent({
       console.error('Failed to load exam settings:', err)
       // Don't show error for missing settings (user hasn't set them yet)
       if (err.response?.status !== 404) {
-        setError('Не удалось загрузить настройки экзамена')
+        setError(t('examSettings.errors.loadFailed'))
       }
     } finally {
       setLoading(false)
@@ -164,7 +167,7 @@ function ExamSettingsComponent({
 
   const handleSave = async () => {
     if (!userId) {
-      setError('Пользователь не найден')
+      setError(t('examSettings.errors.userNotFound'))
       return
     }
 
@@ -188,7 +191,7 @@ function ExamSettingsComponent({
       
     } catch (err: any) {
       console.error('Failed to save exam settings:', err)
-      const errorMessage = err.response?.data?.detail || 'Ошибка сохранения настроек'
+      const errorMessage = err.response?.data?.detail || t('examSettings.errors.saveFailed')
       setError(errorMessage)
     } finally {
       setSaving(false)
@@ -201,7 +204,7 @@ function ExamSettingsComponent({
   if (loading) {
     return (
       <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
-        Загрузка настроек...
+        {t('examSettings.loading')}
       </div>
     )
   }
@@ -229,7 +232,7 @@ function ExamSettingsComponent({
     <div style={containerStyle}>
       {showTitle && (
         <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700, textAlign: 'center' }}>
-          Настройки экзамена
+          {t('examSettings.title')}
         </h3>
       )}
       {error && (
@@ -248,14 +251,14 @@ function ExamSettingsComponent({
       )}
       <div style={{ width: '100%' }}>
         <label style={{ fontWeight: 500, fontSize: 16, marginBottom: 8, display: 'block' }}>
-          Дата экзамена:
+          {t('examSettings.examDateLabel')}
         </label>
         <ReactDatePicker
           selected={examDateObj}
           onChange={date => setExamDate(date ? date.toISOString().split('T')[0] : '')}
           minDate={new Date()}
           dateFormat="dd/MM/yyyy"
-          placeholderText="Выберите дату"
+          placeholderText={t('examSettings.chooseDatePlaceholder')}
           className="custom-datepicker-input"
           popperPlacement="bottom"
           showPopperArrow={false}
@@ -265,7 +268,7 @@ function ExamSettingsComponent({
       </div>
       <div style={{ width: '100%' }}>
         <label style={{ fontWeight: 500, fontSize: 16, marginBottom: 8, display: 'block' }}>
-          Ежедневная цель: {dailyGoal} вопросов
+          {t('examSettings.dailyGoalLabel', { count: dailyGoal })}
         </label>
         {recommendedGoal && remainingQuestions !== null && (
           <div style={{
@@ -277,16 +280,24 @@ function ExamSettingsComponent({
             borderRadius: 6,
             border: '1px solid #0ea5e9'
           }}>
-            💡 Рекомендуем: <strong>{recommendedGoal} вопросов/день</strong>
+            💡 {t('examSettings.recommendationPrefix')}{' '}
+            <strong>{t('examSettings.recommendationValue', { count: recommendedGoal })}</strong>
             <br />
-            Осталось изучить: {remainingQuestions} вопросов
+            {t('examSettings.remainingQuestions', { count: remainingQuestions })}
             <br />
             {examDate && (() => {
               const today = new Date()
               const examDateObj = new Date(examDate)
               const totalDays = Math.ceil((examDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+              if (totalDays <= 0) {
+                return null
+              }
               const studyDays = Math.floor(totalDays * 0.8)
-              return `${studyDays} дней на изучение, ${totalDays - studyDays} дней на повторение`
+              const reviewDays = totalDays - studyDays
+              return t('examSettings.studyPlan', {
+                study: formatDays(studyDays),
+                review: formatDays(reviewDays)
+              })
             })()}
           </div>
         )}
@@ -315,7 +326,7 @@ function ExamSettingsComponent({
           boxShadow: '0 2px 8px 0 rgba(42,171,238,0.08)'
         }}
       >
-        {saving ? 'Сохранение...' : 'Сохранить настройки'}
+        {saving ? t('examSettings.saving') : t('examSettings.save')}
       </button>
     </div>
   )

@@ -83,7 +83,7 @@ const Repeat = () => {
     }
 
     if (!userId) {
-      console.error('Repeat: нет userId, невозможно загрузить вопросы')
+      console.error('Repeat: missing userId, cannot load questions')
       return
     }
 
@@ -105,7 +105,7 @@ const Repeat = () => {
         setCurrent(res.data[0] || null)
       })
       .catch(err => {
-        console.error('Ошибка загрузки вопросов:', err)
+        console.error('Failed to load questions:', err)
         setQueue([])
         setInitialCount(0)
         setCurrent(null)
@@ -226,7 +226,7 @@ const Repeat = () => {
               {initialCount}
             </div>
             <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              Всего
+              {t('stats.total')}
             </div>
           </div>
           <div style={{
@@ -239,7 +239,7 @@ const Repeat = () => {
               {correctCount}
             </div>
             <div style={{ fontSize: '12px', color: '#059669' }}>
-              Верных
+              {t('stats.correct')}
             </div>
           </div>
           <div style={{
@@ -252,7 +252,7 @@ const Repeat = () => {
               {errorCount}
             </div>
             <div style={{ fontSize: '12px', color: '#dc2626' }}>
-              Ошибок
+              {t('stats.incorrect')}
             </div>
           </div>
         </div>

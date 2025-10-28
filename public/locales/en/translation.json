@@ -3,17 +3,20 @@
     "next": "Next",
     "back": "Back",
     "backToHome": "Home",
-    "topics": "Topics ({{count}})"
+    "topics": "Topics ({{count}})",
+    "retry": "Retry",
+    "tryAgain": "Try again",
+    "reviewIncorrect": "Review mistakes"
   },
   "authorize": {
-    "checking": "Checking user data…",
+    "checking": "Checking user data\u2026",
     "greeting": "Hello, {{name}}! Please select your country and language:",
     "welcome": "Welcome, {{userName}}!",
     "intro": "Let's set up your profile for driving theory learning",
     "examCountryLabel": "Exam country",
     "examLanguageLabel": "Exam language",
     "uiLanguageLabel": "UI language",
-    "selectPlaceholder": "— select —",
+    "selectPlaceholder": "\u2014 select \u2014",
     "submit": "Save and continue",
     "label": {
       "examCountry": "Exam country",
@@ -21,8 +24,8 @@
       "uiLanguage": "UI language"
     },
     "placeholder": {
-      "selectCountry": "— select country —",
-      "selectLanguage": "— select language —"
+      "selectCountry": "\u2014 select country \u2014",
+      "selectLanguage": "\u2014 select language \u2014"
     },
     "button": {
       "next": "Next"
@@ -32,7 +35,7 @@
     },
     "examSettings": {
       "title": "Almost ready, {{userName}}!",
-      "description": "Would you like to set your exam date and daily goal? This will help the app recommend an optimal study pace. These settings are optional — you can skip them and add them later.",
+      "description": "Would you like to set your exam date and daily goal? This will help the app recommend an optimal study pace. These settings are optional \u2014 you can skip them and add them later.",
       "skip": "Skip (set up later)"
     },
     "error": {
@@ -62,7 +65,23 @@
       "days_0": "{{count}} days",
       "days_1": "{{count}} day",
       "days_other": "{{count}} days"
-    }
+    },
+    "subtitle": "Keep preparing for the exam",
+    "loadingUser": "Loading your data...",
+    "welcomeFallback": "Hello, friend!",
+    "setupExam": "Set up the exam",
+    "goalNotSet": "Daily goal is not set",
+    "preparingData": "Preparing data...",
+    "goToSettings": "Go to settings",
+    "setExamDate": "Set the exam date",
+    "daysUntilExam": "Until the exam",
+    "quickActions": "Quick actions",
+    "newLabel": "New",
+    "newDescription": "Unlearned questions",
+    "errorsLabel": "Mistakes",
+    "errorsDescription": "Review mistakes",
+    "overallProgress": "Overall progress",
+    "completionStatus": "{{percent}}% complete"
   },
   "modeSelect": {
     "title": "Select revision mode",
@@ -107,7 +126,13 @@
     "examDate": "Exam Date",
     "editProfile": "Edit Profile",
     "editSettings": "Edit Settings",
-    "advancedSettings": "Advanced Settings"
+    "advancedSettings": "Advanced Settings",
+    "unavailable": "Profile data is unavailable",
+    "tagline": "Learning the driving theory",
+    "notSelected": "Not selected",
+    "examSectionTitle": "Exam",
+    "daysLeft": "Days remaining",
+    "dailyGoalPerDay": "{{count}} questions per day"
   },
   "repeat": {
     "loading": "Loading...",
@@ -120,29 +145,87 @@
     "back": "Finish"
   },
   "results": {
-    "sessionComplete": "Session complete ✅",
+    "sessionComplete": "Session complete \u2705",
     "answeredCount": "You answered {{count}} questions.",
     "correctCount": "Correct answers: {{correct}}",
     "incorrectCount": "Incorrect answers: {{incorrect}}",
     "goHome": "Go home",
-    "noQuestions": "No questions available for this mode."
+    "noQuestions": "No questions available for this mode.",
+    "tryAgain": "Try again",
+    "reviewIncorrect": "Review mistakes"
   },
   "topics": {
     "title": "Choose a topic",
     "list": {
-      "Знаки": "Signs",
-      "Светофоры": "Traffic lights",
-      "Разметка": "Markings",
-      "Ситуации": "Scenarios",
-      "Парковка": "Parking"
+      "\u0417\u043d\u0430\u043a\u0438": "Signs",
+      "\u0421\u0432\u0435\u0442\u043e\u0444\u043e\u0440\u044b": "Traffic lights",
+      "\u0420\u0430\u0437\u043c\u0435\u0442\u043a\u0430": "Markings",
+      "\u0421\u0438\u0442\u0443\u0430\u0446\u0438\u0438": "Scenarios",
+      "\u041f\u0430\u0440\u043a\u043e\u0432\u043a\u0430": "Parking"
     },
     "goHome": "Home"
   },
   "settings": {
     "title": "Advanced Settings",
-    "uiLanguageLabel": "Interface Language"
+    "uiLanguageLabel": "Interface Language",
+    "uiLanguageCardTitle": "Interface language",
+    "uiLanguageDescription": "Choose your preferred UI language",
+    "examSettingsCardTitle": "Exam settings"
   },
   "examSettings": {
-    "title": "Exam Settings"
+    "title": "Exam Settings",
+    "loading": "Loading settings...",
+    "examDateLabel": "Exam date",
+    "chooseDatePlaceholder": "Select a date",
+    "dailyGoalLabel": "Daily goal: {{count}} questions",
+    "recommendationPrefix": "Recommended:",
+    "recommendationValue": "{{count}} questions per day",
+    "remainingQuestions": "Questions remaining: {{count}}",
+    "studyPlan": "{{study}} to learn, {{review}} to review",
+    "saving": "Saving...",
+    "save": "Save settings",
+    "errors": {
+      "loadFailed": "Could not load exam settings",
+      "userNotFound": "User not found",
+      "saveFailed": "Failed to save settings"
+    }
+  },
+  "common": {
+    "question": "Question",
+    "friend": "friend",
+    "loading": "Loading...",
+    "notSet": "Not set",
+    "notSelected": "Not selected",
+    "errorWithMessage": "Error: {{message}}",
+    "dayCount_one": "{{count}} day",
+    "dayCount_other": "{{count}} days"
+  },
+  "stats": {
+    "total": "Total",
+    "correct": "Correct",
+    "incorrect": "Incorrect"
+  },
+  "languages": {
+    "ru": "\ud83c\uddf7\ud83c\uddfa Russian",
+    "en": "\ud83c\uddfa\ud83c\uddf8 English"
+  },
+  "countries": {
+    "am": "\ud83c\udde6\ud83c\uddf2 Armenia",
+    "kz": "\ud83c\uddf0\ud83c\uddff Kazakhstan",
+    "by": "\ud83c\udde7\ud83c\uddfe Belarus"
+  },
+  "statistics": {
+    "title": "Statistics",
+    "unavailable": "Statistics are unavailable",
+    "accuracy": "Answer accuracy",
+    "studyProgress": "Study progress",
+    "detailedStats": "Detailed statistics",
+    "totalQuestions": "Total questions",
+    "answered": "Answered",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "unanswered": "Unanswered",
+    "visualProgress": "Visual progress",
+    "completionSummary": "{{percent}}% learned \u2022 {{unanswered}} questions remaining"
   }
 }

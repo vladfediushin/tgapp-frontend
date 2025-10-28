@@ -128,7 +128,7 @@ const Results = () => {
             }}
           >
             <ArrowLeft size={20} />
-            <span style={{ fontWeight: '500' }}>Назад</span>
+            <span style={{ fontWeight: '500' }}>{t('buttons.back')}</span>
           </button>
         </div>
 
@@ -274,7 +274,7 @@ const Results = () => {
                     fontSize: '14px',
                     color: '#6b7280'
                   }}>
-                    Всего
+                    {t('stats.total')}
                   </div>
                 </div>
                 <div style={{
@@ -302,10 +302,10 @@ const Results = () => {
                   <div style={{
                     fontSize: '14px',
                     color: '#6b7280'
-                  }}>
-                    Верных
+                    }}>
+                      {t('stats.correct')}
+                    </div>
                   </div>
-                </div>
                 <div style={{
                   textAlign: 'center',
                   padding: '16px',
@@ -331,10 +331,10 @@ const Results = () => {
                   <div style={{
                     fontSize: '14px',
                     color: '#6b7280'
-                  }}>
-                    Ошибок
+                    }}>
+                      {t('stats.incorrect')}
+                    </div>
                   </div>
-                </div>
               </div>
             </>
           )}
@@ -372,7 +372,7 @@ const Results = () => {
               }}
             >
               <RotateCcw size={20} />
-              Попробовать снова
+              {t('results.tryAgain')}
             </button>
             
             {incorrect > 0 && (
@@ -404,7 +404,7 @@ const Results = () => {
                 }}
               >
                 <XCircle size={18} />
-                Повторить ошибки
+                {t('buttons.reviewIncorrect')}
               </button>
             )}
             
@@ -434,10 +434,10 @@ const Results = () => {
                 const button = e.currentTarget
                 button.style.backgroundColor = '#f3f4f6'
               }}
-            >
-              <Home size={18} />
-              На главную
-            </button>
+              >
+                <Home size={18} />
+                {t('results.goHome')}
+              </button>
           </div>
         </div>
       </div>

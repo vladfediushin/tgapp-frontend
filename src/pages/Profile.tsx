@@ -12,18 +12,18 @@ import { calculateDailyGoal } from '../utils/dailyGoals'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 const EXAM_COUNTRIES = [
-  { value: 'am', label: '🇦🇲 Армения' },
-  { value: 'kz', label: '🇰🇿 Казахстан' },
-  { value: 'by', label: '🇧🇾 Беларусь' },
+  { value: 'am', labelKey: 'countries.am' },
+  { value: 'kz', labelKey: 'countries.kz' },
+  { value: 'by', labelKey: 'countries.by' },
 ]
 
 const EXAM_LANGUAGES = [
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
+  { value: 'ru', labelKey: 'languages.ru' },
+  { value: 'en', labelKey: 'languages.en' },
 ]
 
 const Profile = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   
   const userId = useSession(state => state.userId)
@@ -44,6 +44,16 @@ const Profile = () => {
   const [showCountrySelect, setShowCountrySelect] = useState(false)
   const [showLanguageSelect, setShowLanguageSelect] = useState(false)
   const [error, setError] = useState(null)
+  const formatDays = (value: number) => t('common.dayCount', { count: Math.max(value, 0) })
+  const getCountryLabel = (value: string | null) => {
+    const found = EXAM_COUNTRIES.find(c => c.value === value)
+    return found ? t(found.labelKey) : t('profile.notSelected')
+  }
+  const getLanguageLabel = (value: string | null) => {
+    const found = EXAM_LANGUAGES.find(l => l.value === value)
+    return found ? t(found.labelKey) : t('profile.notSelected')
+  }
+  const dateLocale = i18n.language?.startsWith('ru') ? 'ru-RU' : 'en-US'
 
   useEffect(() => {
     if (!userId) {
@@ -91,7 +101,7 @@ const Profile = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Ошибка: {error}
+          {t('common.errorWithMessage', { message: error })}
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
@@ -105,7 +115,7 @@ const Profile = () => {
               cursor: 'pointer'
             }}
           >
-            Повторить
+            {t('buttons.retry')}
           </button>
           <button 
             onClick={() => navigate('/home')}
@@ -118,7 +128,7 @@ const Profile = () => {
               cursor: 'pointer'
             }}
           >
-            На главную
+            {t('buttons.backToHome')}
           </button>
         </div>
       </div>
@@ -141,7 +151,7 @@ const Profile = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Данные профиля недоступны
+          {t('profile.unavailable')}
         </div>
         <button 
           onClick={() => navigate('/home')}
@@ -154,7 +164,7 @@ const Profile = () => {
             cursor: 'pointer'
           }}
         >
-          На главную
+          {t('buttons.backToHome')}
         </button>
       </div>
     )
@@ -168,6 +178,12 @@ const Profile = () => {
     ? calculateDailyGoal(examDate, stats.total_questions, stats.correct)
     : null
   const finalDailyGoal = manualDailyGoal ?? dailyGoalData?.dailyGoal ?? 10
+  const daysUntilExam = examDate
+    ? Math.max(
+        Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+        0
+      )
+    : null
 
   const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user
   const userName = tgUser?.first_name || 'User'
@@ -264,7 +280,7 @@ const Profile = () => {
                 margin: 0,
                 fontSize: '14px'
               }}>
-                Изучающий теорию вождения
+                {t('profile.tagline')}
               </p>
             </div>
           </div>
@@ -299,7 +315,7 @@ const Profile = () => {
                     fontWeight: '500',
                     margin: '0 0 4px 0'
                   }}>
-                    Страна
+                    {t('profile.examCountryLabel')}
                   </p>
                   <p style={{
                     fontSize: '14px',
@@ -307,7 +323,7 @@ const Profile = () => {
                     margin: 0,
                     fontWeight: '500'
                   }}>
-                    {EXAM_COUNTRIES.find(c => c.value === examCountry)?.label || 'Не выбрано'}
+                    {getCountryLabel(examCountry)}
                   </p>
                 </div>
                 <ChevronDown size={16} color="#059669" />
@@ -338,7 +354,7 @@ const Profile = () => {
                     fontWeight: '500',
                     margin: '0 0 4px 0'
                   }}>
-                    Язык
+                    {t('profile.examLanguageLabel')}
                   </p>
                   <p style={{
                     fontSize: '14px',
@@ -346,7 +362,7 @@ const Profile = () => {
                     margin: 0,
                     fontWeight: '500'
                   }}>
-                    {EXAM_LANGUAGES.find(l => l.value === examLanguage)?.label || 'Не выбрано'}
+                    {getLanguageLabel(examLanguage)}
                   </p>
                 </div>
                 <ChevronDown size={16} color="#2563eb" />
@@ -393,7 +409,7 @@ const Profile = () => {
               color: '#6b7280',
               margin: 0
             }}>
-              Правильных ответов
+              {t('profile.correct')}
             </p>
           </div>
 
@@ -429,7 +445,7 @@ const Profile = () => {
               color: '#6b7280',
               margin: 0
             }}>
-              Общий прогресс
+              {t('home.overallProgress')}
             </p>
           </div>
         </div>
@@ -447,7 +463,7 @@ const Profile = () => {
             color: '#111827',
             margin: '0 0 16px 0'
           }}>
-            Детальная статистика
+            {t('statistics.detailedStats')}
           </h3>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -458,7 +474,7 @@ const Profile = () => {
               padding: '8px 0',
               borderBottom: '1px solid #f3f4f6'
             }}>
-              <span style={{ color: '#6b7280' }}>Всего вопросов</span>
+              <span style={{ color: '#6b7280' }}>{t('profile.totalQuestions')}</span>
               <span style={{ fontWeight: '600', color: '#111827' }}>{total_questions}</span>
             </div>
             
@@ -469,7 +485,7 @@ const Profile = () => {
               padding: '8px 0',
               borderBottom: '1px solid #f3f4f6'
             }}>
-              <span style={{ color: '#6b7280' }}>Отвечено</span>
+              <span style={{ color: '#6b7280' }}>{t('profile.answered')}</span>
               <span style={{ fontWeight: '600', color: '#111827' }}>{answered}</span>
             </div>
             
@@ -480,7 +496,7 @@ const Profile = () => {
               padding: '8px 0',
               borderBottom: '1px solid #f3f4f6'
             }}>
-              <span style={{ color: '#6b7280' }}>Правильно</span>
+              <span style={{ color: '#6b7280' }}>{t('profile.correct')}</span>
               <span style={{ fontWeight: '600', color: '#059669' }}>{correct}</span>
             </div>
             
@@ -491,7 +507,7 @@ const Profile = () => {
               padding: '8px 0',
               borderBottom: '1px solid #f3f4f6'
             }}>
-              <span style={{ color: '#6b7280' }}>Неправильно</span>
+              <span style={{ color: '#6b7280' }}>{t('profile.incorrect')}</span>
               <span style={{ fontWeight: '600', color: '#dc2626' }}>{incorrect}</span>
             </div>
             
@@ -501,7 +517,7 @@ const Profile = () => {
               alignItems: 'center',
               padding: '8px 0'
             }}>
-              <span style={{ color: '#6b7280' }}>Не отвечено</span>
+              <span style={{ color: '#6b7280' }}>{t('profile.unanswered')}</span>
               <span style={{ fontWeight: '600', color: '#6b7280' }}>{unanswered}</span>
             </div>
           </div>
@@ -528,7 +544,7 @@ const Profile = () => {
                 color: '#111827',
                 margin: 0
               }}>
-                Экзамен
+                {t('profile.examSectionTitle')}
               </h3>
             </div>
             
@@ -543,7 +559,7 @@ const Profile = () => {
                 color: '#111827',
                 margin: '0 0 8px 0'
               }}>
-                {new Date(examDate).toLocaleDateString('ru-RU', {
+                {new Date(examDate).toLocaleDateString(dateLocale, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -554,7 +570,7 @@ const Profile = () => {
                 color: '#6b7280',
                 margin: 0
               }}>
-                Осталось дней: {Math.ceil((new Date(examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))}
+                {t('profile.daysLeft')}: {daysUntilExam !== null ? formatDays(daysUntilExam) : t('common.notSet')}
               </p>
             </div>
             
@@ -571,7 +587,7 @@ const Profile = () => {
                   margin: '0 0 4px 0',
                   fontWeight: '500'
                 }}>
-                  Ежедневная цель
+                  {t('profile.dailyGoal')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -579,7 +595,7 @@ const Profile = () => {
                   color: '#111827',
                   margin: 0
                 }}>
-                  {finalDailyGoal} вопросов в день
+                  {t('profile.dailyGoalPerDay', { count: finalDailyGoal })}
                 </p>
               </div>
             )}
@@ -645,7 +661,7 @@ const Profile = () => {
                     if (userId) updateUserAndCache(userId, { exam_country: c.value }).catch(console.error)
                   }}
                 >
-                  {c.label}
+            {t(c.labelKey)}
                 </button>
               ))}
             </div>
@@ -711,7 +727,7 @@ const Profile = () => {
                     if (userId) updateUserAndCache(userId, { exam_language: l.value }).catch(console.error)
                   }}
                 >
-                  {l.label}
+            {t(l.labelKey)}
                 </button>
               ))}
             </div>

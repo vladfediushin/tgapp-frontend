@@ -75,13 +75,13 @@ const Statistics = () => {
         justifyContent: 'center',
         padding: '24px'
       }}>
-        <div style={{ 
-          color: '#dc2626', 
+        <div style={{
+          color: '#dc2626',
           marginBottom: '16px',
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Ошибка: {error}
+          {t('common.errorWithMessage', { message: error })}
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
@@ -95,7 +95,7 @@ const Statistics = () => {
               cursor: 'pointer'
             }}
           >
-            Повторить
+            {t('buttons.retry')}
           </button>
           <button 
             onClick={() => navigate('/home')}
@@ -108,7 +108,7 @@ const Statistics = () => {
               cursor: 'pointer'
             }}
           >
-            На главную
+            {t('buttons.backToHome')}
           </button>
         </div>
       </div>
@@ -131,7 +131,7 @@ const Statistics = () => {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          Статистика недоступна
+          {t('statistics.unavailable')}
         </div>
         <button 
           onClick={() => navigate('/home')}
@@ -144,7 +144,7 @@ const Statistics = () => {
             cursor: 'pointer'
           }}
         >
-          На главную
+          {t('buttons.backToHome')}
         </button>
       </div>
     )
@@ -174,14 +174,14 @@ const Statistics = () => {
           gap: '16px'
         }}>
           <HomeButton />
-          <h1 style={{
-            fontSize: '20px',
-            fontWeight: 'bold',
-            color: '#111827',
-            margin: 0
-          }}>
-            Статистика
-          </h1>
+      <h1 style={{
+        fontSize: '20px',
+        fontWeight: 'bold',
+        color: '#111827',
+        margin: 0
+      }}>
+        {t('statistics.title')}
+      </h1>
         </div>
       </div>
 
@@ -225,7 +225,7 @@ const Statistics = () => {
               color: '#6b7280',
               margin: 0
             }}>
-              Точность ответов
+              {t('statistics.accuracy')}
             </p>
           </div>
 
@@ -262,7 +262,7 @@ const Statistics = () => {
               color: '#6b7280',
               margin: 0
             }}>
-              Прогресс изучения
+              {t('statistics.studyProgress')}
             </p>
           </div>
         </div>
@@ -280,7 +280,7 @@ const Statistics = () => {
             color: '#111827',
             margin: '0 0 16px 0'
           }}>
-            Подробная статистика
+            {t('statistics.detailedStats')}
           </h3>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -310,7 +310,7 @@ const Statistics = () => {
                   color: '#6b7280',
                   margin: '0 0 2px 0'
                 }}>
-                  Всего вопросов
+                  {t('statistics.totalQuestions')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -349,7 +349,7 @@ const Statistics = () => {
                   color: '#6b7280',
                   margin: '0 0 2px 0'
                 }}>
-                  Отвечено
+                  {t('statistics.answered')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -388,7 +388,7 @@ const Statistics = () => {
                   color: '#6b7280',
                   margin: '0 0 2px 0'
                 }}>
-                  Правильно
+                  {t('statistics.correct')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -427,7 +427,7 @@ const Statistics = () => {
                   color: '#6b7280',
                   margin: '0 0 2px 0'
                 }}>
-                  Неправильно
+                  {t('statistics.incorrect')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -466,7 +466,7 @@ const Statistics = () => {
                   color: '#6b7280',
                   margin: '0 0 2px 0'
                 }}>
-                  Не отвечено
+                  {t('statistics.unanswered')}
                 </p>
                 <p style={{
                   fontSize: '18px',
@@ -494,7 +494,7 @@ const Statistics = () => {
             color: '#111827',
             margin: '0 0 16px 0'
           }}>
-            Визуальный прогресс
+            {t('statistics.visualProgress')}
           </h3>
           
           <div style={{
@@ -521,7 +521,7 @@ const Statistics = () => {
             margin: 0,
             textAlign: 'center'
           }}>
-            {completionRate}% изучено • {unanswered} вопросов осталось
+            {t('statistics.completionSummary', { percent: completionRate, unanswered })}
           </p>
         </div>
       </div>
