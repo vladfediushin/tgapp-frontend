@@ -402,7 +402,7 @@ export const loadTopicsWithCache = async (
 
 // Helper function to submit all accumulated answers
 export const submitAnswers = async (userId: string): Promise<void> => {
-  const { answers, resetAnswers } = useSession.getState();
+  const { answers } = useSession.getState();
   
   if (answers.length === 0) {
     console.log('📭 No answers to submit');
@@ -420,8 +420,6 @@ export const submitAnswers = async (userId: string): Promise<void> => {
       }))
     });
     
-    // Очищаем ответы после успешной отправки
-    resetAnswers();
     console.log(`✅ ${answers.length} answers submitted successfully`);
     
     // Инвалидируем кеш remaining count, так как ответы могли изменить статистику

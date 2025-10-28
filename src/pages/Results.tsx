@@ -11,6 +11,7 @@ const Results = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const answers = useSession(state => state.answers)
+  const resetAnswers = useSession(state => state.resetAnswers)
   const userId = useSession(state => state.userId)
   const location = window.location
   const state = (location as any).state || {}
@@ -70,6 +71,7 @@ const Results = () => {
   }
 
   const handleTryAgain = () => {
+    resetAnswers()
     navigate('/mode')
   }
 
@@ -79,6 +81,11 @@ const Results = () => {
       batchSize: '30',
     })
     navigate(`/repeat?${params.toString()}`)
+  }
+
+  const handleGoHome = () => {
+    resetAnswers()
+    navigate('/')
   }
 
   return (
@@ -96,7 +103,7 @@ const Results = () => {
           marginBottom: '32px'
         }}>
           <button
-            onClick={() => navigate('/')}
+            onClick={handleGoHome}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -396,7 +403,7 @@ const Results = () => {
             )}
             
             <button
-              onClick={() => navigate('/')}
+              onClick={handleGoHome}
               style={{
                 width: '100%',
                 backgroundColor: '#f3f4f6',
