@@ -117,12 +117,14 @@ const Results = () => {
               transition: 'all 0.2s ease'
             }}
             onMouseEnter={(e) => {
-              e.target.style.backgroundColor = '#f3f4f6'
-              e.target.style.color = '#111827'
+              const button = e.currentTarget
+              button.style.backgroundColor = '#f3f4f6'
+              button.style.color = '#111827'
             }}
             onMouseLeave={(e) => {
-              e.target.style.backgroundColor = 'transparent'
-              e.target.style.color = '#6b7280'
+              const button = e.currentTarget
+              button.style.backgroundColor = 'transparent'
+              button.style.color = '#6b7280'
             }}
           >
             <ArrowLeft size={20} />
@@ -359,12 +361,14 @@ const Results = () => {
                 gap: '12px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-1px)'
-                e.target.style.boxShadow = '0 8px 15px -3px rgba(5, 150, 105, 0.4)'
+                const button = e.currentTarget
+                button.style.transform = 'translateY(-1px)'
+                button.style.boxShadow = '0 8px 15px -3px rgba(5, 150, 105, 0.4)'
               }}
               onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)'
-                e.target.style.boxShadow = '0 4px 6px -1px rgba(5, 150, 105, 0.3)'
+                const button = e.currentTarget
+                button.style.transform = 'translateY(0)'
+                button.style.boxShadow = '0 4px 6px -1px rgba(5, 150, 105, 0.3)'
               }}
             >
               <RotateCcw size={20} />
@@ -391,10 +395,12 @@ const Results = () => {
                   gap: '12px'
                 }}
                 onMouseEnter={(e) => {
-                  e.target.style.backgroundColor = '#b91c1c'
+                  const button = e.currentTarget
+                  button.style.backgroundColor = '#b91c1c'
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.backgroundColor = '#dc2626'
+                  const button = e.currentTarget
+                  button.style.backgroundColor = '#dc2626'
                 }}
               >
                 <XCircle size={18} />
@@ -421,10 +427,12 @@ const Results = () => {
                 gap: '12px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#e5e7eb'
+                const button = e.currentTarget
+                button.style.backgroundColor = '#e5e7eb'
               }}
               onMouseLeave={(e) => {
-                e.target.style.backgroundColor = '#f3f4f6'
+                const button = e.currentTarget
+                button.style.backgroundColor = '#f3f4f6'
               }}
             >
               <Home size={18} />
