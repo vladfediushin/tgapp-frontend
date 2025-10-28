@@ -66,12 +66,16 @@
   },
   "modeSelect": {
     "title": "Select revision mode",
+    "subtitle": "Choose how you want to practice today",
     "topics": "Topics ({{count}})",
     "topicsAll": "all",
     "modes": {
       "interval_all": "All questions",
+      "interval_all_desc": "Mixed session with spaced repetition of every question",
       "new_only": "New only",
-      "incorrect": "Only incorrect"
+      "new_only_desc": "Focus on questions you have never answered before",
+      "incorrect": "Only incorrect",
+      "incorrect_desc": "Repeat mistakes until you answer them correctly"
     },
     "batchSize": "Batch size",
     "next": "Next",
