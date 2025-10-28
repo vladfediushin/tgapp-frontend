@@ -26,6 +26,8 @@
     "zustand": "^5.0.4"
   },
   "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
     "@vercel/node": "^5.2.0",
     "@vitejs/plugin-react": "^4.4.1"
   }
