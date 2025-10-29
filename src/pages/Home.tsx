@@ -89,7 +89,7 @@ const Home = () => {
         setExamLanguage(cachedUser.exam_language)
       }
       
-      if (cachedUser.ui_language) {
+      if (cachedUser.ui_language && cachedUser.ui_language !== i18n.language) {
         setUiLanguage(cachedUser.ui_language)
         i18n.changeLanguage(cachedUser.ui_language)
       }
@@ -113,7 +113,7 @@ const Home = () => {
             setExamLanguage(user.exam_language)
           }
           
-          if (user.ui_language) {
+          if (user.ui_language && user.ui_language !== i18n.language) {
             setUiLanguage(user.ui_language)
             i18n.changeLanguage(user.ui_language)
           }
@@ -130,7 +130,7 @@ const Home = () => {
     } else {
       setUserLoaded(true)
     }
-  }, [cachedUser, examCountry, examLanguage, t])
+  }, [cachedUser, examCountry, examLanguage, t, i18n.language])
 
   // Load stats and daily progress from cache or API
   useEffect(() => {
