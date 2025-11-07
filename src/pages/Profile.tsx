@@ -13,8 +13,6 @@ import LoadingSpinner from '../components/LoadingSpinner'
 
 const EXAM_COUNTRIES = [
   { value: 'am', labelKey: 'countries.am' },
-  { value: 'kz', labelKey: 'countries.kz' },
-  { value: 'by', labelKey: 'countries.by' },
 ]
 
 const EXAM_LANGUAGES = [

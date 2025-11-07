@@ -13,8 +13,6 @@ import { UserCheck, Globe, MapPin, Languages } from 'lucide-react'
 // Список стран
 const EXAM_COUNTRIES = [
   { value: 'am', label: '🇦🇲 Армения' },
-  { value: 'kz', label: '🇰🇿 Казахстан' },
-  { value: 'by', label: '🇧🇾 Беларусь' },
 ]
 
 // Языки экзамена и интерфейса
