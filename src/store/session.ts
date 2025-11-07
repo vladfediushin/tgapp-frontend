@@ -2,6 +2,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import api, { DailyProgress, UserOut, ExamSettingsResponse, getUserByTelegramId } from '../api/api'
+import { useStatsStore } from './stats'
 
 interface Answer {
   questionId: string
@@ -159,6 +160,9 @@ export const useSession = create<SessionState>()(
         cachedTopics: null,
         topicsKey: null
       });
+      // Clear stats cache so Home/Profile reload progress for the new language
+      const { clearStats } = useStatsStore.getState();
+      clearStats();
     } else {
       console.log(`✅ Language unchanged, keeping caches`);
     }

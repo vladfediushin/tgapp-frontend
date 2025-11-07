@@ -720,10 +720,18 @@ const Profile = () => {
                     transition: 'all 0.2s ease',
                     textAlign: 'left'
                   }}
-                  onClick={() => {
+                  onClick={async () => {
                     setExamLanguage(l.value)
                     setShowLanguageSelect(false)
-                    if (userId) updateUserAndCache(userId, { exam_language: l.value }).catch(console.error)
+                    if (userId) {
+                      try {
+                        await updateUserAndCache(userId, { exam_language: l.value })
+                        const refreshed = await loadStatsWithCache(userId)
+                        setStats(refreshed.userStats)
+                      } catch (err) {
+                        console.error('Failed to update exam language or refresh stats:', err)
+                      }
+                    }
                   }}
                 >
             {t(l.labelKey)}
