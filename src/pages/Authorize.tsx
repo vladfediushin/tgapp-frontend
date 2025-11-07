@@ -26,6 +26,7 @@ const EXAM_LANGUAGES = [
 const UI_LANGUAGES = [
   { value: 'ru', label: 'Русский' },
   { value: 'en', label: 'English' },
+  { value: 'hy', label: 'Հայերեն' },
 ]
 
 const Authorize = () => {

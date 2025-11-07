@@ -7,7 +7,7 @@ i18n
   .use(initReactI18next)         // передаёт i18n-поточок в React
   .init({
     fallbackLng: 'en',           // язык по умолчанию
-    supportedLngs: ['en', 'ru'], // список ваших локалей
+    supportedLngs: ['en', 'ru', 'hy'], // список ваших локалей
     ns: ['translation'],         // namespace, можно расширить
     defaultNS: 'translation',
     backend: {

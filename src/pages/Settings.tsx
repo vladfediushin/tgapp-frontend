@@ -12,6 +12,7 @@ import i18n from 'i18next'
 const UI_LANGUAGES = [
   { value: 'ru', labelKey: 'languages.ru' },
   { value: 'en', labelKey: 'languages.en' },
+  { value: 'hy', labelKey: 'languages.hy' },
 ]
 
 const Settings = () => {
