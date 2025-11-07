@@ -625,7 +625,7 @@ const Profile = () => {
             style={{ 
               background: 'white', 
               borderRadius: '16px', 
-              padding: '24px',
+              padding: '20px 24px 24px',
               width: 'calc(100% - 40px)',
               maxWidth: '400px',
               margin: '0 auto',
@@ -634,7 +634,7 @@ const Profile = () => {
             onClick={e => e.stopPropagation()}
           >
             <h3 style={{ 
-              marginBottom: '16px', 
+              marginBottom: '12px', 
               fontSize: '20px', 
               fontWeight: '600', 
               textAlign: 'center',
@@ -694,7 +694,7 @@ const Profile = () => {
             style={{ 
               background: 'white', 
               borderRadius: '16px', 
-              padding: '24px',
+              padding: '20px 24px 24px',
               width: 'calc(100% - 40px)',
               maxWidth: '400px',
               margin: '0 auto',
@@ -703,7 +703,7 @@ const Profile = () => {
             onClick={e => e.stopPropagation()}
           >
             <h3 style={{ 
-              marginBottom: '16px', 
+              marginBottom: '12px', 
               fontSize: '20px', 
               fontWeight: '600', 
               textAlign: 'center',
