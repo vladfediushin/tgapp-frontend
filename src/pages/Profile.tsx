@@ -721,16 +721,21 @@ const Profile = () => {
                     textAlign: 'left'
                   }}
                   onClick={async () => {
-                    setExamLanguage(l.value)
                     setShowLanguageSelect(false)
-                    if (userId) {
-                      try {
-                        await updateUserAndCache(userId, { exam_language: l.value })
-                        const refreshed = await loadStatsWithCache(userId)
-                        setStats(refreshed.userStats)
-                      } catch (err) {
-                        console.error('Failed to update exam language or refresh stats:', err)
-                      }
+                    if (!userId) {
+                      // Fallback for cases when user is not yet persisted
+                      setExamLanguage(l.value)
+                      return
+                    }
+
+                    try {
+                      await updateUserAndCache(userId, { exam_language: l.value })
+                      // Apply the change only after backend confirms it to avoid stale stats
+                      setExamLanguage(l.value)
+                      const refreshed = await loadStatsWithCache(userId)
+                      setStats(refreshed.userStats)
+                    } catch (err) {
+                      console.error('Failed to update exam language or refresh stats:', err)
                     }
                   }}
                 >
