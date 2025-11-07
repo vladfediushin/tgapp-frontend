@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession, updateUserAndCache } from '../store/session'
 import { updateUser } from '../api/api'
@@ -22,6 +22,8 @@ const Settings = () => {
   const userId = useSession(state => state.userId)
   const uiLanguage = useSession(state => state.uiLanguage)
   const setUiLanguage = useSession(state => state.setUiLanguage)
+  const [showUiLanguageSelect, setShowUiLanguageSelect] = useState(false)
+  const currentUiLanguage = UI_LANGUAGES.find(l => l.value === uiLanguage)
 
   return (
     <div style={{ 
@@ -87,59 +89,27 @@ const Settings = () => {
             </h2>
           </div>
 
-          <div style={{
-            position: 'relative'
-          }}>
-            <select
-              value={uiLanguage}
-              onChange={e => {
-                const newUi = e.target.value
-                setUiLanguage(newUi)
-                i18n.changeLanguage(newUi)
-                if (userId) {
-                  updateUserAndCache(userId, { ui_language: newUi }).catch(err =>
-                    console.error('Failed to update UI language:', err)
-                  )
-                }
-              }}
-              style={{ 
-                width: '100%',
-                padding: '16px',
-                paddingRight: '48px',
-                borderRadius: '12px',
-                border: '1px solid #d1d5db',
-                fontSize: '16px',
-                backgroundColor: 'white',
-                appearance: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                transition: 'all 0.2s ease'
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = '#2563eb'
-                e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)'
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#d1d5db'
-                e.target.style.boxShadow = 'none'
-              }}
-            >
-              {UI_LANGUAGES.map(l => (
-                <option key={l.value} value={l.value}>
-                  {t(l.labelKey)}
-                </option>
-              ))}
-            </select>
-            <div style={{
-              position: 'absolute',
-              right: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              pointerEvents: 'none'
-            }}>
-              <ChevronDown size={20} color="#6b7280" />
-            </div>
-          </div>
+          <button
+            onClick={() => setShowUiLanguageSelect(true)}
+            style={{
+              width: '100%',
+              padding: '16px',
+              borderRadius: '12px',
+              border: '1px solid #d1d5db',
+              backgroundColor: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '16px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span style={{ fontWeight: 600 }}>
+              {currentUiLanguage ? t(currentUiLanguage.labelKey) : t('profile.notSelected')}
+            </span>
+            <ChevronDown size={20} color="#6b7280" />
+          </button>
           
           <p style={{
             fontSize: '14px',
@@ -192,6 +162,81 @@ const Settings = () => {
       </div>
 
       <BottomNavigation />
+
+      {showUiLanguageSelect && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px',
+            boxSizing: 'border-box'
+          }}
+          onClick={() => setShowUiLanguageSelect(false)}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '12px 24px 16px',
+              width: 'calc(100% - 40px)',
+              maxWidth: '400px',
+              margin: '0 auto',
+              boxSizing: 'border-box'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3
+              style={{
+                margin: '0 0 6px 0',
+                fontSize: '20px',
+                fontWeight: '600',
+                textAlign: 'center',
+                color: '#111827'
+              }}
+            >
+              {t('settings.uiLanguageLabel')}
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {UI_LANGUAGES.map(l => (
+                <button
+                  key={l.value}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    border: l.value === uiLanguage ? '2px solid #2563eb' : '1px solid #e5e7eb',
+                    background: l.value === uiLanguage ? '#eff6ff' : '#fff',
+                    fontWeight: l.value === uiLanguage ? '600' : '500',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    textAlign: 'left'
+                  }}
+                  onClick={() => {
+                    setShowUiLanguageSelect(false)
+                    setUiLanguage(l.value)
+                    i18n.changeLanguage(l.value)
+                    if (userId) {
+                      updateUserAndCache(userId, { ui_language: l.value }).catch(err =>
+                        console.error('Failed to update UI language:', err)
+                      )
+                    }
+                  }}
+                >
+                  {t(l.labelKey)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
