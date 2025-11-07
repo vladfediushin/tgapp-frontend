@@ -626,7 +626,9 @@ const Profile = () => {
               borderRadius: '16px', 
               padding: '24px',
               width: '100%',
-              maxWidth: '400px'
+              maxWidth: 'min(400px, calc(100vw - 40px))',
+              margin: '0 auto',
+              boxSizing: 'border-box'
             }} 
             onClick={e => e.stopPropagation()}
           >
