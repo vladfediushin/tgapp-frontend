@@ -616,7 +616,8 @@ const Profile = () => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            padding: '20px'
+            padding: '20px',
+            boxSizing: 'border-box'
           }} 
           onClick={() => setShowCountrySelect(false)}
         >
@@ -684,7 +685,8 @@ const Profile = () => {
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            padding: '20px'
+            padding: '20px',
+            boxSizing: 'border-box'
           }} 
           onClick={() => setShowLanguageSelect(false)}
         >
