@@ -21,6 +21,7 @@ const EXAM_COUNTRIES = [
 const EXAM_LANGUAGES = [
   { value: 'ru', label: 'Русский' },
   { value: 'en', label: 'English' },
+  { value: 'hy', label: 'Հայերեն' },
 ]
 const UI_LANGUAGES = [
   { value: 'ru', label: 'Русский' },

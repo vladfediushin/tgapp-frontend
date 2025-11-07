@@ -20,6 +20,7 @@ const EXAM_COUNTRIES = [
 const EXAM_LANGUAGES = [
   { value: 'ru', labelKey: 'languages.ru' },
   { value: 'en', labelKey: 'languages.en' },
+  { value: 'hy', labelKey: 'languages.hy' },
 ]
 
 const Profile = () => {
