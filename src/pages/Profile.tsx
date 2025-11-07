@@ -634,7 +634,7 @@ const Profile = () => {
             onClick={e => e.stopPropagation()}
           >
             <h3 style={{ 
-              marginBottom: '6px', 
+              margin: '0 0 6px 0', 
               fontSize: '20px', 
               fontWeight: '600', 
               textAlign: 'center',
@@ -703,7 +703,7 @@ const Profile = () => {
             onClick={e => e.stopPropagation()}
           >
             <h3 style={{ 
-              marginBottom: '6px', 
+              margin: '0 0 6px 0', 
               fontSize: '20px', 
               fontWeight: '600', 
               textAlign: 'center',
