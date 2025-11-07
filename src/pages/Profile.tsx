@@ -625,8 +625,8 @@ const Profile = () => {
               background: 'white', 
               borderRadius: '16px', 
               padding: '24px',
-              width: '100%',
-              maxWidth: 'min(400px, calc(100vw - 40px))',
+              width: 'calc(100% - 40px)',
+              maxWidth: '400px',
               margin: '0 auto',
               boxSizing: 'border-box'
             }} 
@@ -693,8 +693,10 @@ const Profile = () => {
               background: 'white', 
               borderRadius: '16px', 
               padding: '24px',
-              width: '100%',
-              maxWidth: '400px'
+              width: 'calc(100% - 40px)',
+              maxWidth: '400px',
+              margin: '0 auto',
+              boxSizing: 'border-box'
             }} 
             onClick={e => e.stopPropagation()}
           >
