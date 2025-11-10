@@ -56,6 +56,9 @@ const Home = () => {
   const setManualDailyGoal = useSession(state => state.setManualDailyGoal)
   const setStreakDays = useSession(state => state.setStreakDays)
 
+  const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user
+  const userPhotoUrl = telegramUser?.photo_url
+
   // Stats store hooks
   const isStatsLoading = useStatsStore(state => state.isStatsLoading)
   const isProgressLoading = useStatsStore(state => state.isProgressLoading)
@@ -69,7 +72,7 @@ const Home = () => {
 
   // Получаем имя пользователя и проверяем кэш
   useEffect(() => {
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const tgUser = telegramUser;
     setUserName(tgUser?.first_name || t('common.friend'))
 
     console.log('🏠 Home component mounting, telegramId:', tgUser?.id);
@@ -213,6 +216,39 @@ const Home = () => {
   const size = 150
   const strokeWidth = 12
 
+  const renderUserAvatar = () => {
+    if (userPhotoUrl) {
+      return (
+        <img
+          src={userPhotoUrl}
+          alt={userName ?? 'User avatar'}
+          style={{
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            objectFit: 'cover'
+          }}
+        />
+      )
+    }
+
+    return (
+      <div
+        style={{
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <User size={28} color="white" />
+      </div>
+    )
+  }
+
   return (
     <>
       <style>
@@ -256,8 +292,8 @@ const Home = () => {
         {userLoaded ? t('home.subtitle') : t('home.loadingUser')}
               </p>
             </div>
-            <div style={{ fontSize: '32px' }}>
-              👨‍💼
+            <div>
+              {renderUserAvatar()}
             </div>
           </div>
         </div>
