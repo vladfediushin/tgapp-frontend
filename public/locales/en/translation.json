@@ -233,7 +233,7 @@
     "correct": "Correct",
     "incorrect": "Incorrect",
     "unanswered": "Unanswered",
-    "boxDistribution": "Leitner boxes",
+    "boxDistribution": "Boxes",
     "boxLabel": "Box {{num}}",
     "visualProgress": "Visual progress",
     "completionSummary": "{{percent}}% learned • {{unanswered}} questions remaining"

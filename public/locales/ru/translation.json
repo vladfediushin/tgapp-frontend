@@ -237,8 +237,8 @@
     "correct": "Правильно",
     "incorrect": "Неправильно",
     "unanswered": "Не отвечено",
-    "boxDistribution": "Коробки Лейтнера",
-    "boxLabel": "Коробка {{num}}",
+    "boxDistribution": "Ящики",
+    "boxLabel": "Ящик {{num}}",
     "visualProgress": "Визуальный прогресс",
     "completionSummary": "{{percent}}% изучено • {{unanswered}} вопросов осталось"
   }
