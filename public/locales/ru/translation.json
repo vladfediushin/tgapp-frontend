@@ -237,6 +237,8 @@
     "correct": "Правильно",
     "incorrect": "Неправильно",
     "unanswered": "Не отвечено",
+    "boxDistribution": "Коробки Лейтнера",
+    "boxLabel": "Коробка {{num}}",
     "visualProgress": "Визуальный прогресс",
     "completionSummary": "{{percent}}% изучено • {{unanswered}} вопросов осталось"
   }

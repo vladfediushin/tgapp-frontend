@@ -6,6 +6,7 @@ interface UserStats {
   total_questions: number
   answered: number
   correct: number
+  box_counts: number[]
 }
 
 interface DailyProgress {
@@ -77,6 +78,7 @@ export const useStatsStore = create<StatsStore>()(
               ...currentStats,
               answered: currentStats.answered + totalAnswers,
               correct: currentStats.correct + correctAnswers,
+              box_counts: currentStats.box_counts
             },
             lastUpdated: Date.now()
           })

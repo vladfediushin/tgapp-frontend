@@ -13,8 +13,6 @@ import {
   TrendingUp, 
   Calendar, 
   Clock,
-  CheckCircle,
-  XCircle,
   Award,
   Activity
 } from 'lucide-react'
@@ -150,11 +148,12 @@ const Statistics = () => {
     )
   }
 
-  const { total_questions, answered, correct } = stats
-  const incorrect = answered - correct
+  const { total_questions, answered, correct, box_counts } = stats
   const unanswered = total_questions - answered
   const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0
   const completionRate = total_questions > 0 ? Math.round((answered / total_questions) * 100) : 0
+  const MAX_BOXES = 10
+  const normalizedBoxCounts = Array.from({ length: MAX_BOXES }, (_, idx) => box_counts?.[idx] ?? 0)
 
   return (
     <div style={{ 
@@ -362,84 +361,6 @@ const Statistics = () => {
               </div>
             </div>
 
-            {/* Correct */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px',
-              backgroundColor: '#f0fdf4',
-              borderRadius: '8px'
-            }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                backgroundColor: '#dcfce7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <CheckCircle size={20} color="#059669" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#6b7280',
-                  margin: '0 0 2px 0'
-                }}>
-                  {t('statistics.correct')}
-                </p>
-                <p style={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  color: '#059669',
-                  margin: 0
-                }}>
-                  {correct}
-                </p>
-              </div>
-            </div>
-
-            {/* Incorrect */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '12px',
-              backgroundColor: '#fef2f2',
-              borderRadius: '8px'
-            }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                backgroundColor: '#fecaca',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <XCircle size={20} color="#dc2626" />
-              </div>
-              <div style={{ flex: 1 }}>
-                <p style={{
-                  fontSize: '14px',
-                  color: '#6b7280',
-                  margin: '0 0 2px 0'
-                }}>
-                  {t('statistics.incorrect')}
-                </p>
-                <p style={{
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  color: '#dc2626',
-                  margin: 0
-                }}>
-                  {incorrect}
-                </p>
-              </div>
-            </div>
-
             {/* Unanswered */}
             <div style={{
               display: 'flex',
@@ -478,6 +399,47 @@ const Statistics = () => {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Box Distribution */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          padding: '20px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#111827',
+            margin: '0 0 16px 0'
+          }}>
+            {t('statistics.boxDistribution')}
+          </h3>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '12px'
+          }}>
+            {normalizedBoxCounts.map((count, idx) => (
+              <div key={idx} style={{
+                padding: '12px',
+                borderRadius: '8px',
+                backgroundColor: '#f8fafc',
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span style={{ color: '#6b7280', fontSize: '14px' }}>
+                  {t('statistics.boxLabel', { num: idx + 1 })}
+                </span>
+                <span style={{ fontWeight: '600', color: '#111827' }}>
+                  {count}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 

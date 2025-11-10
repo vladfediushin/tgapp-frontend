@@ -160,6 +160,7 @@ export interface UserStats {
   answered: number
   correct: number
   total_questions: number
+  box_counts: number[]
 }
 
 /** Получить статистику пользователя по его ID */

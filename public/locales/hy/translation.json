@@ -238,6 +238,8 @@
     "correct": "Ճիշտ",
     "incorrect": "Սխալ",
     "unanswered": "Չպատասխանված",
+    "boxDistribution": "Լեյտներումի տուփեր",
+    "boxLabel": "Տուփ {{num}}",
     "visualProgress": "Տեսողական առաջընթաց",
     "completionSummary": "{{percent}}% ուսումնասիրված • {{unanswered}} հարց մնացել է"
   }

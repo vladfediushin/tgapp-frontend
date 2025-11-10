@@ -247,8 +247,8 @@ const ModeSelect = () => {
           </h3>
           <input
             type="range"
-            min={1}
-            max={50}
+            min={10}
+            max={70}
             value={batchSize}
             onChange={e => setBatchSize(+e.target.value)}
             style={{
@@ -268,8 +268,8 @@ const ModeSelect = () => {
             color: '#6b7280',
             marginTop: '8px'
           }}>
-            <span>1</span>
-            <span>50</span>
+            <span>10</span>
+            <span>70</span>
           </div>
         </div>
 
