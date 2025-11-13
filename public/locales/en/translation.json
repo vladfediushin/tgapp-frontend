@@ -90,11 +90,11 @@
     "topicsAll": "all",
     "modes": {
       "interval_all": "All questions",
-      "interval_all_desc": "Mixed session with spaced repetition of every question",
+    "interval_all_desc": "All questions (mistakes will appear first)",
       "new_only": "New only",
       "new_only_desc": "Focus on questions you have never answered before",
       "incorrect": "Only incorrect",
-      "incorrect_desc": "Repeat mistakes until you answer them correctly"
+    "incorrect_desc": "Mistakes only"
     },
     "batchSize": "Batch size",
     "next": "Next",
@@ -144,7 +144,7 @@
     "next": "Next",
     "back": "Finish",
     "completedTitle": "Session complete",
-    "completedSubtitleMain": "You've gone through this batch. Repeat the mistakes or head to the results screen.",
+    "completedSubtitleMain": "You've gone through all questions in this batch. You can go to the results or repeat the mistakes (redoing them won't affect the recorded errors).",
     "completedSubtitleReview": "Mistake review finished. You can retry the remaining mistakes again or exit to the results.",
     "repeatMistakesButton": "Repeat mistakes ({{count}})",
     "repeatMistakesAgainButton": "Repeat mistakes again ({{count}})",
