@@ -145,7 +145,14 @@
     "statsIncorrect": "Սխալ պատասխաններ՝ {{incorrectCount}}",
     "question": "Հարց",
     "next": "Հաջորդը",
-    "back": "Ավարտել"
+    "back": "Ավարտել",
+    "completedTitle": "Սեսիան ավարտված է",
+    "completedSubtitleMain": "Անցաք այս փաթեթի բոլոր հարցերը։ Կարող եք կրկնել սխալները կամ անցնել արդյունքների էջ։",
+    "completedSubtitleReview": "Սխալների կրկնությունը ավարտված է։ Կարող եք կրկին անցնել մնացած սխալները կամ վերադառնալ արդյունքներին։",
+    "repeatMistakesButton": "Կրկնել սխալները ({{count}})",
+    "repeatMistakesAgainButton": "Կրկնել սխալները կրկին ({{count}})",
+    "finishSession": "Դիտել արդյունքները",
+    "noMistakesMessage": "Հրաշալի է։ Այս անգամ սխալներ չկան։"
   },
   "results": {
     "sessionComplete": "Սեանսը ավարտվեց ✅",

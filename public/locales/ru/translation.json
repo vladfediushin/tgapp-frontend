@@ -144,7 +144,14 @@
     "statsIncorrect": "Неправильно отвечено: {{incorrectCount}}",
     "question": "Вопрос",
     "next": "Далее",
-    "back": "Закончить"
+    "back": "Закончить",
+    "completedTitle": "Сессия завершена",
+    "completedSubtitleMain": "Вы прошли все вопросы этого набора. Можно повторить ошибки или перейти к результатам.",
+    "completedSubtitleReview": "Повторение ошибок завершено. Можно снова пройтись по оставшимся ошибкам или открыть результаты.",
+    "repeatMistakesButton": "Повторить ошибки ({{count}})",
+    "repeatMistakesAgainButton": "Повторить ошибки еще раз ({{count}})",
+    "finishSession": "Перейти к результатам",
+    "noMistakesMessage": "Отлично! На этот раз ошибок нет."
   },
   "results": {
     "sessionComplete": "Сессия завершена ✅",

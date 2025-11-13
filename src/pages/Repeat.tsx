@@ -1,5 +1,5 @@
 // src/pages/Repeat.tsx
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useSession, invalidateRemainingCountCache, submitAnswers } from '../store/session'
 import { getQuestions, QuestionOut } from '../api/api'
@@ -19,11 +19,15 @@ const Repeat = () => {
   const preloadedQuestions = location.state?.questions
 
   const [queue, setQueue] = useState<QuestionOut[] | null>(null)
-  const [initialCount, setInitialCount] = useState<number | null>(null)
   const [current, setCurrent] = useState<QuestionOut | null>(null)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
+  const [activeBatchTotal, setActiveBatchTotal] = useState<number>(0)
+  const [currentBatchMistakes, setCurrentBatchMistakes] = useState<QuestionOut[]>([])
+  const [currentBatchCorrect, setCurrentBatchCorrect] = useState(0)
+  const [sessionPhase, setSessionPhase] = useState<'main' | 'review'>('main')
+  const [showSummary, setShowSummary] = useState(false)
 
   const userId = useSession(state => state.userId)
   const addAnswer = useSession(state => state.addAnswer)
@@ -31,9 +35,6 @@ const Repeat = () => {
   const answers = useSession(state => state.answers)
   const setDailyProgress = useSession(state => state.setDailyProgress)  // ДОБАВИЛ
 
-  const questionsLeft = queue !== null ? queue.length : 0
-  const correctCount = answers.filter(a => a.isCorrect).length
-  const errorCount = answers.filter(a => !a.isCorrect).length
 
   // Функция для завершения теста с отправкой ответов
   const [isFinishing, setIsFinishing] = useState(false);
@@ -68,6 +69,36 @@ const Repeat = () => {
     })
   }, [current, queue])
 
+  const startBatch = useCallback((questions: QuestionOut[], phase: 'main' | 'review' = 'main') => {
+    setQueue(questions)
+    setCurrent(questions[0] || null)
+    setSelectedIndex(null)
+    setIsAnswered(false)
+    setIsCorrect(false)
+    setActiveBatchTotal(questions.length)
+    setCurrentBatchMistakes([])
+    setCurrentBatchCorrect(0)
+    setSessionPhase(phase)
+    setShowSummary(false)
+  }, [])
+
+  const advanceAfterAnswer = useCallback(() => {
+    setQueue(prevQueue => {
+      if (!prevQueue) return prevQueue
+      const [, ...rest] = prevQueue
+      if (rest.length === 0) {
+        setCurrent(null)
+        setShowSummary(true)
+      } else {
+        setCurrent(rest[0])
+      }
+      return rest
+    })
+    setSelectedIndex(null)
+    setIsAnswered(false)
+    setIsCorrect(false)
+  }, [])
+
   useEffect(() => {
     resetAnswers()
 
@@ -76,9 +107,7 @@ const Repeat = () => {
         navigate('/results', { state: { noQuestions: true } })
         return
       }
-      setQueue(preloadedQuestions)
-      setInitialCount(preloadedQuestions.length)
-      setCurrent(preloadedQuestions[0] || null)
+      startBatch(preloadedQuestions, 'main')
       return
     }
 
@@ -100,33 +129,16 @@ const Repeat = () => {
           navigate('/results', { state: { noQuestions: true } })
           return
         }
-        setQueue(res.data)
-        setInitialCount(res.data.length)
-        setCurrent(res.data[0] || null)
+        startBatch(res.data, 'main')
       })
       .catch(err => {
         console.error('Failed to load questions:', err)
         setQueue([])
-        setInitialCount(0)
         setCurrent(null)
       })
-  }, [mode, preloadedQuestions, userId, resetAnswers, exam_country, exam_language, batchSize])
+  }, [mode, preloadedQuestions, userId, resetAnswers, exam_country, exam_language, batchSize, navigate, startBatch])
 
-  const nextQuestion = (wasCorrect: boolean) => {
-    setQueue(prevQueue => {
-      if (!prevQueue) return prevQueue
-      const [first, ...rest] = prevQueue
-      const newQueue = wasCorrect ? rest : [...rest, first]
-      const next = newQueue[0] || null
-      setCurrent(next)
-      if (!next) finishTest()
-      return newQueue
-    })
-    setSelectedIndex(null)
-    setIsAnswered(false)
-  }
-
-  const handleAnswer = async (index: number) => {
+  const handleAnswer = (index: number) => {
     if (!current || isAnswered) return
     const questionId = current.id
     const correctIndex = current.data.correct_index
@@ -135,26 +147,164 @@ const Repeat = () => {
     setSelectedIndex(index)
     setIsAnswered(true)
     setIsCorrect(wasCorrect)
+    const alreadyAnswered = answers.some(a => a.questionId === questionId)
     // Добавляем ответ с timestamp для дедупликации
-    addAnswer({ 
-      questionId, 
-      selectedIndex: index, 
+    addAnswer({
+      questionId,
+      selectedIndex: index,
       isCorrect: wasCorrect,
       timestamp: Date.now()
     })
 
     // Optimistic update for immediate UI feedback
     if (wasCorrect) {
-      updateStatsOptimistically(1, 1)
-      // Invalidate remaining count cache when user answers correctly
-      invalidateRemainingCountCache()
+      setCurrentBatchCorrect(prev => prev + 1)
+      if (!alreadyAnswered) {
+        updateStatsOptimistically(1, 1)
+        // Invalidate remaining count cache when user answers correctly
+        invalidateRemainingCountCache()
+      }
+      setTimeout(() => advanceAfterAnswer(), 500)
+    } else {
+      setCurrentBatchMistakes(prev => [...prev, current])
     }
+  }
 
-    // Убираем немедленную отправку - будем отправлять batch в конце теста
+  const handleNextAfterMistake = () => {
+    if (!isAnswered) return
+    advanceAfterAnswer()
+  }
 
-    if (wasCorrect) {
-      setTimeout(() => nextQuestion(true), 500)
-    }
+  const handleRepeatMistakes = () => {
+    if (currentBatchMistakes.length === 0) return
+    const nextQuestions = currentBatchMistakes.map(question => question)
+    startBatch(nextQuestions, 'review')
+  }
+
+  if (isFinishing) {
+    return <LoadingSpinner size={64} text={t('repeat.loading')} fullScreen />
+  }
+
+  if (showSummary) {
+    const hasMistakes = currentBatchMistakes.length > 0
+    const repeatButtonLabel = sessionPhase === 'main'
+      ? t('repeat.repeatMistakesButton', { count: currentBatchMistakes.length })
+      : t('repeat.repeatMistakesAgainButton', { count: currentBatchMistakes.length })
+    const subtitle = sessionPhase === 'main'
+      ? t('repeat.completedSubtitleMain')
+      : t('repeat.completedSubtitleReview')
+
+    return (
+      <div style={{
+        minHeight: '100vh',
+        backgroundColor: '#f8fafc',
+        padding: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '480px',
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 10px 25px rgba(15, 23, 42, 0.08)',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 8px 0', color: '#111827' }}>
+            {t('repeat.completedTitle')}
+          </h2>
+          <p style={{ margin: '0 0 24px 0', color: '#6b7280', lineHeight: 1.5 }}>
+            {subtitle}
+          </p>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '12px',
+            marginBottom: '24px'
+          }}>
+            <div style={{ backgroundColor: '#f8fafc', borderRadius: '12px', padding: '12px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700 }}>{activeBatchTotal}</div>
+              <div style={{ fontSize: '13px', color: '#6b7280' }}>{t('stats.total')}</div>
+            </div>
+            <div style={{ backgroundColor: '#ecfdf5', borderRadius: '12px', padding: '12px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#059669' }}>{currentBatchCorrect}</div>
+              <div style={{ fontSize: '13px', color: '#059669' }}>{t('stats.correct')}</div>
+            </div>
+            <div style={{ backgroundColor: '#fef2f2', borderRadius: '12px', padding: '12px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 700, color: '#dc2626' }}>{currentBatchMistakes.length}</div>
+              <div style={{ fontSize: '13px', color: '#dc2626' }}>{t('stats.incorrect')}</div>
+            </div>
+          </div>
+
+          {hasMistakes ? (
+            <>
+              <button
+                onClick={handleRepeatMistakes}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginBottom: '12px'
+                }}
+              >
+                {repeatButtonLabel}
+              </button>
+              <button
+                onClick={finishTest}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: '1px solid #e5e7eb',
+                  backgroundColor: 'white',
+                  color: '#111827',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                {t('repeat.finishSession')}
+              </button>
+            </>
+          ) : (
+            <>
+              <p style={{ color: '#059669', fontWeight: 500, marginBottom: '16px' }}>
+                {t('repeat.noMistakesMessage')}
+              </p>
+              <button
+                onClick={finishTest}
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  backgroundColor: '#059669',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                {t('repeat.finishSession')}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  if (queue === null || current === null) {
+    return <LoadingSpinner size={64} text={t('repeat.loading')} fullScreen />
   }
 
   if (queue === null || current === null || isFinishing) {
@@ -216,14 +366,15 @@ const Repeat = () => {
           gridTemplateColumns: '1fr 1fr 1fr',
           gap: '12px'
         }}>
-          <div style={{
-            backgroundColor: '#f3f4f6',
-            borderRadius: '8px',
-            padding: '8px',
-            textAlign: 'center'
-          }}>
+          <div
+            style={{
+              backgroundColor: '#f3f4f6',
+              borderRadius: '8px',
+              padding: '8px',
+              textAlign: 'center'
+            }}>
             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#111827' }}>
-              {initialCount}
+              {activeBatchTotal}
             </div>
             <div style={{ fontSize: '12px', color: '#6b7280' }}>
               {t('stats.total')}
@@ -236,7 +387,7 @@ const Repeat = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#059669' }}>
-              {correctCount}
+              {currentBatchCorrect}
             </div>
             <div style={{ fontSize: '12px', color: '#059669' }}>
               {t('stats.correct')}
@@ -249,7 +400,7 @@ const Repeat = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-              {errorCount}
+              {currentBatchMistakes.length}
             </div>
             <div style={{ fontSize: '12px', color: '#dc2626' }}>
               {t('stats.incorrect')}
@@ -422,7 +573,7 @@ const Repeat = () => {
 
         {isAnswered && !isCorrect && (
           <button
-            onClick={() => nextQuestion(false)}
+            onClick={handleNextAfterMistake}
             style={{
               width: '100%',
               marginTop: '20px',

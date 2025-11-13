@@ -142,7 +142,14 @@
     "statsIncorrect": "Incorrect answers: {{incorrectCount}}",
     "question": "Question",
     "next": "Next",
-    "back": "Finish"
+    "back": "Finish",
+    "completedTitle": "Session complete",
+    "completedSubtitleMain": "You've gone through this batch. Repeat the mistakes or head to the results screen.",
+    "completedSubtitleReview": "Mistake review finished. You can retry the remaining mistakes again or exit to the results.",
+    "repeatMistakesButton": "Repeat mistakes ({{count}})",
+    "repeatMistakesAgainButton": "Repeat mistakes again ({{count}})",
+    "finishSession": "Go to results",
+    "noMistakesMessage": "Great job! No mistakes this time."
   },
   "results": {
     "sessionComplete": "Session complete ✅",
