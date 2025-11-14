@@ -57,6 +57,9 @@ export interface UserSettingsUpdate {
   ui_language?: string    // Made optional
   exam_date?: string      // ISO-строка, optional
   daily_goal?: number     // optional
+  remind_morning?: boolean
+  remind_day?: boolean
+  remind_evening?: boolean
 }
 
 export const createUser = (payload: UserCreate) => {
@@ -79,6 +82,9 @@ export interface UserOut {
   ui_language?: string
   exam_date?: string     // ISO date string
   daily_goal?: number
+  remind_morning?: boolean
+  remind_day?: boolean
+  remind_evening?: boolean
 }
 
 // -------------------------

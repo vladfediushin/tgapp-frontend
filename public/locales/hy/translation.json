@@ -187,7 +187,14 @@
     "uiLanguageLabel": "Ինտերֆեյսի լեզու",
     "uiLanguageCardTitle": "Ինտերֆեյսի լեզու",
     "uiLanguageDescription": "Ընտրիր նախընտրելի լեզուն",
-    "examSettingsCardTitle": "Քննության կարգավորումներ"
+    "examSettingsCardTitle": "Քննության կարգավորումներ",
+    "remindersCardTitle": "Հիշեցումներ",
+    "remindersDescription": "Ընտրիր, թե երբ պետք է բոտը հիշեցնի այսօրվա փաթեթի մասին։",
+    "remindersMorning": "Առավոտ",
+    "remindersDay": "Ցերեկ",
+    "remindersEvening": "Երեկո",
+    "remindersDisabledHint": "Եթե բոլորը անջատված են, հիշեցումները չեն ուղարկվի։",
+    "remindersUpdateError": "Չհաջողվեց թարմացնել հիշեցումների կարգավորումը։"
   },
   "examSettings": {
     "title": "Քննության կարգավորումներ",

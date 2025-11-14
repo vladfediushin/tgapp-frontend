@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSession, updateUserAndCache } from '../store/session'
 import { updateUser } from '../api/api'
@@ -22,8 +22,48 @@ const Settings = () => {
   const userId = useSession(state => state.userId)
   const uiLanguage = useSession(state => state.uiLanguage)
   const setUiLanguage = useSession(state => state.setUiLanguage)
+  const cachedUser = useSession(state => state.cachedUser)
   const [showUiLanguageSelect, setShowUiLanguageSelect] = useState(false)
   const currentUiLanguage = UI_LANGUAGES.find(l => l.value === uiLanguage)
+  const [reminderError, setReminderError] = useState<string | null>(null)
+  const [reminderLoading, setReminderLoading] = useState(false)
+  type ReminderKey = 'morning' | 'day' | 'evening'
+  const [reminders, setReminders] = useState<Record<ReminderKey, boolean>>({
+    morning: cachedUser?.remind_morning ?? false,
+    day: cachedUser?.remind_day ?? false,
+    evening: cachedUser?.remind_evening ?? false,
+  })
+
+  useEffect(() => {
+    setReminders({
+      morning: cachedUser?.remind_morning ?? false,
+      day: cachedUser?.remind_day ?? false,
+      evening: cachedUser?.remind_evening ?? false,
+    })
+  }, [cachedUser?.remind_morning, cachedUser?.remind_day, cachedUser?.remind_evening])
+
+  const reminderOptions: { key: ReminderKey; label: string }[] = [
+    { key: 'morning', label: t('settings.remindersMorning') },
+    { key: 'day', label: t('settings.remindersDay') },
+    { key: 'evening', label: t('settings.remindersEvening') },
+  ]
+
+  const handleReminderToggle = async (key: ReminderKey) => {
+    if (!userId) return
+    const nextValue = !reminders[key]
+    setReminderError(null)
+    setReminders(prev => ({ ...prev, [key]: nextValue }))
+    setReminderLoading(true)
+    try {
+      await updateUserAndCache(userId, { [`remind_${key}`]: nextValue })
+    } catch (error) {
+      console.error('Failed to update reminders:', error)
+      setReminders(prev => ({ ...prev, [key]: !nextValue }))
+      setReminderError(t('settings.remindersUpdateError'))
+    } finally {
+      setReminderLoading(false)
+    }
+  }
 
   return (
     <div style={{ 
@@ -158,6 +198,56 @@ const Settings = () => {
             showTitle={false} 
             compact={true}
           />
+        </div>
+
+        {/* Reminder Settings Card */}
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
+        }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111827', margin: '0 0 12px 0' }}>
+            {t('settings.remindersCardTitle')}
+          </h2>
+          <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 16px 0' }}>
+            {t('settings.remindersDescription')}
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {reminderOptions.map(option => (
+              <label
+                key={option.key}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: reminders[option.key] ? '2px solid #059669' : '1px solid #e5e7eb',
+                  backgroundColor: reminders[option.key] ? '#ecfdf5' : '#fff',
+                  cursor: reminderLoading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={() => !reminderLoading && handleReminderToggle(option.key)}
+              >
+                <input
+                  type="checkbox"
+                  checked={reminders[option.key]}
+                  readOnly
+                  style={{ width: 20, height: 20 }}
+                />
+                <span style={{ fontWeight: 600, color: '#111827' }}>{option.label}</span>
+              </label>
+            ))}
+          </div>
+          <p style={{ fontSize: '13px', color: '#6b7280', margin: '12px 0 0 0' }}>
+            {t('settings.remindersDisabledHint')}
+          </p>
+          {reminderError && (
+            <p style={{ margin: '12px 0 0 0', color: '#dc2626', fontSize: '14px' }}>
+              {reminderError}
+            </p>
+          )}
         </div>
       </div>
 

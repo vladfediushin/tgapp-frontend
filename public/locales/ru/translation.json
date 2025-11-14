@@ -186,7 +186,14 @@
     "uiLanguageLabel": "Язык интерфейса",
     "uiLanguageCardTitle": "Язык интерфейса",
     "uiLanguageDescription": "Выберите предпочитаемый язык для интерфейса приложения",
-    "examSettingsCardTitle": "Настройки экзамена"
+    "examSettingsCardTitle": "Настройки экзамена",
+    "remindersCardTitle": "Напоминания",
+    "remindersDescription": "Выберите, когда бот должен напомнить об очередном батче.",
+    "remindersMorning": "Утро",
+    "remindersDay": "День",
+    "remindersEvening": "Вечер",
+    "remindersDisabledHint": "Отключите все пункты, чтобы напоминания не приходили.",
+    "remindersUpdateError": "Не удалось обновить настройки напоминаний."
   },
   "examSettings": {
     "title": "Настройки экзамена",

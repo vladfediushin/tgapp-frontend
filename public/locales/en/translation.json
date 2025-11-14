@@ -184,7 +184,14 @@
     "uiLanguageLabel": "Interface Language",
     "uiLanguageCardTitle": "Interface language",
     "uiLanguageDescription": "Choose your preferred UI language",
-    "examSettingsCardTitle": "Exam settings"
+    "examSettingsCardTitle": "Exam settings",
+    "remindersCardTitle": "Study reminders",
+    "remindersDescription": "Select when the bot should remind you about today's batch.",
+    "remindersMorning": "Morning",
+    "remindersDay": "Day",
+    "remindersEvening": "Evening",
+    "remindersDisabledHint": "Turn off all options to stop reminders.",
+    "remindersUpdateError": "Couldn't update reminder settings."
   },
   "examSettings": {
     "title": "Exam Settings",

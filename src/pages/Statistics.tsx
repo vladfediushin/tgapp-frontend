@@ -157,7 +157,6 @@ const Statistics = () => {
   const completionRate = total_questions > 0 ? Math.round((answered / total_questions) * 100) : 0
   const MAX_BOXES = 10
   const normalizedBoxCounts = Array.from({ length: MAX_BOXES }, (_, idx) => box_counts?.[idx] ?? 0)
-  const boxesInfoGif = null
 
   return (
     <div style={{ 
