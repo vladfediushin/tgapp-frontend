@@ -1,5 +1,5 @@
 // src/components/ExamSettingsComponent.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, forwardRef } from 'react'
 import { useSession, setExamSettingsAndCache, loadRemainingCountWithCache } from '../store/session'
 import { ExamSettingsResponse, ExamSettingsUpdate, api } from '../api/api'
 import ReactDatePicker from 'react-datepicker'
@@ -11,6 +11,24 @@ interface ExamSettingsComponentProps {
   onSave?: (settings: ExamSettingsResponse) => void  // Callback when settings are saved
   compact?: boolean    // Whether to use compact layout
 }
+
+const DateInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ style, ...props }, ref) => (
+    <input
+      {...props}
+      ref={ref}
+      readOnly
+      inputMode="none"
+      style={{
+        width: '100%',
+        cursor: 'pointer',
+        backgroundColor: 'white',
+        ...style
+      }}
+    />
+  )
+)
+DateInput.displayName = 'DateInput'
 
 // Вместо React.FC используем обычную функцию
 function ExamSettingsComponent({ 
@@ -36,6 +54,7 @@ function ExamSettingsComponent({
   const [settings, setSettingsState] = useState(null)
   const [examDate, setExamDate] = useState(primaryExamDate || '')
   const [dailyGoal, setDailyGoal] = useState(primaryDailyGoal || 10)
+  const [hasUserAdjustedGoal, setHasUserAdjustedGoal] = useState(false)
   const [recommendedGoal, setRecommendedGoal] = useState(null)
   const [remainingQuestions, setRemainingQuestions] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -60,8 +79,9 @@ function ExamSettingsComponent({
     if (primaryDailyGoal !== null && primaryDailyGoal !== dailyGoal) {
       console.log('🔄 Primary daily goal changed, updating component:', primaryDailyGoal, 'current:', dailyGoal)
       setDailyGoal(primaryDailyGoal)
+      setHasUserAdjustedGoal(false)
     }
-  }, [primaryDailyGoal])
+  }, [primaryDailyGoal, dailyGoal])
   
   // Дополнительная синхронизация: обновляем состояние если данные из Session Store изменились
   useEffect(() => {
@@ -73,13 +93,14 @@ function ExamSettingsComponent({
       primaryExamDate,
       primaryDailyGoal
     })
-    if (primaryExamDate !== null) {
-      setExamDate(primaryExamDate || '')
-    }
-    if (primaryDailyGoal !== null) {
-      setDailyGoal(primaryDailyGoal)
-    }
-  }, [cachedUser?.exam_date, cachedUser?.daily_goal, sessionExamDate, sessionDailyGoal, primaryExamDate, primaryDailyGoal])
+  if (primaryExamDate !== null) {
+    setExamDate(primaryExamDate || '')
+  }
+  if (primaryDailyGoal !== null) {
+    setDailyGoal(primaryDailyGoal)
+    setHasUserAdjustedGoal(false)
+  }
+}, [cachedUser?.exam_date, cachedUser?.daily_goal, sessionExamDate, sessionDailyGoal, primaryExamDate, primaryDailyGoal])
 
   useEffect(() => {
     // Пересчитываем рекомендуемое количество при изменении даты экзамена
@@ -112,8 +133,11 @@ function ExamSettingsComponent({
       
       setRecommendedGoal(recommended)
       
-      // Всегда устанавливаем рекомендуемое значение по умолчанию
-      setDailyGoal(recommended)
+      // Всегда устанавливаем рекомендуемое значение по умолчанию,
+      // если пользователь ещё не менял цель вручную
+      if (!hasUserAdjustedGoal) {
+        setDailyGoal(recommended)
+      }
     } catch (err) {
       console.error('Failed to calculate recommended goal:', err)
     }
@@ -128,13 +152,14 @@ function ExamSettingsComponent({
     setLoading(true)
     
     // Сначала пробуем использовать данные из Session Store (приоритет cachedUser)
-    if (primaryExamDate || primaryDailyGoal) {
+  if (primaryExamDate || primaryDailyGoal) {
       console.log('🎯 Using session store data for exam settings (cachedUser priority)')
       if (primaryExamDate) {
         setExamDate(primaryExamDate)
       }
-      if (primaryDailyGoal) {
+      if (primaryDailyGoal !== undefined && primaryDailyGoal !== null) {
         setDailyGoal(primaryDailyGoal)
+        setHasUserAdjustedGoal(false)
       }
       setLoading(false)
       return
@@ -151,8 +176,9 @@ function ExamSettingsComponent({
       if (settingsData.exam_date) {
         setExamDate(settingsData.exam_date)
       }
-      if (settingsData.daily_goal) {
+      if (settingsData.daily_goal !== undefined && settingsData.daily_goal !== null) {
         setDailyGoal(settingsData.daily_goal)
+        setHasUserAdjustedGoal(false)
       }
     } catch (err: any) {
       console.error('Failed to load exam settings:', err)
@@ -255,7 +281,10 @@ function ExamSettingsComponent({
         </label>
         <ReactDatePicker
           selected={examDateObj}
-          onChange={date => setExamDate(date ? date.toISOString().split('T')[0] : '')}
+          onChange={date => {
+            setExamDate(date ? date.toISOString().split('T')[0] : '')
+            setHasUserAdjustedGoal(false)
+          }}
           minDate={new Date()}
           dateFormat="dd/MM/yyyy"
           placeholderText={t('examSettings.chooseDatePlaceholder')}
@@ -264,6 +293,7 @@ function ExamSettingsComponent({
           showPopperArrow={false}
           wrapperClassName="custom-datepicker-wrapper"
           style={{ width: '100%' }}
+          customInput={<DateInput />}
         />
       </div>
       <div style={{ width: '100%' }}>
@@ -306,7 +336,10 @@ function ExamSettingsComponent({
           min="1"
           max="100"
           value={dailyGoal}
-          onChange={e => setDailyGoal(Number(e.target.value))}
+          onChange={e => {
+            setDailyGoal(Number(e.target.value))
+            setHasUserAdjustedGoal(true)
+          }}
           style={{ width: '100%' }}
         />
       </div>
