@@ -502,14 +502,16 @@ const Repeat = () => {
                 }}
                 onMouseEnter={(e) => {
                   if (!isAnswered) {
-                    e.target.style.borderColor = '#6b7280'
-                    e.target.style.backgroundColor = '#f9fafb'
+                    const target = e.currentTarget
+                    target.style.borderColor = '#6b7280'
+                    target.style.backgroundColor = '#f9fafb'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isAnswered) {
-                    e.target.style.borderColor = '#d1d5db'
-                    e.target.style.backgroundColor = 'white'
+                    const target = e.currentTarget
+                    target.style.borderColor = '#d1d5db'
+                    target.style.backgroundColor = 'white'
                   }
                 }}
               >
