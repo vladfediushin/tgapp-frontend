@@ -85,6 +85,9 @@ export interface UserOut {
   remind_morning?: boolean
   remind_day?: boolean
   remind_evening?: boolean
+  is_bot_blocked?: boolean
+  last_bot_message_at?: string
+  last_bot_interaction_at?: string
 }
 
 // -------------------------
