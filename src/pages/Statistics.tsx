@@ -157,7 +157,7 @@ const Statistics = () => {
   const completionRate = total_questions > 0 ? Math.round((answered / total_questions) * 100) : 0
   const MAX_BOXES = 10
   const normalizedBoxCounts = Array.from({ length: MAX_BOXES }, (_, idx) => box_counts?.[idx] ?? 0)
-  const boxesInfoGif = 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Leitner_system_animation.gif'
+  const boxesInfoGif = null
 
   return (
     <div style={{ 
@@ -566,15 +566,6 @@ const Statistics = () => {
             <p style={{ color: '#374151', margin: '0 0 16px 0', lineHeight: 1.5 }}>
               {t('statistics.boxInfoParagraph2')}
             </p>
-            {boxesInfoGif && (
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <img
-                  src={boxesInfoGif}
-                  alt={t('statistics.boxInfoTitle')}
-                  style={{ width: '100%', borderRadius: '12px' }}
-                />
-              </div>
-            )}
             <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
               {t('statistics.boxInfoHint')}
             </p>
