@@ -212,7 +212,8 @@
     "notSelected": "Not selected",
     "errorWithMessage": "Error: {{message}}",
     "dayCount_one": "{{count}} day",
-    "dayCount_other": "{{count}} days"
+    "dayCount_other": "{{count}} days",
+    "close": "Close"
   },
   "stats": {
     "total": "Total",
@@ -243,6 +244,10 @@
     "boxDistribution": "Boxes",
     "boxLabel": "Box {{num}}",
     "visualProgress": "Visual progress",
-    "completionSummary": "{{percent}}% learned • {{unanswered}} questions remaining"
+    "completionSummary": "{{percent}}% learned • {{unanswered}} questions remaining",
+    "boxInfoTitle": "How the boxes work",
+    "boxInfoParagraph1": "Imagine you have a flashcard for every question and several boxes. Initially, all flashcards sit in Box 1, which has the highest priority. When you answer a card correctly it moves to Box 2, then Box 3, and so on. If you answer it incorrectly later, it goes back to Box 1.",
+    "boxInfoParagraph2": "Box 1 always has top priority, so its questions are available every day. Cards in the higher boxes unlock after longer intervals (following the Fibonacci sequence: 1, 2, 3, 5, 8, 13...). This keeps the hard questions close while pushing well-learned material farther away.",
+    "boxInfoHint": "Correct answers move a card to the next box; mistakes send it back to Box 1."
   }
 }

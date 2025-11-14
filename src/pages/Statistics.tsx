@@ -14,7 +14,9 @@ import {
   Calendar, 
   Clock,
   Award,
-  Activity
+  Activity,
+  HelpCircle,
+  X
 } from 'lucide-react'
 
 const Statistics = () => {
@@ -32,6 +34,7 @@ const Statistics = () => {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showBoxesInfo, setShowBoxesInfo] = useState(false)
 
   useEffect(() => {
     if (!userId) {
@@ -154,6 +157,7 @@ const Statistics = () => {
   const completionRate = total_questions > 0 ? Math.round((answered / total_questions) * 100) : 0
   const MAX_BOXES = 10
   const normalizedBoxCounts = Array.from({ length: MAX_BOXES }, (_, idx) => box_counts?.[idx] ?? 0)
+  const boxesInfoGif = 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Leitner_system_animation.gif'
 
   return (
     <div style={{ 
@@ -409,14 +413,36 @@ const Statistics = () => {
           padding: '20px',
           boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)'
         }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: '600',
-            color: '#111827',
-            margin: '0 0 16px 0'
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px'
           }}>
-            {t('statistics.boxDistribution')}
-          </h3>
+            <h3 style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: 0
+            }}>
+              {t('statistics.boxDistribution')}
+            </h3>
+            <button
+              onClick={() => setShowBoxesInfo(true)}
+              aria-label={t('statistics.boxInfoTitle')}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                color: '#6b7280',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <HelpCircle size={22} />
+            </button>
+          </div>
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
@@ -489,6 +515,72 @@ const Statistics = () => {
       </div>
 
       <BottomNavigation />
+
+      {showBoxesInfo && (
+        <div
+          onClick={() => setShowBoxesInfo(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(15, 23, 42, 0.55)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            zIndex: 1000
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%',
+              maxWidth: '420px',
+              backgroundColor: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              position: 'relative',
+              boxShadow: '0 20px 40px rgba(15, 23, 42, 0.25)'
+            }}
+          >
+            <button
+              onClick={() => setShowBoxesInfo(false)}
+              aria-label={t('common.close')}
+              style={{
+                position: 'absolute',
+                top: '12px',
+                right: '12px',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6b7280'
+              }}
+            >
+              <X size={20} />
+            </button>
+            <h3 style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 12px 0', color: '#111827' }}>
+              {t('statistics.boxInfoTitle')}
+            </h3>
+            <p style={{ color: '#374151', margin: '0 0 12px 0', lineHeight: 1.5 }}>
+              {t('statistics.boxInfoParagraph1')}
+            </p>
+            <p style={{ color: '#374151', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+              {t('statistics.boxInfoParagraph2')}
+            </p>
+            {boxesInfoGif && (
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <img
+                  src={boxesInfoGif}
+                  alt={t('statistics.boxInfoTitle')}
+                  style={{ width: '100%', borderRadius: '12px' }}
+                />
+              </div>
+            )}
+            <p style={{ color: '#6b7280', fontSize: '13px', margin: 0 }}>
+              {t('statistics.boxInfoHint')}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
